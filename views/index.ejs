@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brajwasi Travels – Premium Car Rentals | Agra</title>
+<meta name="description" content="Brajwasi Travels – Trusted car rental service since 1980. Book Toyota Crysta and more for Agra tours, Taj Mahal visits, and outstation trips.">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+<!-- Push notification permission bar -->
+<div id="notif-bar" class="notif-bar" style="display:none">
+  <span><i class="fas fa-bell"></i> Get notified about special offers and booking updates</span>
+  <button onclick="requestNotificationPermission()">Enable Notifications</button>
+  <button onclick="document.getElementById('notif-bar').style.display='none'" class="close-btn"><i class="fas fa-times"></i></button>
+</div>
+
+<!-- Header -->
+<header class="header" id="header">
+  <nav class="nav container">
+    <div class="logo">
+      <div class="logo-icon"><i class="fas fa-car"></i></div>
+      <div>
+        <h1>Brajwasi Travels</h1>
+        <span>Est. 1980</span>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="#cars">Our Fleet</a>
+      <a href="#why-us">Why Us</a>
+      <a href="#contact">Contact</a>
+      <a href="tel:9411061000" class="call-btn"><i class="fas fa-phone"></i> Call Now</a>
+    </div>
+    <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+  </nav>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#cars">Our Fleet</a>
+    <a href="#why-us">Why Us</a>
+    <a href="#contact">Contact</a>
+    <a href="tel:9411061000"><i class="fas fa-phone"></i> 9411061000</a>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="container hero-content">
+    <div class="hero-badge"><i class="fas fa-star"></i> Trusted Since 1980</div>
+    <h1 class="hero-title">
+      Explore Agra<br>
+      <em>In Comfort & Style</em>
+    </h1>
+    <p class="hero-subtitle">Premium cab services for Taj Mahal tours, outstation trips, and airport transfers. Your journey, our passion.</p>
+    <div class="hero-actions">
+      <a href="#cars" class="btn-primary"><i class="fas fa-car"></i> Explore Fleet</a>
+      <a href="tel:9411061000" class="btn-outline"><i class="fas fa-phone"></i> 9411061000</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span>40+</span><em>Years Experience</em></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span>5000+</span><em>Happy Customers</em></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span>24/7</span><em>Available</em></div>
+    </div>
+  </div>
+  <div class="scroll-indicator"><i class="fas fa-chevron-down"></i></div>
+</section>
+
+<!-- Cars Fleet Section -->
+<section class="section" id="cars">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Our Fleet</span>
+      <h2 class="section-title">Choose Your Ride</h2>
+      <p>Well-maintained vehicles for every journey. All cars are AC equipped and driven by professional chauffeurs.</p>
+    </div>
+
+    <div class="cars-grid">
+      <% if (cars.length === 0) { %>
+        <div class="no-cars">
+          <i class="fas fa-car-side"></i>
+          <p>Fleet details coming soon. Call us at <a href="tel:9411061000">9411061000</a></p>
+        </div>
+      <% } else { %>
+        <% cars.forEach(car => { %>
+        <div class="car-card" data-car-id="<%= car._id %>">
+          <div class="car-image-wrap">
+            <img src="<%= car.image %>" alt="<%= car.model %>" loading="lazy" onerror="this.src='/images/default-crysta.jpg'">
+            <div class="car-badge"><%= car.availableIn.join(', ') %></div>
+            <% if (car.ac) { %><div class="ac-badge"><i class="fas fa-snowflake"></i> AC</div><% } %>
+          </div>
+          <div class="car-body">
+            <div class="car-header">
+              <div>
+                <h3><%= car.model %></h3>
+                <p class="car-brand"><%= car.name %></p>
+              </div>
+              <div class="car-seats"><i class="fas fa-users"></i> <%= car.seats %> Seats</div>
+            </div>
+            <p class="car-desc"><%= car.description || 'Comfortable and reliable vehicle for your journey.' %></p>
+            
+            <div class="pricing-block">
+              <div class="price-row">
+                <span class="price-label"><i class="fas fa-road"></i> Per KM</span>
+                <span class="price-val">₹<%= car.pricePerKm %>/km</span>
+              </div>
+              <% if (car.fixedPackage && car.fixedPackage.km) { %>
+              <div class="price-row highlight-row">
+                <span class="price-label"><i class="fas fa-tag"></i> <%= car.fixedPackage.km %>KM Package</span>
+                <span class="price-val green">₹<%= car.fixedPackage.price %></span>
+              </div>
+              <div class="price-row muted-row">
+                <span class="price-label"><i class="fas fa-plus-circle"></i> Extra KM</span>
+                <span class="price-val">₹<%= car.extraKmCharge %>/km</span>
+              </div>
+              <% } %>
+              <div class="price-row toll-row">
+                <span class="price-label"><i class="fas fa-road"></i> Toll Tax</span>
+                <span class="price-val toll-val"><%= car.tollTax %></span>
+              </div>
+            </div>
+
+            <button class="book-btn" onclick="openBooking('<%= car._id %>', '<%= car.model %>', <%= car.pricePerKm %>, <%= car.fixedPackage ? car.fixedPackage.km : 0 %>, <%= car.fixedPackage ? car.fixedPackage.price : 0 %>, <%= car.extraKmCharge %>)">
+              <i class="fas fa-calendar-check"></i> Book Now
+            </button>
+          </div>
+        </div>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="section why-section" id="why-us">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Our Promise</span>
+      <h2 class="section-title">Why Brajwasi Travels?</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+        <h3>Safe & Reliable</h3>
+        <p>Licensed drivers with clean records. Regularly serviced vehicles for your safety.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-clock"></i></div>
+        <h3>24/7 Available</h3>
+        <p>Round-the-clock service for airport pickups, late-night returns, and emergency travel.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-rupee-sign"></i></div>
+        <h3>Transparent Pricing</h3>
+        <p>No hidden charges. Fixed packages and clear per-km rates. What you see is what you pay.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-map-marked-alt"></i></div>
+        <h3>Local Expertise</h3>
+        <p>40+ years serving Agra. Our drivers know every shortcut, monument, and hidden gem.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing Explainer -->
+<section class="pricing-explainer section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Fare Calculator</span>
+      <h2 class="section-title">How Pricing Works</h2>
+    </div>
+    <div class="pricing-cards">
+      <div class="pricing-explain-card">
+        <div class="pc-num">01</div>
+        <h3>Fixed 300 KM Package</h3>
+        <div class="big-price">₹3,200</div>
+        <p>For trips up to 300 km. Covers Agra city tours, Taj Mahal visits, Fatehpur Sikri, Mathura, and more.</p>
+      </div>
+      <div class="pricing-explain-card featured">
+        <div class="pc-num">02</div>
+        <h3>Extra Kilometres</h3>
+        <div class="big-price">₹12/km</div>
+        <p>Beyond 300 km, every additional kilometre is charged at ₹12 only. Simple and transparent.</p>
+      </div>
+      <div class="pricing-explain-card">
+        <div class="pc-num">03</div>
+        <h3>Toll Tax</h3>
+        <div class="big-price">Actual</div>
+        <p>Toll, parking, and state permits are charged as per actual. No markup, no hidden fees.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section class="contact-section section" id="contact">
+  <div class="container">
+    <div class="contact-grid">
+      <div class="contact-info">
+        <span class="section-tag">Get In Touch</span>
+        <h2>Book Your Ride Today</h2>
+        <p>Reach us directly for instant booking or any queries. Available 24 hours, 7 days a week.</p>
+        <div class="contact-items">
+          <a href="tel:9411061000" class="contact-item">
+            <div class="ci-icon"><i class="fas fa-phone"></i></div>
+            <div><strong>Call / WhatsApp</strong><span>9411061000</span></div>
+          </a>
+          <a href="mailto:brajwasitravels.1980@gmail.com" class="contact-item">
+            <div class="ci-icon"><i class="fas fa-envelope"></i></div>
+            <div><strong>Email</strong><span>brajwasitravels.1980@gmail.com</span></div>
+          </a>
+          <div class="contact-item">
+            <div class="ci-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <div><strong>Base Location</strong><span>Agra, Uttar Pradesh</span></div>
+          </div>
+          <a href="https://wa.me/919411061000" target="_blank" class="whatsapp-btn">
+            <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+          </a>
+        </div>
+      </div>
+      <div class="contact-form-wrap">
+        <div class="quick-form">
+          <h3>Quick Enquiry</h3>
+          <form id="enquiryForm">
+            <div class="form-group">
+              <input type="text" placeholder="Your Name *" id="eq-name" required>
+            </div>
+            <div class="form-group">
+              <input type="tel" placeholder="Phone Number *" id="eq-phone" required>
+            </div>
+            <div class="form-group">
+              <input type="text" placeholder="From → To *" id="eq-route" required>
+            </div>
+            <div class="form-group">
+              <input type="date" id="eq-date" required>
+            </div>
+            <button type="submit" class="btn-primary full-btn">Send Enquiry <i class="fas fa-arrow-right"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="logo"><div class="logo-icon"><i class="fas fa-car"></i></div><div><h1>Brajwasi Travels</h1><span>Est. 1980</span></div></div>
+      <p>Premium car rental services in Agra. Trusted by thousands of tourists and business travelers for over four decades.</p>
+    </div>
+    <div class="footer-links">
+      <h4>Quick Links</h4>
+      <a href="#cars">Our Fleet</a>
+      <a href="#why-us">Why Us</a>
+      <a href="#contact">Contact</a>
+      <a href="tel:9411061000">Call Now</a>
+    </div>
+    <div class="footer-contact">
+      <h4>Contact</h4>
+      <p><i class="fas fa-phone"></i> 9411061000</p>
+      <p><i class="fas fa-envelope"></i> brajwasitravels.1980@gmail.com</p>
+      <p><i class="fas fa-map-marker-alt"></i> Agra, Uttar Pradesh</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 Brajwasi Travels. All rights reserved. | Agra's Most Trusted Car Rental</p>
+  </div>
+</footer>
+
+<!-- Floating WhatsApp Button -->
+<a href="https://wa.me/919411061000" class="float-whatsapp" target="_blank" title="Chat on WhatsApp">
+  <i class="fab fa-whatsapp"></i>
+</a>
+
+<!-- Book Now Modal -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeBooking()"><i class="fas fa-times"></i></button>
+    <div class="modal-header">
+      <h2>Book Your Ride</h2>
+      <p id="modal-car-name">Toyota Crysta</p>
+    </div>
+    
+    <div class="price-calculator">
+      <div class="calc-row">
+        <label>Estimated Distance (km)</label>
+        <input type="number" id="est-km" placeholder="Enter KM" min="1" oninput="calculatePrice()">
+      </div>
+      <div class="calc-result" id="calc-result" style="display:none">
+        <div class="calc-breakdown"></div>
+        <div class="calc-total"></div>
+      </div>
+    </div>
+
+    <form id="bookingForm">
+      <input type="hidden" id="book-car-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Your Name *</label>
+          <input type="text" id="book-name" placeholder="Full name" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="tel" id="book-phone" placeholder="Mobile number" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email (optional)</label>
+        <input type="email" id="book-email" placeholder="your@email.com">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Pickup Location *</label>
+          <input type="text" id="book-pickup" placeholder="From where?" required>
+        </div>
+        <div class="form-group">
+          <label>Drop Location *</label>
+          <input type="text" id="book-drop" placeholder="Where to?" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Journey Date *</label>
+          <input type="date" id="book-date" required>
+        </div>
+        <div class="form-group">
+          <label>Journey Time *</label>
+          <input type="time" id="book-time" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Special Instructions</label>
+        <textarea id="book-notes" placeholder="Any special requirements..." rows="2"></textarea>
+      </div>
+      <button type="submit" class="btn-primary full-btn book-submit">
+        <i class="fas fa-check-circle"></i> Confirm Booking
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal success-modal">
+    <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+    <h2>Booking Confirmed!</h2>
+    <p id="success-booking-id" class="booking-id-display"></p>
+    <p>Our team will contact you shortly to confirm your booking. You can also reach us at <strong>9411061000</strong></p>
+    <a href="https://wa.me/919411061000" target="_blank" class="btn-primary" style="display:inline-flex;margin-top:12px">
+      <i class="fab fa-whatsapp"></i> Share on WhatsApp
+    </a>
+    <button onclick="closeSuccess()" class="btn-outline" style="margin-top:8px">Close</button>
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

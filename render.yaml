@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: brajwasi-travels
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: MONGODB_URI
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: VAPID_PUBLIC_KEY
+        value: BOD1KM-BMJ4mGHLuNjAkVZOnYWu6fgT5Wlv-MptZsnJmzkxNT2KAI6qqxw0IBnAmZH30-wVMOPAWxPre-9C7rbE
+      - key: VAPID_PRIVATE_KEY
+        value: OhSUztjngIPuuSwikR7_9O0AVh4JhZfLNWVMH_g3F6E
+      - key: VAPID_EMAIL
+        value: mailto:brajwasitravels.1980@gmail.com
