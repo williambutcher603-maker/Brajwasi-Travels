@@ -3,66 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login – Brajwasi Travels</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Admin Login – Brajwasi Tour & Travels</title>
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<link rel="manifest" href="/admin-manifest.json">
+<meta name="theme-color" content="#B8780A">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-  :root { --gold: #C9922A; --gold-light: #E8B84B; --dark: #0D1117; --dark-2: #161B22; --dark-3: #21262D; --text: #E6EDF3; --text-muted: #8B949E; --red: #F85149; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; background-image: radial-gradient(circle at 20% 50%, rgba(201,146,42,0.05) 0%, transparent 50%); }
-  .login-wrap { width: 100%; max-width: 420px; padding: 20px; }
-  .login-card { background: var(--dark-2); border: 1px solid rgba(201,146,42,0.2); border-radius: 20px; padding: 40px 36px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-  .brand { text-align: center; margin-bottom: 32px; }
-  .brand-icon { width: 60px; height: 60px; background: linear-gradient(135deg, var(--gold), #9B6F1A); border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(201,146,42,0.3); }
-  .brand h1 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); }
-  .brand span { font-size: 12px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
-  h2 { font-size: 24px; margin-bottom: 8px; }
-  .subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 28px; }
-  .form-group { margin-bottom: 18px; }
-  label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
-  .input-wrap { position: relative; }
-  .input-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
-  input { width: 100%; background: var(--dark-3); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 12px 14px 12px 40px; border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; transition: all 0.2s; }
-  input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,146,42,0.1); }
-  .error { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); color: var(--red); padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
-  button { width: 100%; background: linear-gradient(135deg, var(--gold), #9B6F1A); color: #fff; border: none; padding: 13px; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; margin-top: 4px; }
-  button:hover { opacity: 0.9; transform: translateY(-1px); }
-  .back-link { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
-  .back-link a { color: var(--gold); text-decoration: none; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#FFF8EC 0%,#F8F5F0 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-card{background:#fff;border:1px solid #E8DDD0;border-radius:20px;padding:40px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(184,120,10,0.12);}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo .logo-icon{width:64px;height:64px;background:linear-gradient(135deg,#D4920E,#8A5A06);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden;box-shadow:0 4px 16px rgba(184,120,10,.25);}
+.login-logo .logo-icon img{width:100%;height:100%;object-fit:cover;border-radius:16px;}
+.login-logo h1{font-family:'Playfair Display',serif;font-size:20px;color:#1A1208;}
+.login-logo p{font-size:11px;color:#B8780A;letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:11px;color:#7A6A55;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.form-group input{width:100%;background:#F8F5F0;border:1px solid #E8DDD0;color:#1A1208;padding:12px 16px;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:all .2s;}
+.form-group input:focus{border-color:#B8780A;box-shadow:0 0 0 3px rgba(184,120,10,.1);}
+.btn-login{width:100%;background:linear-gradient(135deg,#D4920E,#8A5A06);color:#fff;border:none;padding:13px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;box-shadow:0 2px 12px rgba(184,120,10,.25);}
+.btn-login:hover{opacity:.9;transform:translateY(-1px);}
+.error-msg{background:#FDEDEB;border:1px solid rgba(192,57,43,.2);color:#C0392B;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.secure-note{text-align:center;margin-top:16px;font-size:12px;color:#A0917E;display:flex;align-items:center;justify-content:center;gap:6px;}
 </style>
 </head>
 <body>
-<div class="login-wrap">
-  <div class="login-card">
-    <div class="brand">
-      <div class="brand-icon"><i class="fas fa-car"></i></div>
-      <h1>Brajwasi Travels</h1>
-      <span>Admin Portal</span>
+<div class="login-card">
+  <div class="login-logo">
+    <div class="logo-icon">
+      <img src="/images/favicon.png" alt="BT" onerror="this.style.display='none';this.parentNode.innerHTML='<i class=\'fas fa-car\' style=\'color:#fff;font-size:26px\'></i>'">
     </div>
-    <h2>Welcome Back</h2>
-    <p class="subtitle">Sign in to manage your fleet and bookings</p>
-    <% if (error) { %>
-    <div class="error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
-    <% } %>
-    <form method="POST" action="/admin/login">
-      <div class="form-group">
-        <label>Username</label>
-        <div class="input-wrap">
-          <i class="fas fa-user"></i>
-          <input type="text" name="username" placeholder="Enter username" required autofocus>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <div class="input-wrap">
-          <i class="fas fa-lock"></i>
-          <input type="password" name="password" placeholder="Enter password" required>
-        </div>
-      </div>
-      <button type="submit"><i class="fas fa-sign-in-alt"></i> Sign In</button>
-    </form>
-    <div class="back-link"><a href="/"><i class="fas fa-arrow-left"></i> Back to Website</a></div>
+    <h1>Brajwasi Tour & Travels</h1>
+    <p>Admin Panel</p>
   </div>
+  <% if(error){ %>
+  <div class="error-msg"><i class="fas fa-exclamation-circle"></i><%= error %></div>
+  <% } %>
+  <form method="POST" action="/admin/login">
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" name="username" placeholder="Enter username" required autofocus>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter password" required>
+    </div>
+    <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> Login to Admin Panel</button>
+  </form>
+  <p class="secure-note"><i class="fas fa-lock"></i> Secure admin access only</p>
 </div>
 </body>
 </html>

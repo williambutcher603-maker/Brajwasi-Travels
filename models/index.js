@@ -4,6 +4,7 @@ const carSchema = new mongoose.Schema({
   name: { type: String, required: true },
   model: { type: String, required: true },
   image: { type: String, required: true },
+  imagePublicId: { type: String },
   pricePerKm: { type: Number, required: true },
   fixedPackage: { km: { type: Number }, price: { type: Number } },
   extraKmCharge: { type: Number, required: true },
@@ -13,7 +14,6 @@ const carSchema = new mongoose.Schema({
   ac: { type: Boolean, default: true },
   description: { type: String },
   isActive: { type: Boolean, default: true },
-  isAvailable: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -30,8 +30,8 @@ const bookingSchema = new mongoose.Schema({
   journeyTime: { type: String, required: true },
   estimatedKm: { type: Number },
   totalPrice: { type: Number },
+  status: { type: String, enum: ['pending', 'confirmed', 'completed', 'cancelled'], default: 'pending' },
   advancePaid: { type: Boolean, default: false },
-  status: { type: String, enum: ['pending','advance_pending','confirmed','completed','cancelled'], default: 'pending' },
   notes: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
@@ -42,26 +42,19 @@ const subscriptionSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-const chatSessionSchema = new mongoose.Schema({
-  sessionId: { type: String, unique: true, required: true },
+const chatMessageSchema = new mongoose.Schema({
+  sessionId: { type: String, required: true, index: true },
   customerName: { type: String, required: true },
-  customerPhone: { type: String },
-  messages: [{
-    sender: { type: String, enum: ['customer','admin'] },
-    text: { type: String, required: true },
-    timestamp: { type: Date, default: Date.now },
-    read: { type: Boolean, default: false }
-  }],
-  unreadCount: { type: Number, default: 0 },
-  lastMessage: { type: String },
-  lastMessageAt: { type: Date, default: Date.now },
-  isOpen: { type: Boolean, default: true },
+  customerPhone: { type: String, required: true },
+  message: { type: String, required: true },
+  fromCustomer: { type: Boolean, default: true },
+  read: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
 
 const Car = mongoose.model('Car', carSchema);
 const Booking = mongoose.model('Booking', bookingSchema);
 const PushSubscription = mongoose.model('PushSubscription', subscriptionSchema);
-const ChatSession = mongoose.model('ChatSession', chatSessionSchema);
+const ChatMessage = mongoose.model('ChatMessage', chatMessageSchema);
 
-module.exports = { Car, Booking, PushSubscription, ChatSession };
+module.exports = { Car, Booking, PushSubscription, ChatMessage };

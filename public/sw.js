@@ -1,70 +1,61 @@
-// Service Worker for Brajwasi Travels Push Notifications
-const CACHE_NAME = 'brajwasi-v1';
-const ASSETS = [
-  '/',
-  '/css/main.css',
-  '/js/main.js',
-  '/images/default-crysta.jpg'
-];
+// Service Worker – Brajwasi Tour & Travels
+const CACHE_NAME = 'brajwasi-v2';
+const ASSETS = ['/', '/css/main.css', '/js/main.js', '/images/favicon.png'];
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS).catch(() => {}))
-  );
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS).catch(() => {})));
   self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
-  );
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys =>
+    Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+  ));
   self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
-  );
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });
 
-// Push Notification Handler
-self.addEventListener('push', (event) => {
+// Push notification handler with sound support
+self.addEventListener('push', e => {
   let data = {};
-  try { data = event.data ? event.data.json() : {}; } catch(e) {}
+  try { data = e.data ? e.data.json() : {}; } catch(err) {}
 
-  const title = data.title || 'Brajwasi Travels';
+  const title = data.title || 'Brajwasi Tour & Travels';
+  const isChat = data.isChat || false;
+  
   const options = {
     body: data.body || 'You have a new notification',
     icon: '/images/favicon.png',
     badge: '/images/favicon.png',
-    vibrate: [200, 100, 200],
-    data: { url: data.url || '/' },
-    actions: [
-      { action: 'view', title: 'View', icon: '/images/favicon.png' },
-      { action: 'close', title: 'Dismiss' }
-    ],
-    requireInteraction: true
+    vibrate: isChat ? [100, 50, 100, 50, 200] : [200, 100, 200],
+    sound: '/sounds/notify.mp3',
+    tag: isChat ? 'chat-' + (data.sessionId || Date.now()) : 'booking-' + Date.now(),
+    renotify: true,
+    data: { url: data.url || '/admin', isChat },
+    actions: isChat
+      ? [{ action: 'reply', title: '💬 Reply' }, { action: 'close', title: 'Dismiss' }]
+      : [{ action: 'view', title: '👁 View Booking' }, { action: 'close', title: 'Dismiss' }],
+    requireInteraction: true,
+    silent: false
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  e.waitUntil(self.registration.showNotification(title, options));
 });
 
-// Notification Click Handler
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  
-  if (event.action === 'close') return;
-  
-  const urlToOpen = event.notification.data?.url || '/';
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
-      for (const client of clientList) {
-        if (client.url === urlToOpen && 'focus' in client) return client.focus();
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  if (e.action === 'close') return;
+  const url = e.notification.data?.url || '/admin';
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const c of list) {
+        if (c.url.includes(url) && 'focus' in c) return c.focus();
       }
-      if (clients.openWindow) return clients.openWindow(urlToOpen);
+      if (clients.openWindow) return clients.openWindow(url);
     })
   );
 });

@@ -3,62 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bookings – Brajwasi Travels Admin</title>
+<title>Bookings – Brajwasi Admin</title>
+<link rel="icon" type="image/png" href="/images/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-  :root { --gold: #C9922A; --gold-light: #E8B84B; --dark: #0D1117; --dark-2: #161B22; --dark-3: #21262D; --text: #E6EDF3; --text-muted: #8B949E; --green: #3FB950; --red: #F85149; --blue: #58A6FF; --radius: 12px; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: var(--text); }
-  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 240px; background: var(--dark-2); border-right: 1px solid rgba(255,255,255,0.06); padding: 24px 0; display: flex; flex-direction: column; z-index: 100; }
-  .sidebar-brand { padding: 0 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 16px; }
-  .sidebar-brand h1 { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--text); }
-  .sidebar-brand span { font-size: 10px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
-  .sidebar-brand .brand-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), #9B6F1A); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; margin-bottom: 10px; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 20px; color: var(--text-muted); text-decoration: none; font-size: 14px; transition: all 0.2s; }
-  .nav-item:hover, .nav-item.active { color: var(--text); background: rgba(255,255,255,0.04); border-right: 2px solid var(--gold); }
-  .nav-item i { width: 18px; color: var(--text-muted); font-size: 13px; }
-  .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06); }
-  .main { margin-left: 240px; min-height: 100vh; }
-  .topbar { background: var(--dark-2); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; }
-  .topbar h2 { font-size: 20px; font-weight: 600; }
-  .content { padding: 28px; }
-  .section-card { background: var(--dark-2); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius); overflow: hidden; }
-  .section-head { padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; }
-  .section-head h3 { font-size: 16px; font-weight: 600; }
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { padding: 12px 16px; text-align: left; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.06); font-weight: 600; background: var(--dark-3); }
-  td { padding: 13px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge-pending { background: rgba(201,146,42,0.15); color: var(--gold-light); border: 1px solid rgba(201,146,42,0.3); }
-  .badge-confirmed { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
-  .badge-cancelled { background: rgba(248,81,73,0.1); color: var(--red); border: 1px solid rgba(248,81,73,0.2); }
-  .badge-completed { background: rgba(88,166,255,0.15); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); }
-  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; text-decoration: none; }
-  .btn-gold { background: linear-gradient(135deg, var(--gold), #9B6F1A); color: #fff; }
-  .btn-secondary { background: var(--dark-3); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); }
-  .btn-danger { background: rgba(248,81,73,0.15); color: var(--red); border: 1px solid rgba(248,81,73,0.2); }
-  select { background: var(--dark-3); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 5px 10px; border-radius: 7px; font-size: 12px; outline: none; cursor: pointer; }
-  .filter-bar { padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-  .filter-bar input { background: var(--dark-3); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 7px 12px; border-radius: 8px; font-size: 13px; outline: none; min-width: 200px; }
-  .filter-bar input::placeholder { color: var(--text-muted); }
-  @media(max-width:900px) { .sidebar { display: none; } .main { margin-left: 0; } }
-  .empty-state { text-align: center; padding: 60px; color: var(--text-muted); }
-  .empty-state i { font-size: 40px; color: rgba(255,255,255,0.1); margin-bottom: 12px; display: block; }
+:root{--gold:#B8780A;--gold-light:#D4920E;--gold-dark:#8A5A06;--gold-bg:#FFF8EC;--gold-bg2:#FEF3DC;--bg:#FFFFFF;--bg-2:#F8F5F0;--bg-3:#F0EBE3;--border:#E8DDD0;--text:#1A1208;--text-muted:#7A6A55;--text-light:#A0917E;--green:#1A7A3A;--green-bg:#EAF7EE;--red:#C0392B;--red-bg:#FDEDEB;--blue:#1A5DAB;--blue-bg:#EEF4FF;--radius:10px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg-2);color:var(--text);}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:248px;background:var(--bg);border-right:1px solid var(--border);padding:0;display:flex;flex-direction:column;z-index:100;box-shadow:2px 0 10px rgba(184,120,10,.06);}
+.sidebar-brand{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.brand-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;overflow:hidden;}
+.brand-icon img{width:100%;height:100%;object-fit:cover;}
+.brand-name h1{font-family:'Playfair Display',serif;font-size:13px;color:var(--text);}
+.brand-name span{font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--text-muted);text-decoration:none;font-size:13px;font-weight:500;transition:all .2s;border-radius:8px;margin:1px 8px;width:calc(100% - 16px);}
+.nav-item:hover{color:var(--gold-dark);background:var(--gold-bg);}
+.nav-item.active{color:var(--gold-dark);background:var(--gold-bg2);font-weight:700;}
+.nav-item i{width:17px;font-size:13px;color:var(--text-light);}
+.nav-item.active i{color:var(--gold);}
+.sidebar-body{padding:10px;flex:1;overflow-y:auto;}
+.sidebar-footer{padding:12px;border-top:1px solid var(--border);}
+.main{margin-left:248px;min-height:100vh;}
+.topbar{background:var(--bg);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 6px rgba(184,120,10,.05);}
+.topbar h2{font-size:18px;font-weight:700;}
+.content{padding:24px;}
+.section-card{background:var(--bg);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(184,120,10,.08);}
+.section-head{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.section-head h3{font-size:15px;font-weight:700;}
+.filter-bar{padding:14px 22px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--bg-2);}
+.filter-bar input,.filter-bar select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--gold);}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{padding:11px 14px;text-align:left;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);font-weight:700;background:var(--bg-2);}
+td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg-2);}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-pending{background:var(--gold-bg2);color:var(--gold-dark);border:1px solid rgba(184,120,10,.3);}
+.badge-confirmed{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,58,.25);}
+.badge-cancelled{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
+.badge-completed{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(26,93,171,.25);}
+.advance-paid{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,58,.2);display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;}
+.advance-unpaid{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;text-decoration:none;font-family:'DM Sans',sans-serif;}
+.btn-gold{background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:#fff;}
+.btn-secondary{background:var(--bg-2);color:var(--text-muted);border:1px solid var(--border);}
+.btn-secondary:hover{color:var(--text);}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
+select.status-select{background:var(--bg-2);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:7px;font-size:12px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;}
+.empty-state{text-align:center;padding:60px;color:var(--text-light);}
+.empty-state i{font-size:38px;color:var(--border);margin-bottom:12px;display:block;}
+@media(max-width:900px){.sidebar{display:none;}.main{margin-left:0;}}
 </style>
 </head>
 <body>
-
 <aside class="sidebar">
   <div class="sidebar-brand">
-    <div class="brand-icon"><i class="fas fa-car"></i></div>
-    <h1>Brajwasi Travels</h1>
-    <span>Admin Panel</span>
+    <div class="brand-icon"><img src="/images/favicon.png" alt="BT" onerror="this.style.display='none';this.parentNode.innerHTML='<i class=\'fas fa-car\'></i>'"></div>
+    <div class="brand-name"><h1>Brajwasi Tour & Travels</h1><span>Admin Panel</span></div>
   </div>
-  <a href="/admin" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-  <a href="/admin/bookings" class="nav-item active"><i class="fas fa-calendar-check"></i> All Bookings</a>
+  <div class="sidebar-body">
+    <a href="/admin" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="/admin/bookings" class="nav-item active"><i class="fas fa-calendar-check"></i> All Bookings</a>
+    <a href="/admin" class="nav-item"><i class="fas fa-car-side"></i> Fleet</a>
+    <a href="/admin" class="nav-item"><i class="fas fa-comments"></i> Live Chats</a>
+  </div>
   <div class="sidebar-footer">
     <a href="/" target="_blank" class="nav-item"><i class="fas fa-external-link-alt"></i> View Website</a>
     <a href="/admin/logout" class="nav-item" style="color:var(--red)"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -67,85 +78,72 @@
 
 <main class="main">
   <div class="topbar">
-    <h2><i class="fas fa-calendar-check" style="color:var(--gold);margin-right:8px"></i> All Bookings (<%= bookings.length %>)</h2>
-    <div style="display:flex;gap:8px">
-      <a href="tel:9411061000" class="btn btn-secondary"><i class="fas fa-phone"></i> 9411061000</a>
-      <a href="/admin" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <h2><i class="fas fa-calendar-check" style="color:var(--gold);margin-right:8px"></i>All Bookings</h2>
+    <div style="display:flex;gap:10px">
+      <a href="/admin" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
     </div>
   </div>
-  
   <div class="content">
     <div class="section-card">
+      <div class="section-head">
+        <h3>Bookings (<%= bookings.length %> total)</h3>
+        <span style="font-size:12px;color:var(--text-muted)">Click status to update</span>
+      </div>
       <div class="filter-bar">
-        <input type="text" id="search" placeholder="🔍 Search by name, phone, or booking ID..." oninput="filterTable()">
-        <select id="statusFilter" onchange="filterTable()">
+        <input type="text" id="searchInput" placeholder="🔍 Search by name, phone, ID..." oninput="filterBookings()" style="min-width:240px">
+        <select id="statusFilter" onchange="filterBookings()">
           <option value="">All Status</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
           <option value="completed">Completed</option>
           <option value="cancelled">Cancelled</option>
         </select>
-        <span style="font-size:13px;color:var(--text-muted)">Total: <strong style="color:var(--text)" id="count"><%= bookings.length %></strong></span>
       </div>
       <div class="table-wrap">
         <table id="bookingsTable">
           <thead>
-            <tr>
-              <th>Booking ID</th>
-              <th>Customer</th>
-              <th>Car</th>
-              <th>Route</th>
-              <th>Journey</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Update</th>
-              <th>Actions</th>
-            </tr>
+            <tr><th>Booking ID</th><th>Customer</th><th>Car</th><th>Route</th><th>Date/Time</th><th>Fare</th><th>Advance</th><th>Status</th><th>Actions</th></tr>
           </thead>
           <tbody>
-            <% if (bookings.length === 0) { %>
+            <% if(!bookings.length){ %>
             <tr><td colspan="9"><div class="empty-state"><i class="fas fa-calendar-times"></i><p>No bookings yet</p></div></td></tr>
-            <% } else { %>
-            <% bookings.forEach(b => { %>
-            <tr data-status="<%= b.status %>" data-search="<%= b.bookingId %> <%= b.customerName %> <%= b.customerPhone %>">
-              <td style="font-weight:700;color:var(--gold);letter-spacing:1px"><%= b.bookingId %></td>
+            <% }else{ bookings.forEach(b=>{ %>
+            <tr data-status="<%= b.status %>" data-search="<%= b.bookingId %> <%= b.customerName %> <%= b.customerPhone %> <%= b.carName %>">
+              <td style="font-weight:800;color:var(--gold-dark);font-family:monospace;font-size:12px"><%= b.bookingId %></td>
               <td>
                 <div style="font-weight:600"><%= b.customerName %></div>
-                <a href="tel:<%= b.customerPhone %>" style="font-size:11px;color:var(--blue);text-decoration:none"><i class="fas fa-phone"></i> <%= b.customerPhone %></a>
-                <% if (b.customerEmail) { %><br><span style="font-size:11px;color:var(--text-muted)"><%= b.customerEmail %></span><% } %>
+                <div style="font-size:11px;color:var(--text-muted)"><%= b.customerPhone %></div>
+                <% if(b.customerEmail){ %><div style="font-size:11px;color:var(--text-light)"><%= b.customerEmail %></div><% } %>
               </td>
-              <td style="font-weight:500"><%= b.carName || 'N/A' %></td>
-              <td>
-                <div style="font-size:12px"><i class="fas fa-map-marker-alt" style="color:var(--green)"></i> <%= b.pickupLocation %></div>
-                <div style="font-size:12px"><i class="fas fa-flag" style="color:var(--red)"></i> <%= b.dropLocation %></div>
-                <% if(b.estimatedKm) { %><div style="font-size:11px;color:var(--text-muted)">~<%= b.estimatedKm %> km</div><% } %>
+              <td style="font-size:12px;font-weight:600"><%= b.carName||'N/A' %></td>
+              <td style="font-size:12px">
+                <div style="color:var(--text)"><i class="fas fa-map-marker-alt" style="color:var(--gold);margin-right:3px"></i><%= b.pickupLocation %></div>
+                <div style="color:var(--text-muted);margin-top:2px"><i class="fas fa-flag" style="color:var(--red);margin-right:3px"></i><%= b.dropLocation %></div>
+                <% if(b.estimatedKm){ %><div style="font-size:11px;color:var(--text-light);margin-top:2px"><i class="fas fa-road" style="margin-right:3px"></i><%= b.estimatedKm %> km</div><% } %>
               </td>
-              <td>
-                <div style="font-weight:500"><%= new Date(b.journeyDate).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) %></div>
-                <div style="font-size:12px;color:var(--text-muted)"><%= b.journeyTime %></div>
+              <td style="font-size:12px">
+                <div style="font-weight:600"><%= new Date(b.journeyDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) %></div>
+                <div style="color:var(--text-muted)"><i class="fas fa-clock" style="margin-right:3px"></i><%= b.journeyTime %></div>
               </td>
-              <td style="font-weight:700;color:var(--green)">
-                <% if(b.totalPrice && b.totalPrice > 0) { %>₹<%= b.totalPrice.toLocaleString('en-IN') %><% } else { %><span style="color:var(--text-muted)">TBD</span><% } %>
-              </td>
-              <td><span class="badge badge-<%= b.status %>"><%= b.status %></span></td>
+              <td style="color:var(--green);font-weight:800;font-size:14px"><% if(b.totalPrice){ %>₹<%= b.totalPrice.toLocaleString('en-IN') %><% }else{ %><span style="color:var(--text-muted);font-weight:400;font-size:12px">TBD</span><% } %></td>
+              <td><span class="<%= b.advancePaid?'advance-paid':'advance-unpaid' %>"><%= b.advancePaid?'✓ Paid':'✗ Pending' %></span></td>
               <td>
                 <form method="POST" action="/admin/bookings/<%= b._id %>/status">
-                  <select name="status" onchange="this.form.submit()">
-                    <option value="pending" <%= b.status==='pending'?'selected':'' %>>Pending</option>
-                    <option value="confirmed" <%= b.status==='confirmed'?'selected':'' %>>Confirmed</option>
-                    <option value="completed" <%= b.status==='completed'?'selected':'' %>>Completed</option>
-                    <option value="cancelled" <%= b.status==='cancelled'?'selected':'' %>>Cancelled</option>
+                  <select name="status" class="status-select" onchange="this.form.submit()">
+                    <option value="pending" <%= b.status==='pending'?'selected':'' %>>⏳ Pending</option>
+                    <option value="confirmed" <%= b.status==='confirmed'?'selected':'' %>>✅ Confirmed</option>
+                    <option value="completed" <%= b.status==='completed'?'selected':'' %>>🏁 Completed</option>
+                    <option value="cancelled" <%= b.status==='cancelled'?'selected':'' %>>❌ Cancelled</option>
                   </select>
                 </form>
               </td>
               <td>
-                <a href="https://wa.me/91<%= b.customerPhone %>?text=<%= encodeURIComponent('Hello ' + b.customerName + ', your booking ' + b.bookingId + ' with Brajwasi Travels has been confirmed. Journey: ' + new Date(b.journeyDate).toLocaleDateString('en-IN') + ' at ' + b.journeyTime + '. For queries call 9411061000.') %>" target="_blank" class="btn" style="background:rgba(37,211,102,0.15);color:#25D366;border:1px solid rgba(37,211,102,0.3)">
-                  <i class="fab fa-whatsapp"></i> WhatsApp
+                <a href="https://wa.me/91<%= b.customerPhone %>?text=<%= encodeURIComponent('Hello '+b.customerName+', your booking '+b.bookingId+' with Brajwasi Tour & Travels is confirmed. Journey on '+new Date(b.journeyDate).toLocaleDateString('en-IN')+' at '+b.journeyTime+'. For queries: 9411061000') %>" target="_blank" class="btn" style="background:#EAF7EE;color:#1A7A3A;border:1px solid rgba(26,122,58,.2)">
+                  <i class="fab fa-whatsapp"></i>
                 </a>
               </td>
             </tr>
-            <% }) %>
-            <% } %>
+            <% })} %>
           </tbody>
         </table>
       </div>
@@ -154,18 +152,14 @@
 </main>
 
 <script>
-function filterTable() {
-  const search = document.getElementById('search').value.toLowerCase();
+function filterBookings() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
   const status = document.getElementById('statusFilter').value;
-  const rows = document.querySelectorAll('#bookingsTable tbody tr[data-status]');
-  let visible = 0;
-  rows.forEach(row => {
-    const matchSearch = !search || row.dataset.search.toLowerCase().includes(search);
+  document.querySelectorAll('#bookingsTable tbody tr[data-status]').forEach(row => {
+    const matchSearch = !q || row.dataset.search.toLowerCase().includes(q);
     const matchStatus = !status || row.dataset.status === status;
     row.style.display = (matchSearch && matchStatus) ? '' : 'none';
-    if (matchSearch && matchStatus) visible++;
   });
-  document.getElementById('count').textContent = visible;
 }
 </script>
 </body>
