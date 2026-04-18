@@ -1,14 +1,18 @@
 {
-  "name": "Brajwasi Travels",
+  "name": "Brajwasi Tour & Travels Agra",
   "short_name": "Brajwasi",
-  "description": "Premium car rental in Agra – Est. 1980",
+  "description": "Tour & Travels in Agra – Est. 1980",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0D1117",
-  "theme_color": "#C9922A",
-  "orientation": "portrait-primary",
+  "background_color": "#F8F4EF",
+  "theme_color": "#B8731A",
+  "orientation": "any",
   "icons": [
-    { "src": "/images/favicon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/images/favicon.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "/images/favicon.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "shortcuts": [
+    { "name": "Book a Car", "url": "/#fleet", "description": "Browse and book cars" },
+    { "name": "Call Us", "url": "tel:9411061000", "description": "Call Brajwasi Travels" }
   ]
 }

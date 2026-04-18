@@ -1,18 +1,23 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const session = require('express-session');
 const cors = require('cors');
 const path = require('path');
 const webpush = require('web-push');
 const connectDB = require('./config/db');
-const { Car, Booking, PushSubscription, ChatMessage } = require('./models');
+const { Car, Booking, PushSubscription, ChatSession } = require('./models');
 const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
-const crypto = require('crypto');
+const fs = require('fs');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: '*' } });
 
+// VAPID
 webpush.setVapidDetails(
   process.env.VAPID_EMAIL || 'mailto:brajwasitravels.1980@gmail.com',
   process.env.VAPID_PUBLIC_KEY,
@@ -28,57 +33,125 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'brajwasi_secret',
+const sessionMiddleware = session({
+  secret: process.env.SESSION_SECRET || 'brajwasi_secret_2024',
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
-}));
+});
+app.use(sessionMiddleware);
 
+// Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'public/uploads/'),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
-const upload = multer({ 
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) cb(null, true);
     else cb(new Error('Only images allowed'));
   }
 });
-
-const fs = require('fs');
 if (!fs.existsSync('public/uploads')) fs.mkdirSync('public/uploads', { recursive: true });
 
+// Email helper
+const sendEmail = async (subject, html) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
+  try {
+    const t = nodemailer.createTransporter({ service: 'gmail',
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS } });
+    await t.sendMail({ from: process.env.EMAIL_USER,
+      to: 'brajwasitravels.1980@gmail.com', subject, html });
+  } catch(e) { console.log('Email error:', e.message); }
+};
+
+// Push helper
 const sendPushToAll = async (title, body, data = {}) => {
   const subs = await PushSubscription.find();
   const payload = JSON.stringify({ title, body, ...data });
-  await Promise.allSettled(
-    subs.map(sub => 
-      webpush.sendNotification(sub, payload).catch(async (err) => {
-        if (err.statusCode === 410) await PushSubscription.deleteOne({ endpoint: sub.endpoint });
-      })
-    )
-  );
+  await Promise.allSettled(subs.map(sub =>
+    webpush.sendNotification(sub, payload).catch(async err => {
+      if (err.statusCode === 410) await PushSubscription.deleteOne({ endpoint: sub.endpoint });
+    })
+  ));
 };
 
-const sendEmail = async (subject, html) => {
-  try {
-    const transporter = nodemailer.createTransporter({
-      service: 'gmail',
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-    });
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: 'brajwasitravels.1980@gmail.com',
-      subject,
-      html
-    });
-  } catch (e) { console.log('Email failed:', e.message); }
-};
+// ========== SOCKET.IO CHAT ==========
+const adminSockets = new Set();
 
-// ====== PUBLIC ROUTES ======
+io.use((socket, next) => {
+  sessionMiddleware(socket.request, {}, next);
+});
+
+io.on('connection', (socket) => {
+  const session = socket.request.session;
+
+  // Admin joins
+  if (session && session.admin) {
+    adminSockets.add(socket.id);
+    socket.join('admin-room');
+    socket.on('disconnect', () => adminSockets.delete(socket.id));
+
+    // Admin sends message to a session
+    socket.on('admin-message', async ({ sessionId, text }) => {
+      const chat = await ChatSession.findOne({ sessionId });
+      if (!chat) return;
+      chat.messages.push({ sender: 'admin', text, timestamp: new Date(), read: true });
+      chat.lastMessage = text;
+      chat.lastMessageAt = new Date();
+      await chat.save();
+      io.to(sessionId).emit('new-message', { sender: 'admin', text, timestamp: new Date() });
+      io.to('admin-room').emit('chat-updated', { sessionId, text, senderName: 'Admin' });
+    });
+
+    // Admin reads a chat
+    socket.on('admin-read', async ({ sessionId }) => {
+      await ChatSession.updateOne({ sessionId }, { unreadCount: 0, $set: { 'messages.$[].read': true } });
+      io.to('admin-room').emit('chat-read', { sessionId });
+    });
+
+    return;
+  }
+
+  // Customer joins their session room
+  const sessionId = socket.handshake.query.sessionId;
+  if (sessionId) {
+    socket.join(sessionId);
+
+    socket.on('customer-message', async ({ sessionId, text, customerName, customerPhone }) => {
+      let chat = await ChatSession.findOne({ sessionId });
+      if (!chat) {
+        chat = await ChatSession.create({
+          sessionId, customerName: customerName || 'Guest',
+          customerPhone: customerPhone || '', messages: [], unreadCount: 0
+        });
+      }
+      chat.messages.push({ sender: 'customer', text, timestamp: new Date(), read: false });
+      chat.unreadCount = (chat.unreadCount || 0) + 1;
+      chat.lastMessage = text;
+      chat.lastMessageAt = new Date();
+      chat.customerName = customerName || chat.customerName;
+      chat.customerPhone = customerPhone || chat.customerPhone;
+      await chat.save();
+
+      // Emit to admin room
+      io.to('admin-room').emit('new-chat-message', {
+        sessionId, text, senderName: chat.customerName,
+        phone: chat.customerPhone, timestamp: new Date(),
+        unreadCount: chat.unreadCount
+      });
+
+      // Push notification to admin
+      await sendPushToAll(
+        `💬 New Chat - ${chat.customerName}`,
+        text.substring(0, 80),
+        { url: '/admin/chat', sessionId }
+      );
+    });
+  }
+});
+
+// ========== PUBLIC ROUTES ==========
 
 app.get('/', async (req, res) => {
   const cars = await Car.find({ isActive: true });
@@ -91,150 +164,74 @@ app.get('/vapid-public-key', (req, res) => {
 
 app.post('/subscribe', async (req, res) => {
   const { endpoint, keys } = req.body;
-  await PushSubscription.findOneAndUpdate(
-    { endpoint },
-    { endpoint, keys },
-    { upsert: true, new: true }
-  );
+  await PushSubscription.findOneAndUpdate({ endpoint }, { endpoint, keys }, { upsert: true, new: true });
   res.json({ success: true });
 });
 
-app.get('/api/car/:id/price', async (req, res) => {
-  const car = await Car.findById(req.params.id);
-  if (!car) return res.status(404).json({ error: 'Car not found' });
-  res.json({
-    pricePerKm: car.pricePerKm,
-    fixedPackage: car.fixedPackage,
-    extraKmCharge: car.extraKmCharge,
-    tollTax: car.tollTax
-  });
-});
-
+// Book a car
 app.post('/api/book', async (req, res) => {
-  const { carId, customerName, customerPhone, customerEmail, pickupLocation, dropLocation, journeyDate, journeyTime, estimatedKm, notes } = req.body;
-  
+  const { carId, customerName, customerPhone, customerEmail,
+    pickupLocation, dropLocation, journeyDate, journeyTime, estimatedKm, notes } = req.body;
+
+  if (!carId || !customerName || !customerPhone || !pickupLocation || !dropLocation || !journeyDate || !journeyTime) {
+    return res.status(400).json({ error: 'All required fields must be filled' });
+  }
+
   const car = await Car.findById(carId);
   if (!car) return res.status(404).json({ error: 'Car not found' });
 
+  const km = parseInt(estimatedKm) || 0;
   let totalPrice = 0;
-  if (estimatedKm) {
-    if (car.fixedPackage && car.fixedPackage.km && Number(estimatedKm) <= car.fixedPackage.km) {
+  if (km > 0) {
+    if (car.fixedPackage && car.fixedPackage.km && km <= car.fixedPackage.km) {
       totalPrice = car.fixedPackage.price;
     } else if (car.fixedPackage && car.fixedPackage.km) {
-      const extraKm = Number(estimatedKm) - car.fixedPackage.km;
-      totalPrice = car.fixedPackage.price + (extraKm * car.extraKmCharge);
+      totalPrice = car.fixedPackage.price + ((km - car.fixedPackage.km) * car.extraKmCharge);
     } else {
-      totalPrice = Number(estimatedKm) * car.pricePerKm;
+      totalPrice = km * car.pricePerKm;
     }
   }
 
-  const bookingId = 'BT-' + uuidv4().split('-')[0].toUpperCase();
-
   const booking = await Booking.create({
-    bookingId,
-    car: carId,
-    carName: car.name + ' ' + car.model,
-    customerName,
-    customerPhone,
-    customerEmail,
-    pickupLocation,
-    dropLocation,
-    journeyDate: new Date(journeyDate),
-    journeyTime,
-    estimatedKm: estimatedKm || 0,
-    totalPrice,
-    notes,
-    status: 'pending',
-    advancePaid: false
+    bookingId: 'BT-' + uuidv4().split('-')[0].toUpperCase(),
+    car: carId, carName: car.name + ' ' + car.model,
+    customerName, customerPhone, customerEmail,
+    pickupLocation, dropLocation,
+    journeyDate: new Date(journeyDate), journeyTime,
+    estimatedKm: km, totalPrice, notes, status: 'advance_pending'
   });
 
   await sendPushToAll(
-    '🚗 New Booking - Brajwasi Travels',
+    '🚗 New Booking – Brajwasi Travels',
     `${customerName} booked ${car.model} | ${pickupLocation} → ${dropLocation}`,
-    { bookingId: booking.bookingId, url: '/admin/bookings' }
+    { url: '/admin/bookings', bookingId: booking.bookingId }
   );
 
   await sendEmail(
-    `🚗 New Booking ${bookingId} - ${customerName}`,
-    `<div style="font-family:Arial,sans-serif;max-width:600px;padding:20px">
-      <h2 style="color:#C9922A;border-bottom:2px solid #C9922A;padding-bottom:10px">🚗 New Booking - Brajwasi Travels</h2>
-      <table style="width:100%;border-collapse:collapse;margin-top:15px">
-        <tr style="background:#f9f9f9"><td style="padding:10px;border:1px solid #ddd;font-weight:bold">Booking ID</td><td style="padding:10px;border:1px solid #ddd;color:#C9922A;font-weight:bold">${bookingId}</td></tr>
-        <tr><td style="padding:10px;border:1px solid #ddd;font-weight:bold">Customer Name</td><td style="padding:10px;border:1px solid #ddd">${customerName}</td></tr>
-        <tr style="background:#f9f9f9"><td style="padding:10px;border:1px solid #ddd;font-weight:bold">Phone</td><td style="padding:10px;border:1px solid #ddd">${customerPhone}</td></tr>
-        <tr><td style="padding:10px;border:1px solid #ddd;font-weight:bold">Email</td><td style="padding:10px;border:1px solid #ddd">${customerEmail || 'N/A'}</td></tr>
-        <tr style="background:#f9f9f9"><td style="padding:10px;border:1px solid #ddd;font-weight:bold">Car</td><td style="padding:10px;border:1px solid #ddd">${car.name} ${car.model}</td></tr>
-        <tr><td style="padding:10px;border:1px solid #ddd;font-weight:bold">Pickup</td><td style="padding:10px;border:1px solid #ddd">${pickupLocation}</td></tr>
-        <tr style="background:#f9f9f9"><td style="padding:10px;border:1px solid #ddd;font-weight:bold">Drop</td><td style="padding:10px;border:1px solid #ddd">${dropLocation}</td></tr>
-        <tr><td style="padding:10px;border:1px solid #ddd;font-weight:bold">Date &amp; Time</td><td style="padding:10px;border:1px solid #ddd">${journeyDate} at ${journeyTime}</td></tr>
-        <tr style="background:#f9f9f9"><td style="padding:10px;border:1px solid #ddd;font-weight:bold">Estimated KM</td><td style="padding:10px;border:1px solid #ddd">${estimatedKm || 'Not specified'} km</td></tr>
-        <tr><td style="padding:10px;border:1px solid #ddd;font-weight:bold">Estimated Fare</td><td style="padding:10px;border:1px solid #ddd;color:green;font-weight:bold">₹${totalPrice}</td></tr>
-        <tr style="background:#f9f9f9"><td style="padding:10px;border:1px solid #ddd;font-weight:bold">Notes</td><td style="padding:10px;border:1px solid #ddd">${notes || 'None'}</td></tr>
+    `New Booking ${booking.bookingId} – ${customerName}`,
+    `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#f9f9f9;padding:24px;border-radius:12px">
+      <h2 style="color:#C9922A">🚗 New Booking Received</h2>
+      <table style="width:100%;border-collapse:collapse">
+        <tr><td style="padding:8px;font-weight:bold;width:40%">Booking ID</td><td style="padding:8px;color:#C9922A;font-weight:bold">${booking.bookingId}</td></tr>
+        <tr style="background:#fff"><td style="padding:8px;font-weight:bold">Customer</td><td style="padding:8px">${customerName}</td></tr>
+        <tr><td style="padding:8px;font-weight:bold">Phone</td><td style="padding:8px">${customerPhone}</td></tr>
+        <tr style="background:#fff"><td style="padding:8px;font-weight:bold">Car</td><td style="padding:8px">${car.name} ${car.model}</td></tr>
+        <tr><td style="padding:8px;font-weight:bold">From</td><td style="padding:8px">${pickupLocation}</td></tr>
+        <tr style="background:#fff"><td style="padding:8px;font-weight:bold">To</td><td style="padding:8px">${dropLocation}</td></tr>
+        <tr><td style="padding:8px;font-weight:bold">Date & Time</td><td style="padding:8px">${new Date(journeyDate).toLocaleDateString('en-IN')} at ${journeyTime}</td></tr>
+        <tr style="background:#fff"><td style="padding:8px;font-weight:bold">Est. KM</td><td style="padding:8px">${km || 'Not specified'}</td></tr>
+        <tr><td style="padding:8px;font-weight:bold">Est. Price</td><td style="padding:8px;color:green;font-weight:bold">₹${totalPrice || 'TBD'}</td></tr>
+        <tr style="background:#fff"><td style="padding:8px;font-weight:bold">Status</td><td style="padding:8px;color:orange">Advance Payment Pending</td></tr>
       </table>
-      <div style="margin-top:20px;padding:15px;background:#fff8e6;border-left:4px solid #C9922A;border-radius:4px">
-        <p style="margin:0;color:#C9922A;font-weight:bold">⚠️ Advance Payment Expected</p>
-        <p style="margin:8px 0 0">Customer should pay ₹500 advance via UPI: <strong>MRBRAJWASITRAVELS.eazypay@icici</strong></p>
-        <p style="margin:5px 0 0;font-size:13px;color:#666">This advance is fully refundable if car does not arrive or booking is cancelled before arrival.</p>
-      </div>
+      <p style="margin-top:16px;color:#666">Advance ₹500 expected via UPI: <strong>MRBRAJWASITRAVELS.eazypay@icici</strong></p>
+      <a href="${process.env.BASE_URL || 'https://brajwasi-travels.onrender.com'}/admin/bookings" style="display:inline-block;margin-top:12px;background:#C9922A;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none">View in Admin Panel</a>
     </div>`
   );
 
   res.json({ success: true, bookingId: booking.bookingId, totalPrice });
 });
 
-// ====== CHAT ROUTES (PUBLIC) ======
-
-app.post('/api/chat/send', async (req, res) => {
-  const { customerName, customerPhone, message } = req.body;
-  if (!customerName || !customerPhone || !message) return res.status(400).json({ error: 'Missing fields' });
-  
-  const sessionId = crypto.createHash('md5').update(customerPhone.trim()).digest('hex');
-  
-  await ChatMessage.create({
-    sessionId,
-    customerName: customerName.trim(),
-    customerPhone: customerPhone.trim(),
-    message: message.trim(),
-    fromCustomer: true,
-    read: false
-  });
-
-  await sendPushToAll(
-    `💬 Chat: ${customerName}`,
-    message.substring(0, 100),
-    { url: '/admin' }
-  );
-
-  await sendEmail(
-    `💬 New Chat from ${customerName} (${customerPhone})`,
-    `<div style="font-family:Arial;max-width:500px;padding:20px">
-      <h3 style="color:#C9922A">💬 New Customer Chat Message</h3>
-      <p><strong>From:</strong> ${customerName}</p>
-      <p><strong>Phone:</strong> ${customerPhone}</p>
-      <p><strong>Message:</strong></p>
-      <div style="background:#f5f5f5;padding:12px;border-radius:6px;border-left:3px solid #C9922A">${message}</div>
-      <p style="margin-top:15px"><a href="/admin" style="color:#C9922A">Reply in Admin Panel →</a></p>
-    </div>`
-  );
-
-  res.json({ success: true, sessionId });
-});
-
-app.get('/api/chat/:phone/history', async (req, res) => {
-  const sessionId = crypto.createHash('md5').update(req.params.phone.trim()).digest('hex');
-  const messages = await ChatMessage.find({ sessionId }).sort({ createdAt: 1 }).limit(100);
-  res.json({ messages, sessionId });
-});
-
-app.get('/api/chat/:phone/updates', async (req, res) => {
-  const sessionId = crypto.createHash('md5').update(req.params.phone.trim()).digest('hex');
-  const since = req.query.since ? new Date(req.query.since) : new Date(0);
-  const messages = await ChatMessage.find({ sessionId, createdAt: { $gt: since } }).sort({ createdAt: 1 });
-  res.json({ messages });
-});
-
-// ====== ADMIN ROUTES ======
-
+// ========== ADMIN ROUTES ==========
 const adminAuth = (req, res, next) => {
   if (req.session.admin) return next();
   res.redirect('/admin/login');
@@ -248,24 +245,10 @@ app.get('/admin', adminAuth, async (req, res) => {
   const stats = {
     totalCars: await Car.countDocuments({ isActive: true }),
     totalBookings: await Booking.countDocuments(),
-    pendingBookings: await Booking.countDocuments({ status: 'pending' }),
+    pendingBookings: await Booking.countDocuments({ status: { $in: ['pending','advance_pending'] } }),
     confirmedBookings: await Booking.countDocuments({ status: 'confirmed' })
   };
-
-  const chatSessions = await ChatMessage.aggregate([
-    { $sort: { createdAt: -1 } },
-    { $group: {
-      _id: '$sessionId',
-      customerName: { $first: '$customerName' },
-      customerPhone: { $first: '$customerPhone' },
-      lastMessage: { $first: '$message' },
-      lastTime: { $first: '$createdAt' },
-      unreadCount: { $sum: { $cond: [{ $and: [{ $eq: ['$fromCustomer', true] }, { $eq: ['$read', false] }] }, 1, 0] } }
-    }},
-    { $sort: { lastTime: -1 } }
-  ]);
-
-  res.render('admin/dashboard', { cars, bookings, stats, chatSessions });
+  res.render('admin/dashboard', { cars, bookings, stats });
 });
 
 app.get('/admin/login', (req, res) => {
@@ -275,7 +258,7 @@ app.get('/admin/login', (req, res) => {
 
 app.post('/admin/login', (req, res) => {
   const { username, password } = req.body;
-  if (username === (process.env.ADMIN_USERNAME || 'admin') && 
+  if (username === (process.env.ADMIN_USERNAME || 'admin') &&
       password === (process.env.ADMIN_PASSWORD || 'brajwasi@2024')) {
     req.session.admin = true;
     res.redirect('/admin');
@@ -284,66 +267,71 @@ app.post('/admin/login', (req, res) => {
   }
 });
 
-app.get('/admin/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/admin/login');
-});
+app.get('/admin/logout', (req, res) => { req.session.destroy(); res.redirect('/admin/login'); });
 
+// Add car
 app.post('/admin/cars/add', adminAuth, upload.single('image'), async (req, res) => {
   const { name, model, pricePerKm, fixedKm, fixedPrice, extraKmCharge, tollTax, availableIn, seats, ac, description } = req.body;
   const imagePath = req.file ? '/uploads/' + req.file.filename : '/images/default-crysta.jpg';
   await Car.create({
-    name, model,
-    image: imagePath,
+    name, model, image: imagePath,
     pricePerKm: Number(pricePerKm),
     fixedPackage: fixedKm && fixedPrice ? { km: Number(fixedKm), price: Number(fixedPrice) } : undefined,
     extraKmCharge: Number(extraKmCharge),
     tollTax: tollTax || 'As per actual',
     availableIn: availableIn ? availableIn.split(',').map(s => s.trim()) : ['Agra'],
     seats: Number(seats) || 4,
-    ac: ac === 'true',
-    description
+    ac: ac === 'true', description
   });
   res.redirect('/admin');
 });
 
-// Edit car - show form
+// Edit car GET
 app.get('/admin/cars/:id/edit', adminAuth, async (req, res) => {
   const car = await Car.findById(req.params.id);
   if (!car) return res.redirect('/admin');
   res.render('admin/edit-car', { car });
 });
 
-// Edit car - save
+// Edit car POST
 app.post('/admin/cars/:id/edit', adminAuth, upload.single('image'), async (req, res) => {
   const { name, model, pricePerKm, fixedKm, fixedPrice, extraKmCharge, tollTax, availableIn, seats, ac, description } = req.body;
-  const update = {
+  const updates = {
     name, model,
     pricePerKm: Number(pricePerKm),
-    fixedPackage: fixedKm && fixedPrice ? { km: Number(fixedKm), price: Number(fixedPrice) } : { km: 0, price: 0 },
+    fixedPackage: fixedKm && fixedPrice ? { km: Number(fixedKm), price: Number(fixedPrice) } : undefined,
     extraKmCharge: Number(extraKmCharge),
     tollTax: tollTax || 'As per actual',
     availableIn: availableIn ? availableIn.split(',').map(s => s.trim()) : ['Agra'],
     seats: Number(seats) || 4,
-    ac: ac === 'true',
-    description
+    ac: ac === 'true', description
   };
-  if (req.file) update.image = '/uploads/' + req.file.filename;
-  await Car.findByIdAndUpdate(req.params.id, update);
+  if (req.file) updates.image = '/uploads/' + req.file.filename;
+  await Car.findByIdAndUpdate(req.params.id, updates);
   res.redirect('/admin');
 });
 
+// Toggle isActive
 app.post('/admin/cars/:id/toggle', adminAuth, async (req, res) => {
   const car = await Car.findById(req.params.id);
   if (car) { car.isActive = !car.isActive; await car.save(); }
-  res.json({ success: true, isActive: car ? car.isActive : false });
+  res.redirect('/admin');
 });
 
+// Toggle availability (on/off for booking)
+app.post('/admin/cars/:id/availability', adminAuth, async (req, res) => {
+  const car = await Car.findById(req.params.id);
+  if (car) { car.isAvailable = !car.isAvailable; await car.save(); }
+  res.json({ success: true, isAvailable: car.isAvailable });
+});
+
+// Delete car
 app.post('/admin/cars/:id/delete', adminAuth, async (req, res) => {
   await Car.findByIdAndDelete(req.params.id);
   res.redirect('/admin');
 });
 
+// Bookings
 app.get('/admin/bookings', adminAuth, async (req, res) => {
   const bookings = await Booking.find().populate('car').sort({ createdAt: -1 });
   res.render('admin/bookings', { bookings });
@@ -355,40 +343,41 @@ app.post('/admin/bookings/:id/status', adminAuth, async (req, res) => {
 });
 
 app.post('/admin/bookings/:id/advance', adminAuth, async (req, res) => {
-  const booking = await Booking.findByIdAndUpdate(req.params.id, { advancePaid: req.body.paid === 'true' }, { new: true });
-  res.json({ success: true, advancePaid: booking.advancePaid });
+  await Booking.findByIdAndUpdate(req.params.id, { advancePaid: true, status: 'confirmed' });
+  res.redirect('/admin/bookings');
 });
 
+// Push notification
 app.post('/admin/push', adminAuth, async (req, res) => {
-  const { title, body } = req.body;
-  await sendPushToAll(title, body);
+  await sendPushToAll(req.body.title, req.body.body);
   res.json({ success: true });
 });
 
-// Admin chat - get messages for a session
-app.get('/admin/chat/:sessionId/messages', adminAuth, async (req, res) => {
-  const messages = await ChatMessage.find({ sessionId: req.params.sessionId }).sort({ createdAt: 1 });
-  await ChatMessage.updateMany({ sessionId: req.params.sessionId, fromCustomer: true }, { read: true });
-  res.json({ messages });
+// Chat admin page
+app.get('/admin/chat', adminAuth, async (req, res) => {
+  const chats = await ChatSession.find().sort({ lastMessageAt: -1 });
+  res.render('admin/chat', { chats });
 });
 
-// Admin reply to chat
-app.post('/admin/chat/:sessionId/reply', adminAuth, async (req, res) => {
-  const { message } = req.body;
-  const existing = await ChatMessage.findOne({ sessionId: req.params.sessionId });
-  if (!existing) return res.status(404).json({ error: 'Session not found' });
-  
-  await ChatMessage.create({
-    sessionId: req.params.sessionId,
-    customerName: existing.customerName,
-    customerPhone: existing.customerPhone,
-    message,
-    fromCustomer: false,
-    read: true
-  });
-
-  res.json({ success: true });
+// Get single chat messages
+app.get('/admin/chat/:sessionId', adminAuth, async (req, res) => {
+  const chat = await ChatSession.findOne({ sessionId: req.params.sessionId });
+  if (!chat) return res.json({ messages: [] });
+  await ChatSession.updateOne({ sessionId: req.params.sessionId }, { unreadCount: 0 });
+  res.json({ chat });
 });
 
+// Google Search Console verification (static file)
+app.get('/google:code.html', (req, res) => {
+  res.send(`google-site-verification: google${req.params.code}.html`);
+});
+
+// ========== START ==========
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Brajwasi Travels running on port ${PORT}`));
+server.listen(PORT, () => console.log(`🚀 Brajwasi Travels on port ${PORT}`));
+
+// Chat list API (admin)
+app.get('/admin/chat/list', adminAuth, async (req, res) => {
+  const chats = await ChatSession.find().sort({ lastMessageAt: -1 }).lean();
+  res.json({ chats });
+});
