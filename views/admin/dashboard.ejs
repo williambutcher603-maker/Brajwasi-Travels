@@ -137,6 +137,7 @@ input:checked+.toggle-slider:before{transform:translateX(19px);background:var(--
 .chat-bubble{max-width:72%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word;}
 .chat-bubble.customer{background:var(--bg);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.06);}
 .chat-bubble.admin{background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
+.bubble-text{word-break:break-word;line-height:1.5;}
 .bubble-time{font-size:10px;opacity:.6;margin-top:4px;}
 .chat-reply-row{display:flex;gap:10px;padding:13px 16px;border-top:1px solid var(--border);background:var(--bg);}
 .chat-reply-row input{flex:1;background:var(--bg-2);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;}
@@ -451,43 +452,124 @@ async function sendPush() {
   finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send to All'; }
 }
 
+// ── Admin Chat ───────────────────────────────────────────────
 let activeChatSession = null;
+let activeChatName = '';
+let activeChatPhone = '';
+let lastAdminMsgTime = null;
+let adminChatPollInterval = null;
+
 async function loadAdminChat(sessionId, name, phone) {
+  // Stop any existing poll
+  stopAdminChatPoll();
+
   activeChatSession = sessionId;
+  activeChatName = name;
+  activeChatPhone = phone;
+
+  // Highlight active sidebar item
   document.querySelectorAll('.chat-list-item').forEach(el => el.classList.remove('active'));
   document.getElementById('chat-item-' + sessionId)?.classList.add('active');
+
+  // Build chat UI
   const area = document.getElementById('chatMainArea');
   area.innerHTML = `
     <div class="chat-topbar">
-      <div><div style="font-weight:700;font-size:15px">${name}</div><div style="font-size:11px;color:var(--text-muted)">${phone}</div></div>
+      <div>
+        <div style="font-weight:700;font-size:15px">${name}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${phone}</div>
+      </div>
       <div class="chat-actions">
         <a href="https://wa.me/91${phone}" target="_blank" class="btn btn-green btn-sm"><i class="fab fa-whatsapp"></i> WhatsApp</a>
         <button class="btn btn-danger btn-sm" onclick="clearChat('${sessionId}')"><i class="fas fa-trash"></i> Clear</button>
       </div>
     </div>
-    <div class="chat-messages-area" id="adminChatMessages"></div>
+    <div class="chat-messages-area" id="adminChatMessages">
+      <div style="text-align:center;color:var(--text-light);padding:20px;font-size:13px">Loading...</div>
+    </div>
     <div class="chat-reply-row">
-      <input type="text" id="adminReplyInput" placeholder="Type reply..." onkeypress="if(event.key==='Enter')sendAdminReply('${sessionId}')">
-      <button class="btn btn-gold btn-sm" onclick="sendAdminReply('${sessionId}')"><i class="fas fa-paper-plane"></i></button>
+      <input type="text" id="adminReplyInput" placeholder="Type reply and press Enter..."
+        onkeypress="if(event.key==='Enter')sendAdminReply('${sessionId}')">
+      <button class="btn btn-gold btn-sm" onclick="sendAdminReply('${sessionId}')">
+        <i class="fas fa-paper-plane"></i>
+      </button>
     </div>`;
-  const resp = await fetch('/admin/chat/' + sessionId + '/messages');
-  const data = await resp.json();
-  renderMsgs(data.messages);
+
+  // Load full history
+  try {
+    const resp = await fetch('/admin/chat/' + sessionId + '/messages');
+    const data = await resp.json();
+    renderMsgs(data.messages, true);
+    if (data.messages.length > 0) {
+      lastAdminMsgTime = data.messages[data.messages.length - 1].createdAt;
+    }
+  } catch(e) {
+    console.error('Failed to load chat:', e);
+  }
+
+  // Start polling for new messages every 3 seconds
+  startAdminChatPoll(sessionId);
+  document.getElementById('adminReplyInput')?.focus();
 }
 
-function renderMsgs(messages) {
+function renderMsgs(messages, replace = false) {
   const c = document.getElementById('adminChatMessages');
   if (!c) return;
-  if (!messages.length) { c.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:20px">No messages</div>'; return; }
-  c.innerHTML = '';
+
+  if (replace) {
+    c.innerHTML = '';
+    if (!messages.length) {
+      c.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:30px;font-size:13px"><i class="fas fa-comment-slash" style="display:block;font-size:28px;color:#ddd;margin-bottom:8px"></i>No messages yet</div>';
+      return;
+    }
+  }
+
   messages.forEach(m => {
+    // Skip if already rendered (check by _id)
+    if (document.getElementById('msg-' + m._id)) return;
     const d = document.createElement('div');
+    d.id = 'msg-' + m._id;
     d.className = 'chat-bubble ' + (m.fromCustomer ? 'customer' : 'admin');
-    const t = new Date(m.createdAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-    d.innerHTML = `${m.message}<div class="bubble-time">${m.fromCustomer ? m.customerName : '👨‍💼 Admin'} · ${t}</div>`;
+    const t = new Date(m.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    const sender = m.fromCustomer ? `<strong>${m.customerName}</strong>` : '👨‍💼 <strong>Admin</strong>';
+    d.innerHTML = `<div class="bubble-text">${escapeHtml(m.message)}</div><div class="bubble-time">${sender} · ${t}</div>`;
     c.appendChild(d);
+    if (lastAdminMsgTime === null || new Date(m.createdAt) > new Date(lastAdminMsgTime)) {
+      lastAdminMsgTime = m.createdAt;
+    }
   });
   c.scrollTop = c.scrollHeight;
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function pollAdminChat() {
+  if (!activeChatSession) return;
+  try {
+    const since = lastAdminMsgTime || new Date(0).toISOString();
+    const resp = await fetch(`/admin/chat/${activeChatSession}/updates?since=${encodeURIComponent(since)}`);
+    const data = await resp.json();
+    if (data.messages && data.messages.length > 0) {
+      renderMsgs(data.messages, false);
+    }
+  } catch(e) {}
+}
+
+function startAdminChatPoll(sessionId) {
+  stopAdminChatPoll();
+  adminChatPollInterval = setInterval(() => {
+    if (activeChatSession === sessionId) pollAdminChat();
+    else stopAdminChatPoll();
+  }, 3000);
+}
+
+function stopAdminChatPoll() {
+  if (adminChatPollInterval) {
+    clearInterval(adminChatPollInterval);
+    adminChatPollInterval = null;
+  }
 }
 
 async function sendAdminReply(sessionId) {
@@ -495,18 +577,44 @@ async function sendAdminReply(sessionId) {
   const msg = input?.value?.trim();
   if (!msg) return;
   input.value = '';
-  await fetch('/admin/chat/' + sessionId + '/reply', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:msg}) });
-  const resp = await fetch('/admin/chat/' + sessionId + '/messages');
-  const data = await resp.json();
-  renderMsgs(data.messages);
+  input.disabled = true;
+
+  try {
+    await fetch('/admin/chat/' + sessionId + '/reply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg })
+    });
+    // Immediately fetch updated messages
+    const resp = await fetch('/admin/chat/' + sessionId + '/messages');
+    const data = await resp.json();
+    renderMsgs(data.messages, true);
+    if (data.messages.length > 0) {
+      lastAdminMsgTime = data.messages[data.messages.length - 1].createdAt;
+    }
+  } catch(e) {
+    alert('Failed to send reply');
+  } finally {
+    input.disabled = false;
+    input.focus();
+  }
 }
 
 async function clearChat(sessionId) {
-  if (!confirm('Clear all messages in this chat? This cannot be undone.')) return;
-  await fetch('/admin/chat/' + sessionId, { method: 'DELETE' });
-  document.getElementById('chatMainArea').innerHTML = '<div class="chat-placeholder"><i class="fas fa-check-circle" style="color:var(--green)"></i><p>Chat cleared</p></div>';
-  const item = document.getElementById('chat-item-' + sessionId);
-  if (item) item.remove();
+  if (!confirm('Clear ALL messages in this chat? This cannot be undone.')) return;
+  try {
+    await fetch('/admin/chat/' + sessionId, { method: 'DELETE' });
+    stopAdminChatPoll();
+    activeChatSession = null;
+    lastAdminMsgTime = null;
+    document.getElementById('chatMainArea').innerHTML =
+      '<div class="chat-placeholder"><i class="fas fa-check-circle" style="color:var(--green);font-size:32px"></i><p style="margin-top:8px">Chat history cleared</p></div>';
+    const item = document.getElementById('chat-item-' + sessionId);
+    if (item) item.remove();
+    // Update unread badge
+    const badge = document.querySelector('.nav-badge');
+    if (badge) badge.remove();
+  } catch(e) { alert('Failed to clear chat'); }
 }
 
 if (window.innerWidth < 900) document.getElementById('menu-btn').style.display = 'block';

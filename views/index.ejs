@@ -32,9 +32,6 @@
       <div>
         <h1>Brajwasi Tour & Travels</h1>
         <span>Est. 2018 · Agra</span>
-      </div>
-    </a>
-    <div class="nav-links">
       <a href="#cars">Our Fleet</a>
       <a href="#why-us">Why Us</a>
       <a href="#contact">Contact</a>
@@ -66,11 +63,11 @@
       <a href="tel:9411061000" class="btn-outline"><i class="fas fa-phone"></i> 9411061000</a>
     </div>
     <div class="hero-stats">
+      <div class="stat"><span>2018</span><em>Est. in Agra</em></div>
+      <div class="stat-divider"></div>
       <div class="stat"><span>5000+</span><em>Trips Done</em></div>
       <div class="stat-divider"></div>
       <div class="stat"><span>24/7</span><em>Service</em></div>
-      <div class="stat-divider"></div>
-      <div class="stat"><span>100%</span><em>Safe Rides</em></div>
     </div>
   </div>
   <div class="scroll-indicator"><i class="fas fa-chevron-down"></i></div>
@@ -444,23 +441,27 @@ async function loadChatHistory() {
     const data = await resp.json();
     const msgs = document.getElementById('chatMessages');
     msgs.innerHTML = '';
-    if (!data.messages.length) {
-      msgs.innerHTML = '<div class="chat-empty"><i class="fas fa-comment-slash" style="font-size:28px;display:block;margin-bottom:8px;color:#ccc"></i>No messages yet. Say hello!</div>';
+    if (!data.messages || !data.messages.length) {
+      msgs.innerHTML = '<div class="chat-empty"><i class="fas fa-comment-slash" style="font-size:28px;display:block;margin-bottom:8px;color:#ccc"></i>No messages yet.<br>Say hello!</div>';
     } else {
       data.messages.forEach(m => appendChatMsg(m, false));
-      lastMsgTime = data.messages.at(-1).createdAt;
+      lastMsgTime = data.messages[data.messages.length - 1].createdAt;
     }
     scrollChatToBottom();
-  } catch(e) {}
+  } catch(e) { console.log('Chat load error:', e); }
 }
 function appendChatMsg(msg, scroll = true) {
   const msgs = document.getElementById('chatMessages');
   const emptyEl = msgs.querySelector('.chat-empty');
   if (emptyEl) emptyEl.remove();
+  // Prevent duplicate messages by _id
+  if (msg._id && document.getElementById('cmsg-' + msg._id)) return;
   const div = document.createElement('div');
   div.className = 'chat-msg ' + (msg.fromCustomer ? 'from-me' : 'from-admin');
+  if (msg._id) div.id = 'cmsg-' + msg._id;
   const time = new Date(msg.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-  div.innerHTML = `${msg.message}<div class="chat-msg-time">${msg.fromCustomer ? 'You' : 'Brajwasi'} · ${time}</div>`;
+  const sender = msg.fromCustomer ? 'You' : '🧑‍💼 Brajwasi';
+  div.innerHTML = `<div>${msg.message}</div><div class="chat-msg-time">${sender} · ${time}</div>`;
   msgs.appendChild(div);
   if (scroll) scrollChatToBottom();
 }
@@ -473,14 +474,21 @@ async function sendChatMsg() {
   const msg = input.value.trim();
   if (!msg || !chatPhone) return;
   input.value = '';
-  appendChatMsg({ message: msg, fromCustomer: true, createdAt: new Date().toISOString() });
+  // Optimistic UI (no id yet)
+  const tempId = 'temp-' + Date.now();
+  appendChatMsg({ _id: tempId, message: msg, fromCustomer: true, createdAt: new Date().toISOString() });
   try {
-    await fetch('/api/chat/send', {
+    const resp = await fetch('/api/chat/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ customerName: chatName, customerPhone: chatPhone, message: msg })
     });
+    const data = await resp.json();
     lastMsgTime = new Date().toISOString();
+    // Remove temp message, reload history to get real _id
+    const tempEl = document.getElementById('cmsg-' + tempId);
+    if (tempEl) tempEl.remove();
+    await loadChatHistory();
   } catch(e) {}
 }
 async function pollForReplies() {
@@ -489,13 +497,17 @@ async function pollForReplies() {
     const since = lastMsgTime || new Date(0).toISOString();
     const resp = await fetch('/api/chat/' + encodeURIComponent(chatPhone) + '/updates?since=' + encodeURIComponent(since));
     const data = await resp.json();
-    data.messages.filter(m => !m.fromCustomer).forEach(m => {
-      appendChatMsg(m);
-      lastMsgTime = m.createdAt;
-    });
+    if (data.messages && data.messages.length > 0) {
+      data.messages.forEach(m => {
+        appendChatMsg(m);
+        if (!lastMsgTime || new Date(m.createdAt) > new Date(lastMsgTime)) {
+          lastMsgTime = m.createdAt;
+        }
+      });
+    }
   } catch(e) {}
 }
-function startPolling() { if (!chatPollInterval) chatPollInterval = setInterval(pollForReplies, 5000); }
+function startPolling() { if (!chatPollInterval) chatPollInterval = setInterval(pollForReplies, 4000); }
 function stopPolling() { clearInterval(chatPollInterval); chatPollInterval = null; }
 
 // ===== BOOKING MODAL =====
