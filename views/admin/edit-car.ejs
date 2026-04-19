@@ -1,68 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Edit Car – Brajwasi Admin</title>
 <link rel="icon" type="image/png" href="/images/favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-:root{--gold:#B8780A;--gold-light:#D4920E;--gold-dark:#8A5A06;--gold-bg:#FFF8EC;--bg:#FFFFFF;--bg-2:#F8F5F0;--bg-3:#F0EBE3;--border:#E8DDD0;--text:#1A1208;--text-muted:#7A6A55;--red:#C0392B;--radius:10px;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg-2);color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;}
-.card{background:var(--bg);border:1px solid var(--border);border-radius:16px;width:100%;max-width:700px;overflow:hidden;box-shadow:0 4px 20px rgba(184,120,10,.10);}
-.card-head{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg);}
-.card-head h2{font-family:'Playfair Display',serif;font-size:20px;color:var(--text);}
-form{padding:28px;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-.form-group{display:flex;flex-direction:column;gap:5px;}
-.form-group.full{grid-column:1/-1;}
-label{font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
-input[type=text],input[type=number],input[type=file],textarea,select{background:var(--bg-2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;width:100%;}
-input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,120,10,.08);}
-select option{background:var(--bg);}
-.current-img{width:140px;height:90px;object-fit:cover;border-radius:10px;border:1px solid var(--border);display:block;margin-bottom:8px;}
-.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s;text-decoration:none;font-family:'DM Sans',sans-serif;}
-.btn-gold{background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:#fff;box-shadow:0 2px 10px rgba(184,120,10,.25);}
-.btn-gold:hover{opacity:.9;}
-.btn-secondary{background:var(--bg-2);color:var(--text-muted);border:1px solid var(--border);}
-.btn-secondary:hover{color:var(--text);}
-.btn-actions{display:flex;gap:12px;margin-top:24px;}
-@media(max-width:600px){.form-grid{grid-template-columns:1fr;}}
+:root{--gold:#B8731A;--g2:#D4882A;--bg:#F8F4EF;--white:#fff;--text:#1C1C1C;--t3:#7A7A7A;--border:#E8DDD0;--r:10px;}
+*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;}
+.hdr{background:var(--white);border-bottom:1px solid var(--border);padding:13px 22px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.hdr h1{font-family:'Playfair Display',serif;font-size:18px;color:var(--text);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-decoration:none;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--g2));color:#fff;}
+.btn-sec{background:var(--bg);color:var(--t3);border:1px solid var(--border);}
+.container{max-width:780px;margin:28px auto;padding:0 20px;}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:26px;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.card-title{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px;display:flex;align-items:center;gap:8px;color:var(--text);}
+.card-title i{color:var(--gold);}
+.fg{margin-bottom:14px;}.fg label{display:block;font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;font-weight:600;}
+input,textarea,select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:all 0.2s;}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.preview{width:100%;height:155px;object-fit:cover;border-radius:8px;border:1px solid var(--border);margin-bottom:10px;}
+.acts{display:flex;gap:10px;margin-top:18px;}
+@media(max-width:600px){.grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
-<div class="card">
-  <div class="card-head">
-    <h2><i class="fas fa-edit" style="color:var(--gold);margin-right:8px"></i>Edit Car</h2>
-    <a href="/admin" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
-  </div>
-  <form method="POST" action="/admin/cars/<%= car._id %>/edit" enctype="multipart/form-data">
-    <div class="form-grid">
-      <div class="form-group"><label>Car Brand *</label><input type="text" name="name" value="<%= car.name %>" required></div>
-      <div class="form-group"><label>Car Model *</label><input type="text" name="model" value="<%= car.model %>" required></div>
-      <div class="form-group full">
-        <label>Current Photo</label>
-        <img src="<%= car.image %>" class="current-img" onerror="this.src='/images/default-crysta.jpg'" alt="Current">
-        <label style="margin-top:6px">Upload New Photo (leave empty to keep current)</label>
-        <input type="file" name="image" accept="image/*">
+<div class="hdr">
+  <a href="/admin" class="btn btn-sec"><i class="fas fa-arrow-left"></i> Back</a>
+  <h1>Edit: <%= car.model %></h1>
+</div>
+<div class="container">
+  <div class="card">
+    <div class="card-title"><i class="fas fa-edit"></i> Edit Car Details</div>
+    <img src="<%= car.image %>" class="preview" id="prev" onerror="this.src='/images/default-crysta.jpg'" alt="Car">
+    <form method="POST" action="/admin/cars/<%= car._id %>/edit" enctype="multipart/form-data">
+      <div class="grid">
+        <div class="fg"><label>Brand *</label><input type="text" name="name" value="<%= car.name %>" required></div>
+        <div class="fg"><label>Model *</label><input type="text" name="model" value="<%= car.model %>" required></div>
+        <div class="fg"><label>New Photo (optional)</label><input type="file" name="image" accept="image/*" onchange="prev.src=URL.createObjectURL(this.files[0])"></div>
+        <div class="fg"><label>Available In</label><input type="text" name="availableIn" value="<%= car.availableIn.join(', ') %>"></div>
+        <div class="fg"><label>Price Per KM ₹ *</label><input type="number" name="pricePerKm" value="<%= car.pricePerKm %>" required min="1"></div>
+        <div class="fg"><label>Extra KM Charge ₹ *</label><input type="number" name="extraKmCharge" value="<%= car.extraKmCharge %>" required min="1"></div>
+        <div class="fg"><label>Fixed Package KM</label><input type="number" name="fixedKm" value="<%= car.fixedPackage&&car.fixedPackage.km ? car.fixedPackage.km : '' %>"></div>
+        <div class="fg"><label>Fixed Package Price ₹</label><input type="number" name="fixedPrice" value="<%= car.fixedPackage&&car.fixedPackage.price ? car.fixedPackage.price : '' %>"></div>
+        <div class="fg"><label>Toll Tax</label><input type="text" name="tollTax" value="<%= car.tollTax %>"></div>
+        <div class="fg"><label>Seats</label><select name="seats"><option value="4" <%=car.seats==4?'selected':''%>>4</option><option value="5" <%=car.seats==5?'selected':''%>>5</option><option value="6" <%=car.seats==6?'selected':''%>>6</option><option value="7" <%=car.seats==7?'selected':''%>>7</option><option value="8" <%=car.seats==8?'selected':''%>>8</option><option value="12" <%=car.seats==12?'selected':''%>>12</option></select></div>
+        <div class="fg"><label>AC</label><select name="ac"><option value="true" <%=car.ac?'selected':''%>>AC ✅</option><option value="false" <%=!car.ac?'selected':''%>>Non-AC</option></select></div>
       </div>
-      <div class="form-group"><label>Price Per KM (₹) *</label><input type="number" name="pricePerKm" value="<%= car.pricePerKm %>" required min="1"></div>
-      <div class="form-group"><label>Extra KM Charge (₹) *</label><input type="number" name="extraKmCharge" value="<%= car.extraKmCharge %>" required min="1"></div>
-      <div class="form-group"><label>Fixed Package KM</label><input type="number" name="fixedKm" value="<%= (car.fixedPackage&&car.fixedPackage.km)?car.fixedPackage.km:'' %>" placeholder="300 (optional)"></div>
-      <div class="form-group"><label>Fixed Package Price (₹)</label><input type="number" name="fixedPrice" value="<%= (car.fixedPackage&&car.fixedPackage.price)?car.fixedPackage.price:'' %>" placeholder="3200 (optional)"></div>
-      <div class="form-group"><label>Toll Tax Info</label><input type="text" name="tollTax" value="<%= car.tollTax %>"></div>
-      <div class="form-group"><label>Available In</label><input type="text" name="availableIn" value="<%= car.availableIn.join(', ') %>"></div>
-      <div class="form-group"><label>Seating Capacity</label><select name="seats"><% [4,5,6,7,8,12].forEach(n=>{ %><option value="<%= n %>" <%= car.seats===n?'selected':'' %>><%= n %> Seater</option><% }) %></select></div>
-      <div class="form-group"><label>Air Conditioning</label><select name="ac"><option value="true" <%= car.ac?'selected':'' %>>AC ✅</option><option value="false" <%= !car.ac?'selected':'' %>>Non-AC</option></select></div>
-      <div class="form-group full"><label>Description</label><textarea name="description" rows="3"><%= car.description||'' %></textarea></div>
-    </div>
-    <div class="btn-actions">
-      <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Save Changes</button>
-      <a href="/admin" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
-    </div>
-  </form>
+      <div class="fg"><label>Description</label><textarea name="description" rows="3"><%= car.description||'' %></textarea></div>
+      <div class="acts">
+        <button type="submit" class="btn btn-gold"><i class="fas fa-save"></i> Save Changes</button>
+        <a href="/admin" class="btn btn-sec"><i class="fas fa-times"></i> Cancel</a>
+      </div>
+    </form>
+  </div>
 </div>
 </body>
 </html>

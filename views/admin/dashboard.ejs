@@ -1,378 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin – Brajwasi Tour & Travels</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin – Brajwasi Travels</title>
 <link rel="manifest" href="/admin-manifest.json">
 <link rel="icon" type="image/png" href="/images/favicon.png">
-<link rel="apple-touch-icon" href="/images/favicon.png">
-<meta name="theme-color" content="#B8780A">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#B8731A">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-:root {
-  --gold:#B8780A; --gold-light:#D4920E; --gold-dark:#8A5A06;
-  --gold-bg:#FFF8EC; --gold-bg2:#FEF3DC;
-  --bg:#FFFFFF; --bg-2:#F8F5F0; --bg-3:#F0EBE3;
-  --border:#E8DDD0; --text:#1A1208; --text-muted:#7A6A55; --text-light:#A0917E;
-  --green:#1A7A3A; --green-bg:#EAF7EE;
-  --red:#C0392B; --red-bg:#FDEDEB;
-  --blue:#1A5DAB; --blue-bg:#EEF4FF;
-  --shadow:0 2px 12px rgba(184,120,10,0.10);
-  --shadow-lg:0 8px 32px rgba(184,120,10,0.14);
-  --radius:10px; --radius-lg:16px;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg-2);color:var(--text);min-height:100vh;}
-
+:root{--gold:#B8731A;--g2:#D4882A;--bg:#F8F4EF;--white:#fff;--text:#1C1C1C;--t2:#4A4A4A;--t3:#7A7A7A;--border:#E8DDD0;--green:#1A7A3A;--gbg:#E8F5ED;--red:#C0392B;--blue:#1565C0;--r:10px;}
+*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 /* SIDEBAR */
-.sidebar{position:fixed;left:0;top:0;bottom:0;width:248px;background:var(--bg);border-right:1px solid var(--border);padding:0;display:flex;flex-direction:column;z-index:100;box-shadow:2px 0 12px rgba(184,120,10,0.07);}
-.sidebar-brand{padding:20px 20px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
-.sidebar-brand .brand-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;overflow:hidden;flex-shrink:0;}
-.sidebar-brand .brand-icon img{width:100%;height:100%;object-fit:cover;border-radius:9px;}
-.sidebar-brand h1{font-family:'Playfair Display',serif;font-size:14px;color:var(--text);line-height:1.3;}
-.sidebar-brand span{font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;}
-.nav-section{padding:10px 12px 4px;font-size:10px;color:var(--text-light);letter-spacing:2px;text-transform:uppercase;font-weight:700;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--text-muted);text-decoration:none;font-size:13.5px;font-weight:500;transition:all .2s;cursor:pointer;border:none;background:none;width:100%;text-align:left;border-radius:8px;margin:1px 8px;width:calc(100% - 16px);position:relative;}
-.nav-item:hover{color:var(--gold-dark);background:var(--gold-bg);}
-.nav-item.active{color:var(--gold-dark);background:var(--gold-bg2);font-weight:700;}
-.nav-item i{width:18px;font-size:13px;color:var(--text-light);}
-.nav-item.active i,.nav-item:hover i{color:var(--gold);}
-.nav-badge{position:absolute;right:12px;background:var(--red);color:#fff;border-radius:10px;font-size:10px;font-weight:800;padding:2px 7px;min-width:18px;text-align:center;}
-.sidebar-footer{margin-top:auto;padding:12px;border-top:1px solid var(--border);}
-
+.sb{position:fixed;left:0;top:0;bottom:0;width:225px;background:var(--white);border-right:1px solid var(--border);padding:18px 0;display:flex;flex-direction:column;z-index:100;box-shadow:2px 0 12px rgba(0,0,0,0.05);}
+.sb-brand{padding:0 16px 18px;border-bottom:1px solid var(--border);margin-bottom:10px;}
+.sb-ico{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),var(--g2));border-radius:9px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px;}
+.sb-ico img{width:100%;height:100%;object-fit:cover;}
+.sb-brand h1{font-family:'Playfair Display',serif;font-size:14px;color:var(--text);line-height:1.2;}
+.sb-brand span{font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;}
+.ni{display:flex;align-items:center;gap:9px;padding:10px 16px;color:var(--t3);text-decoration:none;font-size:13px;transition:all 0.2s;cursor:pointer;border:none;background:none;width:100%;text-align:left;border-left:3px solid transparent;}
+.ni:hover,.ni.on{color:var(--gold);background:#FFF8EE;border-left-color:var(--gold);}
+.ni i{width:16px;font-size:12px;color:var(--t3);}
+.ni:hover i,.ni.on i{color:var(--gold);}
+.ni .nb{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto;}
+.sb-ft{margin-top:auto;padding:12px 0;border-top:1px solid var(--border);}
 /* MAIN */
-.main{margin-left:248px;min-height:100vh;}
-.topbar{background:var(--bg);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 6px rgba(184,120,10,0.06);}
-.topbar h2{font-size:18px;font-weight:700;color:var(--text);}
-.topbar-right{display:flex;align-items:center;gap:10px;}
-.content{padding:24px;}
-
+.main{margin-left:225px;min-height:100vh;}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:13px 22px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+.topbar h2{font-size:17px;font-weight:600;color:var(--text);}
+.content{padding:22px;}
 /* STATS */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:24px;}
-.stat-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;box-shadow:var(--shadow);}
-.stat-card .stat-label{font-size:11px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;font-weight:600;}
-.stat-card .stat-num{font-family:'Playfair Display',serif;font-size:34px;color:var(--text);font-weight:700;}
-.stat-card .stat-icon{float:right;width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;}
-.si-gold{background:var(--gold-bg2);color:var(--gold);}
-.si-green{background:var(--green-bg);color:var(--green);}
-.si-blue{background:var(--blue-bg);color:var(--blue);}
-.si-red{background:var(--red-bg);color:var(--red);}
-
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.sc{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.sc .lbl{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px;}
+.sc .num{font-family:'Playfair Display',serif;font-size:30px;color:var(--text);}
+.sc .ico{float:right;width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.ic-g{background:var(--gbg);color:var(--green);}.ic-gold{background:#FFF8EE;color:var(--gold);}.ic-b{background:#EBF4FF;color:var(--blue);}.ic-r{background:#FEF2F2;color:var(--red);}
 /* CARDS */
-.section-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:24px;box-shadow:var(--shadow);}
-.section-head{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg);}
-.section-head h3{font-size:15px;font-weight:700;color:var(--text);}
-
-/* FORMS */
-.add-car-form{padding:22px;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.form-group{margin-bottom:0;}
-.form-group.full{grid-column:1/-1;}
-label{display:block;font-size:11px;color:var(--text-muted);margin-bottom:5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
-input[type=text],input[type=number],input[type=file],input[type=email],textarea,select{width:100%;background:var(--bg-2);border:1px solid var(--border);color:var(--text);padding:9px 13px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:all .2s;}
-input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,120,10,0.08);}
-select option{background:var(--bg);}
-
-/* TABLE */
-.table-wrap{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;font-size:13px;}
-th{padding:11px 16px;text-align:left;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);font-weight:700;background:var(--bg-2);}
-td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:var(--bg-2);}
-.car-img-thumb{width:80px;height:52px;object-fit:cover;border-radius:8px;border:1px solid var(--border);}
-
-/* BADGES */
-.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
-.badge-active{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,58,.25);}
-.badge-inactive{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
-.badge-pending{background:var(--gold-bg2);color:var(--gold-dark);border:1px solid rgba(184,120,10,.3);}
-.badge-confirmed{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,58,.25);}
-.badge-cancelled{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
-.badge-completed{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(26,93,171,.25);}
-
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.card-hd h3{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px;}
+.card-hd h3 i{color:var(--gold);}
+.tp{display:none;}.tp.on{display:block;}
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;text-decoration:none;font-family:'DM Sans',sans-serif;}
-.btn-gold{background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:#fff;box-shadow:0 2px 8px rgba(184,120,10,.25);}
-.btn-gold:hover{opacity:.9;transform:translateY(-1px);}
-.btn-sm{padding:5px 11px;font-size:11px;}
-.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
-.btn-danger:hover{background:var(--red);color:#fff;}
-.btn-secondary{background:var(--bg-2);color:var(--text-muted);border:1px solid var(--border);}
-.btn-secondary:hover{color:var(--text);border-color:var(--gold);}
-.btn-blue{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(26,93,171,.2);}
-.btn-blue:hover{background:var(--blue);color:#fff;}
-.btn-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,58,.2);}
-.btn-green:hover{background:var(--green);color:#fff;}
-
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--g2));color:#fff;}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.btn-danger{background:#FEF2F2;color:var(--red);border:1px solid #FECACA;}
+.btn-danger:hover{background:#FECACA;}
+.btn-sec{background:var(--bg);color:var(--t3);border:1px solid var(--border);}
+.btn-sec:hover{color:var(--text);}
+.btn-blue{background:#EBF4FF;color:var(--blue);border:1px solid rgba(21,101,192,0.2);}
+/* FORM */
+.fg{margin-bottom:13px;}.fg label{display:block;font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;font-weight:600;}
+input,textarea,select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:all 0.2s;}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(184,115,26,0.08);}
+.fg-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.fg-full{grid-column:1/-1;}
+.form-pad{padding:18px;}
+/* TABLE */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{padding:10px 13px;text-align:left;font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border);background:var(--bg);}
+td{padding:11px 13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#FAFAFA;}
+.thumb{width:68px;height:46px;object-fit:cover;border-radius:7px;border:1px solid var(--border);}
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;padding:3px 9px;border-radius:14px;font-size:11px;font-weight:600;}
+.b-active{background:var(--gbg);color:var(--green);border:1px solid rgba(26,122,58,0.2);}
+.b-inactive{background:#FEF2F2;color:var(--red);border:1px solid #FECACA;}
+.b-avail{background:var(--gbg);color:var(--green);border:1px solid rgba(26,122,58,0.2);}
+.b-unavail{background:#FEF2F2;color:var(--red);border:1px solid #FECACA;}
+.b-pending{background:#FFF8EE;color:var(--gold);border:1px solid rgba(184,115,26,0.25);}
+.b-advance_pending{background:#FFFDE7;color:#F57F17;border:1px solid #F9A825;}
+.b-confirmed{background:var(--gbg);color:var(--green);border:1px solid rgba(26,122,58,0.2);}
+.b-completed{background:#EBF4FF;color:var(--blue);border:1px solid rgba(21,101,192,0.2);}
+.b-cancelled{background:#FEF2F2;color:var(--red);border:1px solid #FECACA;}
 /* TOGGLE */
-.toggle-switch{position:relative;display:inline-block;width:40px;height:21px;}
-.toggle-switch input{opacity:0;width:0;height:0;}
-.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--red-bg);border-radius:21px;transition:.3s;border:1px solid rgba(192,57,43,.3);}
-.toggle-slider:before{position:absolute;content:"";height:15px;width:15px;left:2px;bottom:2px;background:var(--red);border-radius:50%;transition:.3s;}
-input:checked+.toggle-slider{background:var(--green-bg);border-color:rgba(26,122,58,.3);}
-input:checked+.toggle-slider:before{transform:translateX(19px);background:var(--green);}
-.toggle-wrap{display:flex;align-items:center;gap:8px;}
-.toggle-label{font-size:12px;color:var(--text-muted);}
-
-/* PANEL TABS */
-.tab-panel{display:none;}
-.tab-panel.active{display:block;}
-
+.tgl{position:relative;width:40px;height:21px;cursor:pointer;}
+.tgl input{opacity:0;width:0;height:0;}
+.tslider{position:absolute;inset:0;background:var(--border);border-radius:21px;transition:0.3s;}
+.tslider::before{content:'';position:absolute;height:15px;width:15px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:0.3s;}
+input:checked+.tslider{background:var(--green);}
+input:checked+.tslider::before{transform:translateX(19px);}
 /* CHAT */
-.chat-layout{display:grid;grid-template-columns:260px 1fr;height:580px;}
-.chat-sidebar{border-right:1px solid var(--border);overflow-y:auto;background:var(--bg-2);}
-.chat-list-item{padding:13px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .2s;display:flex;gap:11px;align-items:flex-start;}
-.chat-list-item:hover,.chat-list-item.active{background:var(--gold-bg);}
-.chat-avatar{width:36px;height:36px;min-width:36px;background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;}
-.chat-list-name{font-size:13px;font-weight:700;color:var(--text);}
-.chat-list-preview{font-size:11px;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:155px;}
-.chat-list-time{font-size:10px;color:var(--text-light);flex-shrink:0;}
-.unread-dot{width:8px;height:8px;background:var(--blue);border-radius:50%;margin-top:5px;flex-shrink:0;}
-.chat-main{display:flex;flex-direction:column;background:var(--bg);}
-.chat-topbar{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg);}
-.chat-messages-area{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--bg-2);}
-.chat-bubble{max-width:72%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word;}
-.chat-bubble.customer{background:var(--bg);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.06);}
-.chat-bubble.admin{background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
-.bubble-text{word-break:break-word;line-height:1.5;}
-.bubble-time{font-size:10px;opacity:.6;margin-top:4px;}
-.chat-reply-row{display:flex;gap:10px;padding:13px 16px;border-top:1px solid var(--border);background:var(--bg);}
-.chat-reply-row input{flex:1;background:var(--bg-2);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;}
-.chat-reply-row input:focus{border-color:var(--gold);}
-.chat-placeholder{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-light);flex-direction:column;gap:10px;}
-.chat-placeholder i{font-size:40px;color:var(--border);}
-.chat-actions{display:flex;gap:8px;align-items:center;}
-
-/* PUSH FORM */
-.push-form{padding:22px;}
-
-/* ADVANCE TAG */
-.advance-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:700;}
-.advance-paid{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,58,.2);}
-.advance-unpaid{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
-
-/* ALERT */
-.alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:18px;}
-.alert-success{background:var(--green-bg);border:1px solid rgba(26,122,58,.25);color:var(--green);}
-.empty-state{text-align:center;padding:48px;color:var(--text-light);}
-.empty-state i{font-size:38px;color:var(--border);margin-bottom:12px;display:block;}
-
-@media(max-width:900px){
-  .sidebar{transform:translateX(-100%);transition:transform .3s;}
-  .sidebar.open{transform:translateX(0);}
-  .main{margin-left:0;}
-  .stats-grid{grid-template-columns:1fr 1fr;}
-  .form-grid{grid-template-columns:1fr;}
-  .chat-layout{grid-template-columns:1fr;height:auto;}
-  .chat-sidebar{height:240px;border-right:none;border-bottom:1px solid var(--border);}
-}
-@media(max-width:600px){.stats-grid{grid-template-columns:1fr;}}
+.chat-pane{display:flex;min-height:420px;}
+.chat-list-col{width:270px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;}
+.chat-main-col{flex:1;display:flex;flex-direction:column;}
+.chat-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:all 0.15s;}
+.chat-item:hover,.chat-item.on{background:#FFF8EE;}
+.c-av{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),var(--g2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;flex-shrink:0;}
+.c-meta{flex:1;min-width:0;}.c-meta strong{display:block;font-size:13px;color:var(--text);}.c-meta span{display:block;font-size:11px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.c-unread{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;}
+.msgs-area{flex:1;padding:13px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;background:#F8F9FA;}
+.mb{max-width:76%;padding:8px 11px;border-radius:11px;font-size:13px;line-height:1.4;}
+.mb.customer{background:var(--white);border:1px solid var(--border);align-self:flex-start;border-radius:11px 11px 11px 2px;}
+.mb.admin{background:var(--gold);color:#fff;align-self:flex-end;border-radius:11px 11px 2px 11px;}
+.mb-t{font-size:10px;opacity:.5;margin-top:3px;display:block;text-align:right;}
+.msg-inp{display:flex;border-top:1px solid var(--border);}
+.msg-inp input{flex:1;border:none;padding:11px 13px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:var(--white);}
+.msg-inp button{background:var(--gold);color:#fff;border:none;padding:11px 16px;cursor:pointer;font-size:14px;}
+.no-chat-sel{display:flex;align-items:center;justify-content:center;flex:1;flex-direction:column;gap:10px;color:var(--t3);font-size:13px;}
+.no-chat-sel i{font-size:30px;color:var(--border);}
+.chat-top-bar{padding:11px 15px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg);}
+.chat-top-bar strong{font-size:14px;color:var(--text);}
+.chat-top-bar span{font-size:12px;color:var(--t3);}
+.empty{text-align:center;padding:40px;color:var(--t3);}
+.empty i{font-size:32px;color:var(--border);display:block;margin-bottom:10px;}
+/* RESPONSIVE */
+@media(max-width:900px){.sb{display:none;}.main{margin-left:0;}.stats{grid-template-columns:1fr 1fr;}.fg-grid{grid-template-columns:1fr;}.chat-pane{flex-direction:column;}.chat-list-col{width:100%;max-height:220px;border-right:none;border-bottom:1px solid var(--border);}}
+@media(max-width:500px){.stats{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
-
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
-    <div class="brand-icon">
-      <img src="/images/favicon.png" alt="BT" onerror="this.style.display='none';this.parentNode.innerHTML='<i class=\'fas fa-car\'></i>'">
-    </div>
-    <div>
-      <h1>Brajwasi Tour & Travels</h1>
-      <span>Admin Panel</span>
-    </div>
+<aside class="sb">
+  <div class="sb-brand">
+    <div class="sb-ico"><img src="/images/favicon.png" alt="BT" onerror="this.outerHTML='<i class=\'fas fa-car\' style=\'color:#fff;font-size:16px\'></i>'"></div>
+    <h1>Brajwasi Travels</h1><span>Admin Panel</span>
   </div>
-
-  <div style="padding:10px 12px;flex:1;overflow-y:auto;">
-    <div class="nav-section">Main</div>
-    <button class="nav-item active" onclick="showTab('dashboard',this)"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
-    <a href="/admin/bookings" class="nav-item"><i class="fas fa-calendar-check"></i> All Bookings</a>
-
-    <div class="nav-section" style="margin-top:8px">Fleet</div>
-    <button class="nav-item" onclick="showTab('add-car',this)"><i class="fas fa-plus-circle"></i> Add New Car</button>
-    <button class="nav-item" onclick="showTab('fleet',this)"><i class="fas fa-car-side"></i> Manage Fleet</button>
-
-    <div class="nav-section" style="margin-top:8px">Communication</div>
-    <button class="nav-item" onclick="showTab('chat',this)">
-      <i class="fas fa-comments"></i> Live Chats
-      <% const totalUnread = chatSessions.reduce((a,s) => a + (s.unreadCount||0), 0); %>
-      <% if(totalUnread > 0){ %><span class="nav-badge"><%= totalUnread %></span><% } %>
-    </button>
-    <button class="nav-item" onclick="showTab('push',this)"><i class="fas fa-bell"></i> Push Notifications</button>
-  </div>
-
-  <div class="sidebar-footer">
-    <a href="/" target="_blank" class="nav-item"><i class="fas fa-external-link-alt"></i> View Website</a>
-    <a href="/admin/logout" class="nav-item" style="color:var(--red)"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  <button class="ni on" id="n0" onclick="showT('dash',this)"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+  <button class="ni" id="n1" onclick="showT('add',this)"><i class="fas fa-plus-circle"></i> Add New Car</button>
+  <button class="ni" id="n2" onclick="showT('fleet',this)"><i class="fas fa-car-side"></i> Fleet</button>
+  <a href="/admin/bookings" class="ni"><i class="fas fa-calendar-check"></i> Bookings <% if(stats.pendingBookings>0){%><span class="nb"><%= stats.pendingBookings %></span><%}%></a>
+  <button class="ni" id="n3" onclick="showT('chat',this);loadChats()"><i class="fas fa-comments"></i> Customer Chat <span class="nb" id="total-unread" style="display:none">!</span></button>
+  <button class="ni" id="n4" onclick="showT('push',this)"><i class="fas fa-bell"></i> Push</button>
+  <div class="sb-ft">
+    <a href="/track" target="_blank" class="ni"><i class="fas fa-map-marker-alt"></i> Tracking Page</a>
+    <a href="/" target="_blank" class="ni"><i class="fas fa-external-link-alt"></i> View Website</a>
+    <a href="/admin/logout" class="ni" style="color:var(--red)"><i class="fas fa-sign-out-alt"></i> Logout</a>
   </div>
 </aside>
 
 <main class="main">
   <div class="topbar">
-    <div style="display:flex;align-items:center;gap:12px">
-      <button onclick="document.getElementById('sidebar').classList.toggle('open')" id="menu-btn" style="display:none;background:none;border:1px solid var(--border);color:var(--gold);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:15px"><i class="fas fa-bars"></i></button>
-      <h2 id="page-title">Dashboard</h2>
-    </div>
-    <div class="topbar-right">
-      <a href="tel:9411061000" class="btn btn-secondary btn-sm"><i class="fas fa-phone"></i> 9411061000</a>
+    <h2 id="pt">Dashboard</h2>
+    <div style="display:flex;gap:8px">
+      <a href="tel:9411061000" class="btn btn-sec btn-sm"><i class="fas fa-phone"></i> 9411061000</a>
       <a href="/admin/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
   </div>
-
   <div class="content">
 
     <!-- DASHBOARD -->
-    <div id="tab-dashboard" class="tab-panel active">
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon si-gold" style="float:right"><i class="fas fa-car"></i></div><div class="stat-label">Active Cars</div><div class="stat-num"><%= stats.totalCars %></div></div>
-        <div class="stat-card"><div class="stat-icon si-blue" style="float:right"><i class="fas fa-calendar-check"></i></div><div class="stat-label">Total Bookings</div><div class="stat-num"><%= stats.totalBookings %></div></div>
-        <div class="stat-card"><div class="stat-icon si-red" style="float:right"><i class="fas fa-clock"></i></div><div class="stat-label">Pending</div><div class="stat-num"><%= stats.pendingBookings %></div></div>
-        <div class="stat-card"><div class="stat-icon si-green" style="float:right"><i class="fas fa-check"></i></div><div class="stat-label">Confirmed</div><div class="stat-num"><%= stats.confirmedBookings %></div></div>
+    <div id="tp-dash" class="tp on">
+      <div class="stats">
+        <div class="sc"><div class="ico ic-gold"><i class="fas fa-car"></i></div><div class="lbl">Active Cars</div><div class="num"><%= stats.totalCars %></div></div>
+        <div class="sc"><div class="ico ic-g"><i class="fas fa-calendar-check"></i></div><div class="lbl">Total Bookings</div><div class="num"><%= stats.totalBookings %></div></div>
+        <div class="sc"><div class="ico ic-b"><i class="fas fa-clock"></i></div><div class="lbl">Pending</div><div class="num"><%= stats.pendingBookings %></div></div>
+        <div class="sc"><div class="ico ic-r"><i class="fas fa-check"></i></div><div class="lbl">Confirmed</div><div class="num"><%= stats.confirmedBookings %></div></div>
       </div>
-
-      <div class="section-card">
-        <div class="section-head"><h3><i class="fas fa-clock" style="color:var(--gold);margin-right:7px"></i>Recent Bookings</h3><a href="/admin/bookings" class="btn btn-secondary btn-sm">View All</a></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Booking ID</th><th>Customer</th><th>Car</th><th>Route</th><th>Date</th><th>Fare</th><th>Advance</th><th>Status</th></tr></thead>
-            <tbody>
-              <% if(!bookings.length){ %>
-              <tr><td colspan="8"><div class="empty-state"><i class="fas fa-calendar-times"></i><p>No bookings yet</p></div></td></tr>
-              <% } else { bookings.forEach(b => { %>
-              <tr>
-                <td style="font-weight:800;color:var(--gold-dark);font-family:monospace;font-size:12px"><%= b.bookingId %></td>
-                <td><div style="font-weight:600"><%= b.customerName %></div><div style="font-size:11px;color:var(--text-muted)"><%= b.customerPhone %></div></td>
-                <td style="font-size:12px"><%= b.carName||'N/A' %></td>
-                <td style="font-size:12px;color:var(--text-muted)"><%= b.pickupLocation %> → <%= b.dropLocation %></td>
-                <td style="font-size:12px"><%= new Date(b.journeyDate).toLocaleDateString('en-IN') %></td>
-                <td style="color:var(--green);font-weight:700"><% if(b.totalPrice){ %>₹<%= b.totalPrice.toLocaleString('en-IN') %><% }else{ %>TBD<% } %></td>
-                <td><span class="advance-tag <%= b.advancePaid?'advance-paid':'advance-unpaid' %>"><%= b.advancePaid?'✓ Paid':'✗ Pending' %></span></td>
-                <td><span class="badge badge-<%= b.status %>"><%= b.status %></span></td>
-              </tr>
-              <% })} %>
-            </tbody>
-          </table>
-        </div>
+      <div class="card">
+        <div class="card-hd"><h3><i class="fas fa-clock"></i> Recent Bookings</h3><a href="/admin/bookings" class="btn btn-sec btn-sm">View All</a></div>
+        <div class="tw"><table><thead><tr><th>Booking ID</th><th>Customer</th><th>Car</th><th>Route</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+          <%if(!bookings.length){%><tr><td colspan="7"><div class="empty"><i class="fas fa-calendar-times"></i>No bookings yet</div></td></tr><%}%>
+          <%bookings.forEach(b=>{%><tr>
+            <td style="font-weight:700;color:var(--gold)"><%=b.bookingId%></td>
+            <td><div><%=b.customerName%></div><div style="font-size:11px;color:var(--t3)"><%=b.customerPhone%></div></td>
+            <td><%=b.carName||'—'%></td>
+            <td style="font-size:12px"><%=b.pickupLocation%> → <%=b.dropLocation%></td>
+            <td style="font-size:12px"><%=new Date(b.journeyDate).toLocaleDateString('en-IN')%></td>
+            <td style="color:var(--green);font-weight:700"><%=b.totalPrice?'₹'+b.totalPrice.toLocaleString('en-IN'):'TBD'%></td>
+            <td><span class="bdg b-<%=b.status%>"><%=b.status.replace('_',' ')%></span></td>
+          </tr><%})%>
+        </tbody></table></div>
       </div>
     </div>
 
     <!-- ADD CAR -->
-    <div id="tab-add-car" class="tab-panel">
-      <div class="section-card">
-        <div class="section-head"><h3><i class="fas fa-plus-circle" style="color:var(--gold);margin-right:7px"></i>Add New Car to Fleet</h3></div>
-        <form class="add-car-form" method="POST" action="/admin/cars/add" enctype="multipart/form-data">
-          <div class="form-grid">
-            <div class="form-group"><label>Car Brand *</label><input type="text" name="name" placeholder="e.g. Toyota" required></div>
-            <div class="form-group"><label>Car Model *</label><input type="text" name="model" placeholder="e.g. Innova Crysta" required></div>
-            <div class="form-group"><label>Car Photo *</label><input type="file" name="image" accept="image/*" required></div>
-            <div class="form-group"><label>Available In</label><input type="text" name="availableIn" placeholder="Agra, Delhi" value="Agra"></div>
-            <div class="form-group"><label>Price Per KM (₹) *</label><input type="number" name="pricePerKm" placeholder="12" required min="1"></div>
-            <div class="form-group"><label>Extra KM Charge (₹) *</label><input type="number" name="extraKmCharge" placeholder="12" required min="1"></div>
-            <div class="form-group"><label>Fixed Package KM</label><input type="number" name="fixedKm" placeholder="300 (optional)"></div>
-            <div class="form-group"><label>Fixed Package Price (₹)</label><input type="number" name="fixedPrice" placeholder="3200 (optional)"></div>
-            <div class="form-group"><label>Toll Tax Info</label><input type="text" name="tollTax" value="As per actual (paid by customer)"></div>
-            <div class="form-group"><label>Seating Capacity</label><select name="seats"><option value="4">4 Seater</option><option value="5">5 Seater</option><option value="6">6 Seater</option><option value="7" selected>7 Seater</option><option value="8">8 Seater</option><option value="12">12 Seater</option></select></div>
-            <div class="form-group"><label>Air Conditioning</label><select name="ac"><option value="true">AC ✅</option><option value="false">Non-AC</option></select></div>
-            <div class="form-group full"><label>Description</label><textarea name="description" rows="3" placeholder="Describe the vehicle..."></textarea></div>
+    <div id="tp-add" class="tp">
+      <div class="card">
+        <div class="card-hd"><h3><i class="fas fa-plus-circle"></i> Add New Car</h3></div>
+        <form class="form-pad" method="POST" action="/admin/cars/add" enctype="multipart/form-data">
+          <div class="fg-grid">
+            <div class="fg"><label>Brand *</label><input type="text" name="name" placeholder="e.g. Toyota" required></div>
+            <div class="fg"><label>Model *</label><input type="text" name="model" placeholder="e.g. Innova Crysta" required></div>
+            <div class="fg"><label>Photo *</label><input type="file" name="image" accept="image/*" required></div>
+            <div class="fg"><label>Available In</label><input type="text" name="availableIn" value="Agra" placeholder="Agra, Delhi"></div>
+            <div class="fg"><label>Price Per KM ₹ *</label><input type="number" name="pricePerKm" placeholder="12" required min="1"></div>
+            <div class="fg"><label>Extra KM Charge ₹ *</label><input type="number" name="extraKmCharge" placeholder="12" required min="1"></div>
+            <div class="fg"><label>Fixed Package KM</label><input type="number" name="fixedKm" placeholder="300 (optional)"></div>
+            <div class="fg"><label>Fixed Package Price ₹ (blank=auto)</label><input type="number" name="fixedPrice" placeholder="Leave blank to auto-calc"></div>
+            <div class="fg"><label>Toll Tax Info</label><input type="text" name="tollTax" value="As per actual (paid by customer)"></div>
+            <div class="fg"><label>Seats</label><select name="seats"><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7" selected>7</option><option value="8">8</option><option value="12">12</option></select></div>
+            <div class="fg"><label>AC</label><select name="ac"><option value="true">AC ✅</option><option value="false">Non-AC</option></select></div>
+            <div class="fg fg-full"><label>Description</label><textarea name="description" rows="2" placeholder="Describe the vehicle..."></textarea></div>
           </div>
-          <div style="margin-top:18px"><button type="submit" class="btn btn-gold"><i class="fas fa-plus"></i> Add Car to Fleet</button></div>
+          <button type="submit" class="btn btn-gold" style="margin-top:8px"><i class="fas fa-plus"></i> Add Car</button>
         </form>
       </div>
     </div>
 
     <!-- FLEET -->
-    <div id="tab-fleet" class="tab-panel">
-      <div class="section-card">
-        <div class="section-head"><h3><i class="fas fa-car-side" style="color:var(--gold);margin-right:7px"></i>Fleet (<%= cars.length %> cars)</h3><button onclick="showTab('add-car')" class="btn btn-gold btn-sm"><i class="fas fa-plus"></i> Add Car</button></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Photo</th><th>Car</th><th>Pricing</th><th>Package</th><th>Location</th><th>Available</th><th>Actions</th></tr></thead>
-            <tbody>
-              <% if(!cars.length){ %>
-              <tr><td colspan="7"><div class="empty-state"><i class="fas fa-car"></i><p>No cars added yet</p></div></td></tr>
-              <% } else { cars.forEach(car => { %>
-              <tr id="car-row-<%= car._id %>">
-                <td><img src="<%= car.image %>" class="car-img-thumb" onerror="this.src='/images/default-crysta.jpg'" alt="<%= car.model %>"></td>
-                <td><div style="font-weight:700"><%= car.model %></div><div style="font-size:11px;color:var(--text-muted)"><%= car.name %> · <%= car.seats %> Seats<%= car.ac?' · AC':'' %></div></td>
-                <td><div style="font-weight:700;color:var(--gold-dark)">₹<%= car.pricePerKm %>/km</div><div style="font-size:11px;color:var(--text-muted)">Extra: ₹<%= car.extraKmCharge %>/km</div></td>
-                <td><% if(car.fixedPackage&&car.fixedPackage.km){ %><div style="font-weight:700;color:var(--green)">₹<%= car.fixedPackage.price %></div><div style="font-size:11px;color:var(--text-muted)">for <%= car.fixedPackage.km %>km</div><% }else{ %><span style="color:var(--text-light);font-size:12px">No package</span><% } %></td>
-                <td style="font-size:12px;color:var(--text-muted)"><%= car.availableIn.join(', ') %></td>
-                <td>
-                  <div class="toggle-wrap">
-                    <label class="toggle-switch">
-                      <input type="checkbox" <%= car.isActive?'checked':'' %> onchange="toggleCar('<%= car._id %>',this)">
-                      <span class="toggle-slider"></span>
-                    </label>
-                    <span class="toggle-label" id="toggle-label-<%= car._id %>"><%= car.isActive?'Active':'Off' %></span>
-                  </div>
-                </td>
-                <td>
-                  <div style="display:flex;gap:6px;flex-wrap:wrap">
-                    <a href="/admin/cars/<%= car._id %>/edit" class="btn btn-blue btn-sm"><i class="fas fa-edit"></i> Edit</a>
-                    <form method="POST" action="/admin/cars/<%= car._id %>/delete" style="display:inline" onsubmit="return confirm('Delete this car?')">
-                      <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-              <% })} %>
-            </tbody>
-          </table>
-        </div>
+    <div id="tp-fleet" class="tp">
+      <div class="card">
+        <div class="card-hd"><h3><i class="fas fa-car-side"></i> Fleet (<%= cars.length %>)</h3><button onclick="showT('add',document.getElementById('n1'))" class="btn btn-gold btn-sm"><i class="fas fa-plus"></i> Add</button></div>
+        <div class="tw"><table><thead><tr><th>Photo</th><th>Car</th><th>Pricing</th><th>Available</th><th>Active</th><th>Actions</th></tr></thead><tbody>
+          <%if(!cars.length){%><tr><td colspan="6"><div class="empty"><i class="fas fa-car"></i>No cars yet</div></td></tr><%}%>
+          <%cars.forEach(car=>{%><tr>
+            <td><img src="<%=car.image%>" class="thumb" onerror="this.src='/images/default-crysta.jpg'" alt="<%=car.model%>"></td>
+            <td><div style="font-weight:600"><%=car.model%></div><div style="font-size:11px;color:var(--t3)"><%=car.name%> · <%=car.seats%>s<%=car.ac?' · AC':''%></div><div style="font-size:11px;color:var(--t3)"><%=car.availableIn.join(', ')%></div></td>
+            <td><div style="color:var(--gold);font-weight:700">₹<%=car.pricePerKm%>/km</div><%if(car.fixedPackage&&car.fixedPackage.km){%><div style="color:var(--green);font-size:12px">₹<%=car.fixedPackage.price%>/<%=car.fixedPackage.km%>km</div><%}%><div style="font-size:11px;color:var(--t3)">Extra:₹<%=car.extraKmCharge%>/km</div></td>
+            <td><label class="tgl"><input type="checkbox" <%=car.isAvailable?'checked':''%> onchange="toggleAvail('<%=car._id%>',this)"><span class="tslider"></span></label><div style="font-size:10px;color:var(--t3);margin-top:3px"><%=car.isAvailable?'Available':'Unavailable'%></div></td>
+            <td><span class="bdg b-<%=car.isActive?'active':'inactive'%>"><%=car.isActive?'Active':'Inactive'%></span></td>
+            <td><div style="display:flex;gap:5px;flex-wrap:wrap">
+              <a href="/admin/cars/<%=car._id%>/edit" class="btn btn-blue btn-sm"><i class="fas fa-edit"></i> Edit</a>
+              <form method="POST" action="/admin/cars/<%=car._id%>/toggle" style="display:inline"><button type="submit" class="btn btn-sec btn-sm"><i class="fas fa-toggle-<%=car.isActive?'on':'off'%>"></i> <%=car.isActive?'Disable':'Enable'%></button></form>
+              <form method="POST" action="/admin/cars/<%=car._id%>/delete" style="display:inline" onsubmit="return confirm('Delete this car?')"><button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></form>
+            </div></td>
+          </tr><%})%>
+        </tbody></table></div>
       </div>
     </div>
 
     <!-- CHAT -->
-    <div id="tab-chat" class="tab-panel">
-      <div class="section-card">
-        <div class="section-head">
-          <h3><i class="fas fa-comments" style="color:var(--gold);margin-right:7px"></i>Customer Chats</h3>
-          <span style="font-size:12px;color:var(--text-muted)"><%= chatSessions.length %> conversations</span>
-        </div>
-        <div class="chat-layout">
-          <div class="chat-sidebar">
-            <% if(!chatSessions.length){ %>
-            <div class="empty-state" style="padding:30px"><i class="fas fa-comment-slash"></i><p>No chats yet</p></div>
-            <% } else { chatSessions.forEach(s => { %>
-            <div class="chat-list-item" onclick="loadAdminChat('<%= s._id %>','<%= s.customerName %>','<%= s.customerPhone %>')" id="chat-item-<%= s._id %>">
-              <div class="chat-avatar"><%= s.customerName.charAt(0).toUpperCase() %></div>
-              <div style="flex:1;min-width:0">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <span class="chat-list-name"><%= s.customerName %></span>
-                  <span class="chat-list-time"><%= new Date(s.lastTime).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) %></span>
-                </div>
-                <div style="font-size:11px;color:var(--text-light);margin-top:1px"><%= s.customerPhone %></div>
-                <div class="chat-list-preview"><%= s.lastMessage %></div>
-              </div>
-              <% if(s.unreadCount>0){ %><div class="unread-dot"></div><% } %>
-            </div>
-            <% })} %>
-          </div>
-          <div class="chat-main" id="chatMainArea">
-            <div class="chat-placeholder"><i class="fas fa-hand-pointer"></i><p>Select a conversation</p></div>
-          </div>
+    <div id="tp-chat" class="tp">
+      <div class="card">
+        <div class="card-hd"><h3><i class="fas fa-comments"></i> Customer Chats</h3><span style="font-size:12px;color:var(--t3)">Private – only admin can see all chats</span></div>
+        <div class="chat-pane">
+          <div class="chat-list-col" id="chat-list"><div class="empty"><i class="fas fa-comments"></i>Loading...</div></div>
+          <div class="chat-main-col" id="chat-main"><div class="no-chat-sel"><i class="fas fa-comments"></i>Select a conversation</div></div>
         </div>
       </div>
     </div>
 
     <!-- PUSH -->
-    <div id="tab-push" class="tab-panel">
-      <div class="section-card">
-        <div class="section-head"><h3><i class="fas fa-bell" style="color:var(--gold);margin-right:7px"></i>Send Push Notification</h3></div>
-        <div class="push-form">
-          <p style="color:var(--text-muted);font-size:14px;margin-bottom:20px">Send to all subscribed users — works even when browser is closed.</p>
-          <div class="form-grid">
-            <div class="form-group"><label>Title *</label><input type="text" id="push-title" value="🚗 Brajwasi Tour & Travels"></div>
-            <div class="form-group"><label>Message *</label><input type="text" id="push-body" placeholder="e.g. Special offer this weekend!"></div>
+    <div id="tp-push" class="tp">
+      <div class="card">
+        <div class="card-hd"><h3><i class="fas fa-bell"></i> Push Notifications</h3></div>
+        <div class="form-pad">
+          <p style="font-size:13px;color:var(--t3);margin-bottom:14px">Send notifications to all users – delivered even when the app is closed.</p>
+          <div class="fg-grid">
+            <div class="fg"><label>Title *</label><input type="text" id="push-title" value="🚗 Brajwasi Travels"></div>
+            <div class="fg"><label>Message *</label><input type="text" id="push-body" placeholder="Your message..."></div>
           </div>
-          <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-gold" onclick="sendPush()"><i class="fas fa-paper-plane"></i> Send to All</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('push-body').value='🎉 Special offer: 10% off on all bookings this weekend!'"><i class="fas fa-tag"></i> Offer Template</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('push-body').value='📞 Please confirm your booking. Call: 9411061000'"><i class="fas fa-phone"></i> Reminder</button>
+          <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:8px">
+            <button class="btn btn-gold" onclick="sendPush(event)"><i class="fas fa-paper-plane"></i> Send to All</button>
+            <button class="btn btn-sec" onclick="document.getElementById('push-body').value='🎉 Special discount! Book now and save.'"><i class="fas fa-tag"></i> Offer</button>
+            <button class="btn btn-sec" onclick="document.getElementById('push-body').value='📞 Please confirm your upcoming booking. Call 9411061000.'"><i class="fas fa-phone"></i> Reminder</button>
           </div>
-          <div id="push-result" style="margin-top:16px"></div>
+          <div id="push-res" style="margin-top:12px"></div>
         </div>
       </div>
     </div>
@@ -380,244 +247,236 @@ input:checked+.toggle-slider:before{transform:translateX(19px);background:var(--
   </div>
 </main>
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
-// PWA: register service worker for admin push
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').then(reg => {
-    console.log('Admin SW registered');
-  }).catch(() => {});
-}
+let curChat = null, curChatName = '', curChatPhone = '';
+let adminSock = null;
 
-// Request push permission on load for admin
-async function initAdminPush() {
-  if (!('Notification' in window)) return;
-  if (Notification.permission === 'default') {
-    const p = await Notification.requestPermission();
-    if (p === 'granted') subscribeAdminPush();
-  } else if (Notification.permission === 'granted') {
-    subscribeAdminPush();
-  }
-}
-async function subscribeAdminPush() {
+// ===== INIT: get token then connect socket =====
+async function initAdminSocket() {
   try {
-    const reg = await navigator.serviceWorker.ready;
-    const resp = await fetch('/vapid-public-key');
-    const { publicKey } = await resp.json();
-    const sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(publicKey)
+    const { token } = await fetch('/admin-socket-token').then(r => r.json());
+    adminSock = io({ query: { adminToken: token } });
+
+    adminSock.on('connect', () => console.log('✅ Admin socket connected'));
+    adminSock.on('connect_error', e => console.error('Socket error:', e.message));
+
+    adminSock.on('new-cust-msg', data => {
+      const unreadEl = document.getElementById('total-unread');
+      if (unreadEl) unreadEl.style.display = 'flex';
+      playPing();
+      // If chat tab is open, refresh list
+      if (document.getElementById('tp-chat').classList.contains('on')) {
+        loadChats();
+        // If this session is active, append live
+        if (curChat === data.sessionId) appendMsg('customer', data.text, data.ts);
+      } else {
+        loadChats(); // keep list fresh
+      }
     });
-    await fetch('/subscribe', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(sub) });
-  } catch(e) {}
-}
-function urlBase64ToUint8Array(base64) {
-  const padding = '='.repeat((4 - base64.length % 4) % 4);
-  const b64 = (base64 + padding).replace(/-/g,'+').replace(/_/g,'/');
-  const raw = window.atob(b64);
-  const arr = new Uint8Array(raw.length);
-  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
-  return arr;
-}
-initAdminPush();
 
-function showTab(name, el) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('tab-' + name)?.classList.add('active');
-  const titles = { dashboard:'Dashboard', 'add-car':'Add New Car', fleet:'Fleet Management', chat:'Live Chats', push:'Push Notifications' };
-  document.getElementById('page-title').textContent = titles[name] || name;
-  (el || document.querySelector(`[onclick*="'${name}'"]`))?.classList.add('active');
+    adminSock.on('chat-list-update', () => loadChats());
+
+  } catch(e) { console.error('initAdminSocket error:', e); }
 }
 
-async function toggleCar(carId, cb) {
-  try {
-    const r = await fetch('/admin/cars/' + carId + '/toggle', { method: 'POST' });
-    const d = await r.json();
-    document.getElementById('toggle-label-' + carId).textContent = d.isActive ? 'Active' : 'Off';
-  } catch(e) { cb.checked = !cb.checked; alert('Failed'); }
-}
+initAdminSocket();
 
-async function sendPush() {
-  const title = document.getElementById('push-title').value;
-  const body = document.getElementById('push-body').value;
-  if (!title || !body) return alert('Fill in both fields');
-  const btn = event.target; btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-  try {
-    await fetch('/admin/push', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title,body}) });
-    const r = document.getElementById('push-result');
-    r.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle"></i> Sent successfully!</div>';
-    setTimeout(() => r.innerHTML = '', 4000);
-  } catch(e) { alert('Failed'); }
-  finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send to All'; }
-}
-
-// ── Admin Chat ───────────────────────────────────────────────
-let activeChatSession = null;
-let activeChatName = '';
-let activeChatPhone = '';
-let lastAdminMsgTime = null;
-let adminChatPollInterval = null;
-
-async function loadAdminChat(sessionId, name, phone) {
-  // Stop any existing poll
-  stopAdminChatPoll();
-
-  activeChatSession = sessionId;
-  activeChatName = name;
-  activeChatPhone = phone;
-
-  // Highlight active sidebar item
-  document.querySelectorAll('.chat-list-item').forEach(el => el.classList.remove('active'));
-  document.getElementById('chat-item-' + sessionId)?.classList.add('active');
-
-  // Build chat UI
-  const area = document.getElementById('chatMainArea');
-  area.innerHTML = `
-    <div class="chat-topbar">
-      <div>
-        <div style="font-weight:700;font-size:15px">${name}</div>
-        <div style="font-size:11px;color:var(--text-muted)">${phone}</div>
-      </div>
-      <div class="chat-actions">
-        <a href="https://wa.me/91${phone}" target="_blank" class="btn btn-green btn-sm"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-        <button class="btn btn-danger btn-sm" onclick="clearChat('${sessionId}')"><i class="fas fa-trash"></i> Clear</button>
-      </div>
-    </div>
-    <div class="chat-messages-area" id="adminChatMessages">
-      <div style="text-align:center;color:var(--text-light);padding:20px;font-size:13px">Loading...</div>
-    </div>
-    <div class="chat-reply-row">
-      <input type="text" id="adminReplyInput" placeholder="Type reply and press Enter..."
-        onkeypress="if(event.key==='Enter')sendAdminReply('${sessionId}')">
-      <button class="btn btn-gold btn-sm" onclick="sendAdminReply('${sessionId}')">
-        <i class="fas fa-paper-plane"></i>
-      </button>
-    </div>`;
-
-  // Load full history
-  try {
-    const resp = await fetch('/admin/chat/' + sessionId + '/messages');
-    const data = await resp.json();
-    renderMsgs(data.messages, true);
-    if (data.messages.length > 0) {
-      lastAdminMsgTime = data.messages[data.messages.length - 1].createdAt;
-    }
-  } catch(e) {
-    console.error('Failed to load chat:', e);
-  }
-
-  // Start polling for new messages every 3 seconds
-  startAdminChatPoll(sessionId);
-  document.getElementById('adminReplyInput')?.focus();
-}
-
-function renderMsgs(messages, replace = false) {
-  const c = document.getElementById('adminChatMessages');
-  if (!c) return;
-
-  if (replace) {
-    c.innerHTML = '';
-    if (!messages.length) {
-      c.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:30px;font-size:13px"><i class="fas fa-comment-slash" style="display:block;font-size:28px;color:#ddd;margin-bottom:8px"></i>No messages yet</div>';
-      return;
-    }
-  }
-
-  messages.forEach(m => {
-    // Skip if already rendered (check by _id)
-    if (document.getElementById('msg-' + m._id)) return;
-    const d = document.createElement('div');
-    d.id = 'msg-' + m._id;
-    d.className = 'chat-bubble ' + (m.fromCustomer ? 'customer' : 'admin');
-    const t = new Date(m.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-    const sender = m.fromCustomer ? `<strong>${m.customerName}</strong>` : '👨‍💼 <strong>Admin</strong>';
-    d.innerHTML = `<div class="bubble-text">${escapeHtml(m.message)}</div><div class="bubble-time">${sender} · ${t}</div>`;
-    c.appendChild(d);
-    if (lastAdminMsgTime === null || new Date(m.createdAt) > new Date(lastAdminMsgTime)) {
-      lastAdminMsgTime = m.createdAt;
+// ===== PWA PUSH SETUP =====
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(async reg => {
+    if (Notification.permission === 'default') await Notification.requestPermission();
+    if (Notification.permission === 'granted') {
+      try {
+        const { publicKey } = await fetch('/vapid-public-key').then(r => r.json());
+        if (!publicKey) return;
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: b64ToUint8(publicKey)
+        });
+        await fetch('/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sub) });
+        console.log('✅ Admin push subscribed');
+      } catch(e) { console.log('Push setup:', e.message); }
     }
   });
-  c.scrollTop = c.scrollHeight;
 }
 
-function escapeHtml(text) {
-  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function b64ToUint8(b64) {
+  const pad = '='.repeat((4 - b64.length % 4) % 4);
+  const base64 = (b64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 
-async function pollAdminChat() {
-  if (!activeChatSession) return;
+function playPing() {
   try {
-    const since = lastAdminMsgTime || new Date(0).toISOString();
-    const resp = await fetch(`/admin/chat/${activeChatSession}/updates?since=${encodeURIComponent(since)}`);
-    const data = await resp.json();
-    if (data.messages && data.messages.length > 0) {
-      renderMsgs(data.messages, false);
-    }
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.setValueAtTime(880, ctx.currentTime);
+    o.frequency.setValueAtTime(660, ctx.currentTime + 0.12);
+    g.gain.setValueAtTime(0.25, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+    o.start(); o.stop(ctx.currentTime + 0.35);
   } catch(e) {}
 }
 
-function startAdminChatPoll(sessionId) {
-  stopAdminChatPoll();
-  adminChatPollInterval = setInterval(() => {
-    if (activeChatSession === sessionId) pollAdminChat();
-    else stopAdminChatPoll();
-  }, 3000);
+// ===== TABS =====
+function showT(name, el) {
+  document.querySelectorAll('.tp').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
+  document.getElementById('tp-' + name)?.classList.add('on');
+  if (el) el.classList.add('on');
+  const names = { dash: 'Dashboard', add: 'Add New Car', fleet: 'Fleet', chat: 'Customer Chat', push: 'Push Notifications' };
+  document.getElementById('pt').textContent = names[name] || name;
 }
 
-function stopAdminChatPoll() {
-  if (adminChatPollInterval) {
-    clearInterval(adminChatPollInterval);
-    adminChatPollInterval = null;
-  }
-}
-
-async function sendAdminReply(sessionId) {
-  const input = document.getElementById('adminReplyInput');
-  const msg = input?.value?.trim();
-  if (!msg) return;
-  input.value = '';
-  input.disabled = true;
-
+// ===== AVAILABILITY =====
+async function toggleAvail(id, cb) {
   try {
-    await fetch('/admin/chat/' + sessionId + '/reply', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: msg })
-    });
-    // Immediately fetch updated messages
-    const resp = await fetch('/admin/chat/' + sessionId + '/messages');
-    const data = await resp.json();
-    renderMsgs(data.messages, true);
-    if (data.messages.length > 0) {
-      lastAdminMsgTime = data.messages[data.messages.length - 1].createdAt;
+    const d = await fetch('/admin/cars/' + id + '/availability', { method: 'POST' }).then(r => r.json());
+    const lbl = cb.closest('td').querySelector('div');
+    if (lbl) lbl.textContent = d.isAvailable ? 'Available' : 'Unavailable';
+  } catch(e) { cb.checked = !cb.checked; }
+}
+
+// ===== CHAT =====
+async function loadChats() {
+  try {
+    const d = await fetch('/admin/chat/list').then(r => r.json());
+    const list = document.getElementById('chat-list');
+    if (!d.chats || !d.chats.length) {
+      list.innerHTML = '<div class="empty"><i class="fas fa-comments"></i><br>No chats yet</div>';
+      return;
     }
-  } catch(e) {
-    alert('Failed to send reply');
-  } finally {
-    input.disabled = false;
-    input.focus();
-  }
+    list.innerHTML = d.chats.map(c => {
+      const init = (c.customerName || 'G').charAt(0).toUpperCase();
+      const phone = c.customerPhone ? ' · ' + c.customerPhone : '';
+      const last = (c.lastMessage && !c.lastMessage.startsWith('[Info]')) ? c.lastMessage.substring(0, 40) : 'New conversation';
+      const unrd = c.unreadCount > 0 ? `<span class="c-unread">${c.unreadCount}</span>` : '';
+      const act = curChat === c.sessionId ? ' on' : '';
+      const sid = c.sessionId;
+      const cname = esc(c.customerName || 'Guest');
+      const cphone = (c.customerPhone || '');
+      return `<div class="chat-item${act}" data-id="${sid}" onclick="openChat('${sid}','${cname.replace(/'/g,"\'")}','${cphone}')">
+        <div class="c-av">${init}</div>
+        <div class="c-meta"><strong>${cname}${esc(phone)}</strong><span>${esc(last)}</span></div>
+        ${unrd}
+      </div>`;
+    }).join('');
+  } catch(e) { console.error('loadChats error:', e); }
 }
 
-async function clearChat(sessionId) {
-  if (!confirm('Clear ALL messages in this chat? This cannot be undone.')) return;
+async function openChat(sid, name, phone) {
+  curChat = sid; curChatName = name; curChatPhone = phone;
+  document.querySelectorAll('.chat-item').forEach(i => i.classList.toggle('on', i.dataset.id === sid));
+  // Remove unread badge
+  const item = document.querySelector(`.chat-item[data-id="${sid}"]`);
+  if (item) { const b = item.querySelector('.c-unread'); if (b) b.remove(); }
+  if (adminSock) adminSock.emit('admin-read', { sessionId: sid });
+  await loadMsgs(sid, name, phone);
+}
+
+async function loadMsgs(sid, name, phone) {
   try {
-    await fetch('/admin/chat/' + sessionId, { method: 'DELETE' });
-    stopAdminChatPoll();
-    activeChatSession = null;
-    lastAdminMsgTime = null;
-    document.getElementById('chatMainArea').innerHTML =
-      '<div class="chat-placeholder"><i class="fas fa-check-circle" style="color:var(--green);font-size:32px"></i><p style="margin-top:8px">Chat history cleared</p></div>';
-    const item = document.getElementById('chat-item-' + sessionId);
-    if (item) item.remove();
-    // Update unread badge
-    const badge = document.querySelector('.nav-badge');
-    if (badge) badge.remove();
-  } catch(e) { alert('Failed to clear chat'); }
+    const d = await fetch('/admin/chat/' + sid).then(r => r.json());
+    const msgs = (d.chat && d.chat.messages ? d.chat.messages : []).filter(m => !m.text.startsWith('[Info]'));
+    const main = document.getElementById('chat-main');
+    const phoneDisp = (phone || (d.chat && d.chat.customerPhone)) ? ` <span style="color:var(--t3);font-size:12px">· ${phone || d.chat.customerPhone}</span>` : '';
+    const displayName = name || (d.chat && d.chat.customerName) || 'Customer';
+
+    main.innerHTML =
+      `<div class="chat-top-bar">
+        <div><strong>${esc(displayName)}${phoneDisp}</strong></div>
+        <button onclick="clearChat('${sid}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Clear History</button>
+      </div>
+      <div class="msgs-area" id="msgs-area">
+        ${msgs.length === 0
+          ? '<div style="text-align:center;color:var(--t3);padding:24px;font-size:13px">No messages yet</div>'
+          : msgs.map(m => {
+              const t = new Date(m.timestamp);
+              const time = t.getHours() + ':' + String(t.getMinutes()).padStart(2, '0');
+              return `<div class="mb ${m.sender}">${esc(m.text)}<span class="mb-t">${time}</span></div>`;
+            }).join('')
+        }
+      </div>
+      <div class="msg-inp">
+        <input id="rep-inp" type="text" placeholder="Reply to ${esc(displayName)}..." onkeypress="if(event.key==='Enter')sendRep()">
+        <button onclick="sendRep()"><i class="fas fa-paper-plane"></i></button>
+      </div>`;
+
+    const ma = document.getElementById('msgs-area');
+    if (ma) ma.scrollTop = ma.scrollHeight;
+  } catch(e) { console.error('loadMsgs error:', e); }
 }
 
-if (window.innerWidth < 900) document.getElementById('menu-btn').style.display = 'block';
+function appendMsg(sender, text, ts) {
+  const ma = document.getElementById('msgs-area');
+  if (!ma) return;
+  const placeholder = ma.querySelector('[style*="No messages"]');
+  if (placeholder) placeholder.remove();
+  const t = new Date(ts);
+  const time = t.getHours() + ':' + String(t.getMinutes()).padStart(2, '0');
+  const d = document.createElement('div');
+  d.className = 'mb ' + sender;
+  d.innerHTML = esc(text) + `<span class="mb-t">${time}</span>`;
+  ma.appendChild(d);
+  ma.scrollTop = ma.scrollHeight;
+}
+
+function sendRep() {
+  const inp = document.getElementById('rep-inp');
+  const text = inp ? inp.value.trim() : '';
+  if (!text || !curChat || !adminSock) return;
+  adminSock.emit('admin-msg', { sessionId: curChat, text });
+  appendMsg('admin', text, new Date());
+  if (inp) inp.value = '';
+  loadChats();
+}
+
+async function clearChat(sid) {
+  if (!confirm('Clear all messages? This cannot be undone.')) return;
+  try {
+    await fetch('/admin/chat/' + sid + '/clear', { method: 'DELETE' });
+    await loadMsgs(sid, curChatName, curChatPhone);
+    loadChats();
+    aToast('Chat history cleared', 'ok');
+  } catch(e) {}
+}
+
+// ===== PUSH =====
+async function sendPush(e) {
+  const btn = e.target;
+  const title = document.getElementById('push-title').value;
+  const body = document.getElementById('push-body').value;
+  if (!title || !body) { alert('Fill in both title and message'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner" style="animation:spin 1s linear infinite"></i> Sending...';
+  try {
+    await fetch('/admin/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, body }) });
+    const el = document.getElementById('push-res');
+    if (el) el.innerHTML = '<div style="background:var(--gbg);border:1px solid rgba(26,122,58,0.2);color:var(--green);padding:10px 13px;border-radius:8px;font-size:13px"><i class="fas fa-check-circle"></i> Sent to all subscribed users!</div>';
+    setTimeout(() => { const el2 = document.getElementById('push-res'); if (el2) el2.innerHTML = ''; }, 5000);
+  } catch(e) {}
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send to All';
+}
+
+// ===== UTILS =====
+function esc(t) { return String(t || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function aToast(msg, type) {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;
+    background:${type==='ok'?'var(--gbg)':'#FEF2F2'};
+    border:1px solid ${type==='ok'?'rgba(26,122,58,0.3)':'#FECACA'};
+    color:${type==='ok'?'var(--green)':'var(--red)'};
+    padding:10px 18px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;
+    box-shadow:0 4px 16px rgba(0,0,0,0.1);`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
 </script>
 </body>
 </html>

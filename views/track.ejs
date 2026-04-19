@@ -3,234 +3,318 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Track Booking – Brajwasi Tour & Travels</title>
+<title>Track Your Booking – Brajwasi Tour & Travels Agra</title>
 <link rel="icon" type="image/png" href="/images/favicon.png">
-<meta name="theme-color" content="#B8780A">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root{--gold:#B8780A;--gold-l:#D4920E;--gold-d:#8A5A06;--gold-bg:#FFF8EC;--bg:#fff;--bg2:#F8F5F0;--bg3:#F0EBE3;--border:#E8DDD0;--text:#1A1208;--muted:#7A6A55;--light:#A0917E;--green:#1A7A3A;--green-bg:#EAF7EE;--red:#C0392B;--red-bg:#FDEDEB;--blue:#1A5DAB;--blue-bg:#EEF4FF;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg2);color:var(--text);min-height:100vh;}
-.header{background:var(--bg);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(184,120,10,.08);}
-.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--gold-l),var(--gold-d));border-radius:9px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
-.logo-icon img{width:100%;height:100%;object-fit:cover;border-radius:9px;}
-.logo h1{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);}
-.logo span{font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;}
-.back-btn{margin-left:auto;display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:13px;font-weight:600;padding:7px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg);transition:all .2s;}
-.back-btn:hover{color:var(--gold);border-color:var(--gold);}
-.page{max-width:720px;margin:0 auto;padding:28px 20px;}
-.search-card{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:28px;box-shadow:0 2px 16px rgba(184,120,10,.08);margin-bottom:24px;}
-.search-card h2{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:6px;}
-.search-card p{color:var(--muted);font-size:14px;margin-bottom:20px;}
-.search-row{display:flex;gap:10px;flex-wrap:wrap;}
-.search-row input{flex:1;min-width:200px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:11px 16px;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
-.search-row input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,120,10,.1);}
-.search-btn{padding:11px 24px;background:linear-gradient(135deg,var(--gold-l),var(--gold-d));color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;display:flex;align-items:center;gap:7px;}
-.search-btn:hover{opacity:.9;}
-.or-div{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--light);font-size:13px;}
-.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--border);}
-.result-card{background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(184,120,10,.08);display:none;}
-.result-header{padding:20px 24px;background:var(--gold-bg);border-bottom:1px solid rgba(184,120,10,.2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
-.booking-id-lbl{font-family:monospace;font-size:18px;font-weight:800;color:var(--gold-d);letter-spacing:1px;}
-.status-badge{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;}
-.st-pending{background:rgba(184,120,10,.12);color:var(--gold-d);border:1px solid rgba(184,120,10,.25);}
-.st-confirmed{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,58,.25);}
-.st-completed{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(26,93,171,.25);}
-.st-cancelled{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0;}
-.info-row{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;}
-.info-row:nth-child(odd){background:var(--bg2);}
-.info-icon{width:32px;height:32px;background:var(--gold-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:13px;flex-shrink:0;}
-.info-label{font-size:11px;color:var(--light);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:2px;}
-.info-val{font-size:14px;font-weight:600;color:var(--text);}
-.adv-status{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
-.adv-paid{background:var(--green-bg);border-radius:10px;padding:10px 16px;color:var(--green);font-weight:700;font-size:13px;flex:1;display:flex;align-items:center;gap:8px;}
-.adv-unpaid{background:var(--gold-bg);border-radius:10px;padding:10px 16px;color:var(--gold-d);font-weight:700;font-size:13px;flex:1;display:flex;align-items:center;gap:8px;}
-.map-section{padding:20px 24px;}
-.map-section h3{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
-#trackMap{height:300px;border-radius:12px;border:1px solid var(--border);overflow:hidden;}
-.no-location{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;color:var(--muted);font-size:13px;}
-.no-location i{font-size:28px;color:var(--border);display:block;margin-bottom:8px;}
-.confirmed-notice{background:var(--green-bg);border:1px solid rgba(26,122,58,.25);border-radius:12px;padding:16px 20px;margin:16px 24px;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--green);font-weight:600;}
-.confirmed-notice i{font-size:20px;}
-.pending-notice{background:var(--gold-bg);border:1px solid rgba(184,120,10,.25);border-radius:12px;padding:16px 20px;margin:16px 24px;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--gold-d);font-weight:600;}
-.error-box{background:var(--red-bg);border:1px solid rgba(192,57,43,.2);border-radius:12px;padding:18px 20px;text-align:center;color:var(--red);font-size:14px;font-weight:600;display:none;margin-top:12px;}
-.refresh-btn{margin:12px 24px 20px;display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
-.refresh-btn:hover{color:var(--gold);border-color:var(--gold);}
-@media(max-width:600px){.info-grid{grid-template-columns:1fr;}.search-row{flex-direction:column;}}
+:root{--gold:#B8731A;--gold-2:#D4882A;--bg:#F8F4EF;--white:#fff;--text:#1C1C1C;--text-2:#4A4A4A;--text-3:#7A7A7A;--border:#E8DDD0;--green:#1A7A3A;--red:#C0392B;--r:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.hdr{background:var(--white);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(0,0,0,0.06);}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}.logo-ico{width:38px;height:38px;background:linear-gradient(135deg,#B8731A,#D4882A);border-radius:9px;display:flex;align-items:center;justify-content:center;overflow:hidden;}.logo-ico img{width:100%;height:100%;object-fit:cover;}.logo h1{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);line-height:1.2;}.logo span{font-size:10px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;}
+.back{display:flex;align-items:center;gap:6px;color:var(--gold);text-decoration:none;font-size:14px;font-weight:600;}
+.container{max-width:800px;margin:0 auto;padding:0 20px;}
+.page-top{text-align:center;padding:40px 20px 32px;}.page-top h2{font-family:'Playfair Display',serif;font-size:32px;color:var(--text);margin-bottom:8px;}.page-top p{color:var(--text-3);font-size:15px;}
+.search-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:24px;box-shadow:0 4px 16px rgba(0,0,0,0.06);margin-bottom:24px;}
+.search-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;}
+.fg{flex:1;min-width:180px;}.fg label{display:block;font-size:12px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+input{width:100%;border:1px solid var(--border);background:var(--bg);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:all 0.2s;}
+input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,115,26,0.08);}
+.btn-gold{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#B8731A,#D4882A);color:#fff;border:none;padding:11px 22px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;transition:all 0.2s;text-decoration:none;}
+.btn-gold:hover{opacity:.9;transform:translateY(-1px);}
+.err{background:#FEF2F2;border:1px solid #FECACA;color:var(--red);padding:12px 16px;border-radius:8px;font-size:14px;margin-bottom:16px;display:none;align-items:center;gap:8px;}
+.loader{text-align:center;padding:32px;color:var(--text-3);display:none;}.loader i{font-size:28px;color:var(--gold);animation:spin 1s linear infinite;display:block;margin-bottom:10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.result{display:none;}
+/* Status banner */
+.status-banner{border-radius:var(--r);padding:18px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;}
+.sb-pending{background:#FFF8EE;border:1px solid rgba(184,115,26,0.3);}
+.sb-advance_pending{background:#FFFDE7;border:1px solid #F9A825;}
+.sb-confirmed{background:#E8F5ED;border:1px solid rgba(26,122,58,0.3);}
+.sb-completed{background:#E8F5ED;border:1px solid rgba(26,122,58,0.3);}
+.sb-cancelled{background:#FEF2F2;border:1px solid #FECACA;}
+.sb-icon{font-size:24px;flex-shrink:0;margin-top:2px;}
+.sb-pending .sb-icon,.sb-advance_pending .sb-icon{color:var(--gold);}
+.sb-confirmed .sb-icon,.sb-completed .sb-icon{color:var(--green);}
+.sb-cancelled .sb-icon{color:var(--red);}
+.sb-txt strong{font-size:16px;display:block;margin-bottom:3px;}
+.sb-txt p{font-size:13px;color:var(--text-2);}
+.status-steps{display:flex;gap:0;margin-bottom:20px;background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.ss{flex:1;text-align:center;padding:12px 6px;border-right:1px solid var(--border);font-size:11px;color:var(--text-3);position:relative;}
+.ss:last-child{border-right:none;}
+.ss.done{background:#E8F5ED;color:var(--green);}
+.ss.active{background:#FFF8EE;color:var(--gold);font-weight:700;}
+.ss i{display:block;font-size:16px;margin-bottom:4px;}
+.info-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;}
+.info-card h4{font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.info-item label{display:block;font-size:11px;color:var(--text-3);margin-bottom:2px;}
+.info-item strong{font-size:14px;color:var(--text);}
+.map-wrap{border-radius:var(--r);overflow:hidden;border:1px solid var(--border);margin-bottom:16px;}
+#map{height:280px;background:#eee;}
+.map-no{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:24px;text-align:center;color:var(--text-3);font-size:14px;margin-bottom:16px;}
+.map-no i{font-size:28px;color:var(--border);display:block;margin-bottom:8px;}
+.driver-card{background:linear-gradient(135deg,#1A2A1A,#2D4A2D);border-radius:var(--r);padding:16px 18px;margin-bottom:16px;color:#fff;}
+.driver-card h4{font-size:12px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.driver-info{display:flex;align-items:center;gap:14px;}
+.driver-av{width:44px;height:44px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.driver-meta strong{display:block;font-size:15px;}
+.driver-meta span{font-size:12px;color:rgba(255,255,255,0.6);}
+.driver-call{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-top:10px;}
+.track-again{text-align:center;margin-top:16px;}.track-again button{background:none;border:1px solid var(--border);color:var(--text-3);padding:9px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;}
+.pay-remind{background:#FFF3CD;border:1px solid #FFEAA0;border-radius:8px;padding:12px 14px;font-size:13px;color:#7D4E00;margin-bottom:16px;}
+.pay-remind strong{display:block;margin-bottom:4px;}
+@media(max-width:600px){.search-row{flex-direction:column;}.info-grid{grid-template-columns:1fr;}.status-steps{flex-wrap:wrap;}.ss{min-width:50%;border-bottom:1px solid var(--border);}}
 </style>
 </head>
 <body>
-<div class="header">
-  <div class="logo-icon"><img src="/images/favicon.png" alt="BT" onerror="this.style.display='none';this.parentNode.innerHTML='<i class=\'fas fa-car\' style=\'color:#fff\'></i>'"></div>
-  <div class="logo"><h1>Brajwasi Tour & Travels</h1><span>Est. 2018 · Agra</span></div>
-  <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+<div class="hdr">
+  <a href="/" class="logo"><div class="logo-ico"><img src="/images/favicon.png" alt="BT" onerror="this.outerHTML='<i style=\'color:#fff;font-size:16px\' class=\'fas fa-car\'></i>'"></div><div><h1>Brajwasi Tour & Travels</h1><span>Est. 2018 · Agra</span></div></a>
+  <a href="/" class="back"><i class="fas fa-arrow-left"></i> Back</a>
 </div>
 
-<div class="page">
+<div class="container">
+  <div class="page-top">
+    <h2><i class="fas fa-map-marker-alt" style="color:var(--gold)"></i> Track Your Booking</h2>
+    <p>Enter your Booking ID or registered phone number to see live status and driver location.</p>
+  </div>
+
   <div class="search-card">
-    <h2><i class="fas fa-map-marker-alt" style="color:var(--gold);margin-right:8px"></i>Track Your Booking</h2>
-    <p>Enter your Booking ID or phone number to see real-time status and driver location.</p>
     <div class="search-row">
-      <input type="text" id="trackInput" placeholder="Booking ID (e.g. BT-A1B2C3)" autocomplete="off" style="text-transform:uppercase">
-      <button class="search-btn" onclick="doTrack()"><i class="fas fa-search"></i> Track</button>
+      <div class="fg"><label>Booking ID</label><input type="text" id="tr-bid" placeholder="e.g. BT-ABC123" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="fg"><label>OR Phone Number</label><input type="tel" id="tr-phone" placeholder="e.g. 9411061000"></div>
+      <button class="btn-gold" onclick="doTrack()"><i class="fas fa-search"></i> Track</button>
     </div>
-    <div class="or-div">or</div>
-    <div class="search-row">
-      <input type="tel" id="phoneInput" placeholder="Your phone number" autocomplete="tel">
-      <button class="search-btn" onclick="doTrackPhone()"><i class="fas fa-phone"></i> Track by Phone</button>
-    </div>
-    <div class="error-box" id="errBox"><i class="fas fa-exclamation-circle" style="margin-right:8px"></i><span id="errMsg"></span></div>
   </div>
 
-  <div class="result-card" id="resultCard">
-    <div class="result-header">
-      <div>
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Booking</div>
-        <div class="booking-id-lbl" id="resBookingId"></div>
+  <div class="err" id="tr-err"><i class="fas fa-exclamation-circle"></i><span id="tr-err-txt"></span></div>
+  <div class="loader" id="tr-load"><i class="fas fa-circle-notch"></i>Fetching booking details...</div>
+
+  <div class="result" id="tr-result">
+    <!-- Status banner -->
+    <div class="status-banner" id="st-banner">
+      <div class="sb-icon" id="st-icon"></div>
+      <div class="sb-txt"><strong id="st-title"></strong><p id="st-msg"></p></div>
+    </div>
+
+    <!-- Progress steps -->
+    <div class="status-steps" id="st-steps">
+      <div class="ss" id="step-pending"><i class="fas fa-file-alt"></i>Received</div>
+      <div class="ss" id="step-advance_pending"><i class="fas fa-rupee-sign"></i>Advance</div>
+      <div class="ss" id="step-confirmed"><i class="fas fa-check-circle"></i>Confirmed</div>
+      <div class="ss" id="step-completed"><i class="fas fa-flag-checkered"></i>Completed</div>
+    </div>
+
+    <!-- Advance payment reminder -->
+    <div class="pay-remind" id="pay-remind" style="display:none">
+      <strong>💳 Payment Pending</strong>
+      Pay ₹500 advance to confirm your booking. <button onclick="openPayFromTrack()" style="background:var(--gold);color:#fff;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;margin-left:8px">Pay Now</button>
+    </div>
+
+    <!-- Driver card (shows when confirmed) -->
+    <div id="driver-card" style="display:none" class="driver-card">
+      <h4><i class="fas fa-user-tie"></i> Your Driver</h4>
+      <div class="driver-info">
+        <div class="driver-av"><i class="fas fa-user-tie"></i></div>
+        <div class="driver-meta"><strong id="drv-name">—</strong><span id="drv-phone-txt">—</span></div>
       </div>
-      <div class="status-badge" id="resBadge"></div>
+      <a id="drv-call" href="#" class="driver-call"><i class="fas fa-phone"></i> Call Driver</a>
     </div>
 
-    <div id="confirmedNotice" style="display:none" class="confirmed-notice"><i class="fas fa-check-circle"></i>Your booking is confirmed! Our driver will arrive on time.</div>
-    <div id="pendingNotice" style="display:none" class="pending-notice"><i class="fas fa-clock"></i>Your booking is pending confirmation. We'll call you shortly.</div>
+    <!-- Map -->
+    <div id="map-area" style="display:none" class="map-wrap"><div id="map"></div></div>
+    <div id="no-map" class="map-no" style="display:none"><i class="fas fa-map-marker-alt"></i>Live location not available yet. Will appear once driver is en route.</div>
 
-    <div class="info-grid">
-      <div class="info-row"><div class="info-icon"><i class="fas fa-user"></i></div><div><div class="info-label">Customer</div><div class="info-val" id="resCust"></div></div></div>
-      <div class="info-row"><div class="info-icon"><i class="fas fa-car"></i></div><div><div class="info-label">Car</div><div class="info-val" id="resCar"></div></div></div>
-      <div class="info-row"><div class="info-icon"><i class="fas fa-map-marker-alt"></i></div><div><div class="info-label">Pickup</div><div class="info-val" id="resPickup"></div></div></div>
-      <div class="info-row"><div class="info-icon"><i class="fas fa-flag"></i></div><div><div class="info-label">Drop</div><div class="info-val" id="resDrop"></div></div></div>
-      <div class="info-row"><div class="info-icon"><i class="fas fa-calendar"></i></div><div><div class="info-label">Journey Date</div><div class="info-val" id="resDate"></div></div></div>
-      <div class="info-row"><div class="info-icon"><i class="fas fa-clock"></i></div><div><div class="info-label">Journey Time</div><div class="info-val" id="resTime"></div></div></div>
-      <div class="info-row" style="grid-column:1/-1"><div class="info-icon"><i class="fas fa-rupee-sign"></i></div><div><div class="info-label">Estimated Fare</div><div class="info-val" id="resFare"></div></div></div>
-    </div>
-
-    <div class="adv-status" id="advSection"></div>
-
-    <div class="map-section">
-      <h3><i class="fas fa-satellite" style="color:var(--gold)"></i>Driver Location</h3>
-      <div id="mapWrap">
-        <div class="no-location" id="noLocation"><i class="fas fa-map-marked-alt"></i>Driver location will appear here once your booking is confirmed and the driver is on the way.</div>
-        <div id="trackMap" style="display:none"></div>
+    <!-- Booking details -->
+    <div class="info-card">
+      <h4><i class="fas fa-clipboard-list"></i> Booking Details</h4>
+      <div class="info-grid">
+        <div class="info-item"><label>Booking ID</label><strong id="d-bid" style="color:var(--gold);letter-spacing:1px"></strong></div>
+        <div class="info-item"><label>Car</label><strong id="d-car"></strong></div>
+        <div class="info-item"><label>Pickup</label><strong id="d-pickup"></strong></div>
+        <div class="info-item"><label>Drop</label><strong id="d-drop"></strong></div>
+        <div class="info-item"><label>Date</label><strong id="d-date"></strong></div>
+        <div class="info-item"><label>Time</label><strong id="d-time"></strong></div>
+        <div class="info-item"><label>Distance</label><strong id="d-km"></strong></div>
+        <div class="info-item"><label>Est. Fare</label><strong id="d-price" style="color:var(--green)"></strong></div>
       </div>
     </div>
 
-    <button class="refresh-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh Status</button>
+    <div class="track-again"><button onclick="resetTrack()"><i class="fas fa-search"></i> Track Another Booking</button></div>
   </div>
 </div>
 
+<!-- Pay Modal (for track page) -->
+<div id="payModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;padding:28px;max-width:400px;width:100%;text-align:center">
+    <h3 style="font-family:'Playfair Display',serif;margin-bottom:8px">Pay ₹500 Advance</h3>
+    <p style="color:#666;font-size:13px;margin-bottom:16px">Confirm your booking with a refundable ₹500 advance</p>
+    <div style="font-size:32px;font-weight:800;color:var(--green);margin-bottom:16px">₹500</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px" id="track-pay-apps"></div>
+    <div id="track-qr" style="display:none;margin-bottom:14px"><img id="track-qr-img" src="" style="width:140px;height:140px;border-radius:8px;border:3px solid #eee"><p style="font-size:11px;color:#999;margin-top:6px">Scan to pay via UPI</p></div>
+    <button onclick="document.getElementById('payModal').style.display='none'" style="width:100%;border:1px solid #ddd;background:none;padding:10px;border-radius:8px;cursor:pointer;font-size:13px">Close</button>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-let map = null;
-let driverMarker = null;
-let currentTrackId = null;
-let trackRefresh = null;
+let map = null, driverMarker = null, trackSocket = null, currentBooking = null;
 
-// Auto-track from URL param
-window.addEventListener('load', () => {
+// Pre-fill from URL params
+window.addEventListener('DOMContentLoaded', () => {
   const p = new URLSearchParams(location.search);
-  const bid = p.get('bookingId') || p.get('phone');
-  if (bid) {
-    if (bid.startsWith('BT-') || bid.match(/^[A-Z0-9-]+$/i)) {
-      document.getElementById('trackInput').value = bid.toUpperCase();
-      doTrack();
-    } else {
-      document.getElementById('phoneInput').value = bid;
-      doTrackPhone();
-    }
-  }
-  document.getElementById('trackInput').addEventListener('keypress', e => { if (e.key === 'Enter') doTrack(); });
-  document.getElementById('phoneInput').addEventListener('keypress', e => { if (e.key === 'Enter') doTrackPhone(); });
-  document.getElementById('refreshBtn').addEventListener('click', () => {
-    if (currentTrackId) fetchBooking('/api/track?bookingId=' + currentTrackId);
-  });
+  if (p.get('bookingId')) { document.getElementById('tr-bid').value = p.get('bookingId'); doTrack(); }
+  else if (p.get('phone')) { document.getElementById('tr-phone').value = p.get('phone'); doTrack(); }
 });
 
 async function doTrack() {
-  const v = document.getElementById('trackInput').value.trim().toUpperCase();
-  if (!v) { showErr('Please enter a Booking ID'); return; }
-  await fetchBooking('/api/track?bookingId=' + encodeURIComponent(v));
-}
-async function doTrackPhone() {
-  const v = document.getElementById('phoneInput').value.trim();
-  if (!v) { showErr('Please enter your phone number'); return; }
-  await fetchBooking('/api/track?phone=' + encodeURIComponent(v));
-}
+  const bid = document.getElementById('tr-bid').value.trim().toUpperCase();
+  const phone = document.getElementById('tr-phone').value.trim();
+  if (!bid && !phone) { showErr('Please enter your Booking ID or phone number'); return; }
 
-async function fetchBooking(url) {
-  hideErr();
+  document.getElementById('tr-err').style.display = 'none';
+  document.getElementById('tr-result').style.display = 'none';
+  document.getElementById('tr-load').style.display = 'block';
+
   try {
-    const r = await fetch(url);
-    if (!r.ok) { const d = await r.json(); showErr(d.error || 'Booking not found'); return; }
-    const d = await r.json();
-    currentTrackId = d.bookingId;
-    renderBooking(d);
-    // Auto-refresh every 20s for confirmed bookings
-    clearInterval(trackRefresh);
-    if (d.status === 'confirmed') {
-      trackRefresh = setInterval(() => fetchBooking('/api/track?bookingId=' + currentTrackId), 20000);
-    }
-  } catch(e) { showErr('Network error. Please try again.'); }
+    const params = bid ? '?bookingId=' + bid : '?phone=' + phone;
+    const data = await fetch('/api/track' + params).then(r => r.json());
+    document.getElementById('tr-load').style.display = 'none';
+
+    if (data.error) { showErr(data.error); return; }
+    currentBooking = data;
+    renderResult(data);
+    setupSocket(data.bookingId);
+  } catch(e) {
+    document.getElementById('tr-load').style.display = 'none';
+    showErr('Connection error. Please try again.');
+  }
 }
 
-function renderBooking(d) {
-  document.getElementById('resBookingId').textContent = d.bookingId;
-  document.getElementById('resCust').textContent = d.customerName;
-  document.getElementById('resCar').textContent = d.carName || '—';
-  document.getElementById('resPickup').textContent = d.pickupLocation;
-  document.getElementById('resDrop').textContent = d.dropLocation;
-  document.getElementById('resDate').textContent = new Date(d.journeyDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
-  document.getElementById('resTime').textContent = d.journeyTime || '—';
-  document.getElementById('resFare').textContent = d.totalPrice ? '₹' + d.totalPrice.toLocaleString('en-IN') : 'Will be calculated';
+function renderResult(d) {
+  const status = d.status;
+  const statusOrder = ['pending','advance_pending','confirmed','completed'];
 
-  // Status badge
-  const badge = document.getElementById('resBadge');
-  const sc = { pending: ['st-pending','⏳'], confirmed: ['st-confirmed','✅'], completed: ['st-completed','🏁'], cancelled: ['st-cancelled','❌'] };
-  const [cls, emoji] = sc[d.status] || ['st-pending','⏳'];
-  badge.className = 'status-badge ' + cls;
-  badge.textContent = emoji + ' ' + d.status.charAt(0).toUpperCase() + d.status.slice(1);
+  // Banner
+  const bannerCls = { pending:'sb-pending', advance_pending:'sb-advance_pending', confirmed:'sb-confirmed', completed:'sb-completed', cancelled:'sb-cancelled' };
+  const icons = { pending:'fas fa-clock', advance_pending:'fas fa-rupee-sign', confirmed:'fas fa-check-circle', completed:'fas fa-flag-checkered', cancelled:'fas fa-times-circle' };
+  const banner = document.getElementById('st-banner');
+  banner.className = 'status-banner ' + (bannerCls[status] || 'sb-pending');
+  document.getElementById('st-icon').innerHTML = '<i class="' + (icons[status]||'fas fa-info-circle') + '"></i>';
+  document.getElementById('st-title').textContent = status.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
+  document.getElementById('st-msg').textContent = d.statusMessage || '';
 
-  // Notices
-  document.getElementById('confirmedNotice').style.display = d.status === 'confirmed' ? 'flex' : 'none';
-  document.getElementById('pendingNotice').style.display = d.status === 'pending' ? 'flex' : 'none';
-
-  // Advance
-  const advEl = document.getElementById('advSection');
-  advEl.innerHTML = d.advancePaid
-    ? '<div class="adv-paid"><i class="fas fa-check-circle"></i> ₹500 Advance Paid – Booking Secured</div>'
-    : '<div class="adv-unpaid"><i class="fas fa-exclamation-circle"></i> ₹500 Advance Pending – Pay to confirm</div>';
-
-  // Map
-  if (d.driverLat && d.driverLng) {
-    document.getElementById('noLocation').style.display = 'none';
-    const mapEl = document.getElementById('trackMap');
-    mapEl.style.display = 'block';
-    if (!map) {
-      map = L.map('trackMap').setView([d.driverLat, d.driverLng], 14);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-    } else { map.setView([d.driverLat, d.driverLng], 14); }
-    const icon = L.divIcon({ html: '<div style="background:#B8780A;color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.3);border:2px solid #fff">🚗</div>', iconSize: [36,36], iconAnchor: [18,18], className: '' });
-    if (!driverMarker) driverMarker = L.marker([d.driverLat, d.driverLng], { icon }).addTo(map);
-    else driverMarker.setLatLng([d.driverLat, d.driverLng]);
-    const lastSeen = d.driverLastSeen ? new Date(d.driverLastSeen).toLocaleTimeString('en-IN') : 'unknown';
-    driverMarker.bindPopup(`<b>Driver Location</b><br>Last updated: ${lastSeen}`).openPopup();
-  } else {
-    document.getElementById('noLocation').style.display = 'block';
-    document.getElementById('trackMap').style.display = 'none';
+  // Steps
+  statusOrder.forEach((s, i) => {
+    const el = document.getElementById('step-' + s);
+    if (!el) return;
+    const idx = statusOrder.indexOf(status);
+    el.className = 'ss' + (i < idx ? ' done' : (i === idx ? ' active' : ''));
+  });
+  if (status === 'cancelled') {
+    statusOrder.forEach(s => { const el = document.getElementById('step-'+s); if(el) el.className='ss'; });
   }
 
-  document.getElementById('resultCard').style.display = 'block';
-  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Advance pay reminder
+  document.getElementById('pay-remind').style.display = status === 'advance_pending' ? 'block' : 'none';
+
+  // Driver card
+  if ((status === 'confirmed' || status === 'completed') && d.driverName) {
+    document.getElementById('drv-name').textContent = d.driverName;
+    document.getElementById('drv-phone-txt').textContent = d.driverPhone || 'Contact via 9411061000';
+    document.getElementById('drv-call').href = d.driverPhone ? 'tel:' + d.driverPhone : 'tel:9411061000';
+    document.getElementById('driver-card').style.display = 'block';
+  } else {
+    document.getElementById('driver-card').style.display = 'none';
+  }
+
+  // Map / Location
+  if (d.driverLat && d.driverLng) {
+    document.getElementById('map-area').style.display = 'block';
+    document.getElementById('no-map').style.display = 'none';
+    showMap(d.driverLat, d.driverLng);
+  } else if (status === 'confirmed') {
+    document.getElementById('no-map').style.display = 'block';
+    document.getElementById('map-area').style.display = 'none';
+  } else {
+    document.getElementById('no-map').style.display = 'none';
+    document.getElementById('map-area').style.display = 'none';
+  }
+
+  // Booking details
+  document.getElementById('d-bid').textContent = d.bookingId;
+  document.getElementById('d-car').textContent = d.carName || '—';
+  document.getElementById('d-pickup').textContent = d.pickupLocation;
+  document.getElementById('d-drop').textContent = d.dropLocation;
+  document.getElementById('d-date').textContent = new Date(d.journeyDate).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+  document.getElementById('d-time').textContent = d.journeyTime;
+  document.getElementById('d-km').textContent = d.estimatedKm ? d.estimatedKm + ' km' : '—';
+  document.getElementById('d-price').textContent = d.totalPrice ? '₹' + d.totalPrice.toLocaleString('en-IN') : 'TBD';
+
+  document.getElementById('tr-result').style.display = 'block';
+}
+
+function showMap(lat, lng) {
+  if (!map) {
+    map = L.map('map').setView([lat, lng], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+  }
+  const icon = L.divIcon({ html: '<div style="background:#B8731A;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-size:16px">🚗</div>', iconSize:[36,36], iconAnchor:[18,18], className:'' });
+  if (driverMarker) driverMarker.setLatLng([lat, lng]);
+  else { driverMarker = L.marker([lat, lng], { icon }).addTo(map); }
+  map.setView([lat, lng], 14);
+}
+
+function setupSocket(bookingId) {
+  if (trackSocket) trackSocket.disconnect();
+  trackSocket = io({ query: { trackId: bookingId } });
+  trackSocket.on('location-update', ({ lat, lng }) => {
+    document.getElementById('map-area').style.display = 'block';
+    document.getElementById('no-map').style.display = 'none';
+    showMap(lat, lng);
+  });
 }
 
 function showErr(msg) {
-  document.getElementById('errMsg').textContent = msg;
-  document.getElementById('errBox').style.display = 'block';
-  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('tr-err-txt').textContent = msg;
+  document.getElementById('tr-err').style.display = 'flex';
 }
-function hideErr() { document.getElementById('errBox').style.display = 'none'; }
+
+function resetTrack() {
+  document.getElementById('tr-bid').value = '';
+  document.getElementById('tr-phone').value = '';
+  document.getElementById('tr-result').style.display = 'none';
+  document.getElementById('tr-err').style.display = 'none';
+}
+
+function openPayFromTrack() {
+  if (!currentBooking) return;
+  const upi = `upi://pay?pa=MRBRAJWASITRAVELS.eazypay@icici&pn=BrajwasiTravels&am=500&cu=INR&tn=Advance+${currentBooking.bookingId}`;
+  const isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const apps = document.getElementById('track-pay-apps');
+  apps.innerHTML = [['phonepe','PhonePe'],['gpay','Google Pay'],['paytm','Paytm'],['bhim','BHIM']].map(([id,name])=>
+    `<button onclick="trackPay('${id}','${currentBooking.bookingId}')" style="background:#fff;border:2px solid #E8DDD0;border-radius:10px;padding:12px;cursor:pointer;font-size:12px;font-weight:600;color:#333;display:flex;flex-direction:column;align-items:center;gap:6px"><span style="font-size:22px">${{phonepe:'🔷',gpay:'🔵',paytm:'💙',bhim:'🟢'}[id]}</span>${name}</button>`
+  ).join('');
+  if (!isMob) {
+    document.getElementById('track-qr').style.display = 'block';
+    document.getElementById('track-qr-img').src = 'https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=' + encodeURIComponent(upi);
+  }
+  document.getElementById('payModal').style.display = 'flex';
+}
+
+function trackPay(app, bid) {
+  const upiId = 'MRBRAJWASITRAVELS.eazypay@icici';
+  const urls = {
+    phonepe: `phonepe://pay?pa=${upiId}&pn=BrajwasiTravels&am=500&cu=INR&tn=Advance+${bid}`,
+    gpay: `tez://upi/pay?pa=${upiId}&pn=BrajwasiTravels&am=500&cu=INR&tn=Advance+${bid}`,
+    paytm: `paytmmp://pay?pa=${upiId}&pn=BrajwasiTravels&am=500&cu=INR&tn=Advance+${bid}`,
+    bhim: `upi://pay?pa=${upiId}&pn=BrajwasiTravels&am=500&cu=INR&tn=Advance+${bid}`
+  };
+  window.location.href = urls[app] || urls.bhim;
+  setTimeout(() => { document.getElementById('payModal').style.display = 'none'; }, 2000);
+}
 </script>
 </body>
 </html>

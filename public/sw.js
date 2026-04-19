@@ -1,6 +1,6 @@
-// Service Worker – Brajwasi Tour & Travels
-const CACHE_NAME = 'brajwasi-v2';
-const ASSETS = ['/', '/css/main.css', '/js/main.js', '/images/favicon.png'];
+// Service Worker – Brajwasi Travels
+const CACHE_NAME = 'brajwasi-v3';
+const ASSETS = ['/', '/css/main.css', '/js/main.js', '/images/favicon.png', '/images/default-crysta.jpg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS).catch(() => {})));
@@ -19,43 +19,53 @@ self.addEventListener('fetch', e => {
   e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });
 
-// Push notification handler with sound support
+// ---- PUSH HANDLER ----
 self.addEventListener('push', e => {
   let data = {};
   try { data = e.data ? e.data.json() : {}; } catch(err) {}
 
-  const title = data.title || 'Brajwasi Tour & Travels';
-  const isChat = data.isChat || false;
-  
+  const title = data.title || 'Brajwasi Travels';
+  const body = data.body || 'You have a new notification';
+  const type = data.type || 'general';
+  const url = data.url || '/';
+
   const options = {
-    body: data.body || 'You have a new notification',
+    body,
     icon: '/images/favicon.png',
     badge: '/images/favicon.png',
-    vibrate: isChat ? [100, 50, 100, 50, 200] : [200, 100, 200],
-    sound: '/sounds/notify.mp3',
-    tag: isChat ? 'chat-' + (data.sessionId || Date.now()) : 'booking-' + Date.now(),
-    renotify: true,
-    data: { url: data.url || '/admin', isChat },
-    actions: isChat
-      ? [{ action: 'reply', title: '💬 Reply' }, { action: 'close', title: 'Dismiss' }]
-      : [{ action: 'view', title: '👁 View Booking' }, { action: 'close', title: 'Dismiss' }],
-    requireInteraction: true,
+    vibrate: type === 'chat' ? [300, 100, 300, 100, 300] : [200, 100, 200],
+    sound: '/sounds/notify.mp3', // will use default if not found
+    data: { url },
+    requireInteraction: type === 'booking',
+    tag: type === 'chat' ? 'chat-' + (data.sessionId || Date.now()) : 'booking-' + Date.now(),
+    actions: type === 'chat'
+      ? [{ action: 'reply', title: '💬 Open Chat' }, { action: 'dismiss', title: 'Dismiss' }]
+      : [{ action: 'view', title: '📋 View Booking' }, { action: 'dismiss', title: 'Dismiss' }],
     silent: false
   };
 
   e.waitUntil(self.registration.showNotification(title, options));
 });
 
+// ---- NOTIFICATION CLICK ----
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  if (e.action === 'close') return;
-  const url = e.notification.data?.url || '/admin';
+  if (e.action === 'dismiss') return;
+
+  const urlToOpen = e.notification.data?.url || '/admin';
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-      for (const c of list) {
-        if (c.url.includes(url) && 'focus' in c) return c.focus();
+      // Focus existing window if open
+      for (const client of list) {
+        if (client.url.includes(urlToOpen) && 'focus' in client) return client.focus();
       }
-      if (clients.openWindow) return clients.openWindow(url);
+      // Open new window
+      if (clients.openWindow) return clients.openWindow(urlToOpen);
     })
   );
+});
+
+// ---- NOTIFICATION CLOSE ----
+self.addEventListener('notificationclose', e => {
+  // analytics can go here
 });
