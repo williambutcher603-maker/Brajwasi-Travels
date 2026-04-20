@@ -5,9 +5,13 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0D1117",
-  "theme_color": "#C9922A",
+  "background_color": "#FFFFFF",
+  "theme_color": "#B8780A",
   "orientation": "portrait-primary",
+  "shortcuts": [
+    { "name": "Track Booking", "url": "/track", "icons": [{ "src": "/images/favicon.png", "sizes": "192x192" }] },
+    { "name": "Driver App", "url": "/driver", "icons": [{ "src": "/images/favicon.png", "sizes": "192x192" }] }
+  ],
   "icons": [
     { "src": "/images/favicon.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "/images/favicon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }

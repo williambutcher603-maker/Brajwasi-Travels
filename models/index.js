@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// ── Car ──────────────────────────────────────────────────────
 const carSchema = new mongoose.Schema({
   name: { type: String, required: true },
   model: { type: String, required: true },
@@ -16,21 +17,25 @@ const carSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// ── Booking ──────────────────────────────────────────────────
 const bookingSchema = new mongoose.Schema({
   bookingId: { type: String, unique: true, required: true },
   car: { type: mongoose.Schema.Types.ObjectId, ref: 'Car' },
   carName: String,
   customerName: { type: String, required: true },
   customerPhone: { type: String, required: true },
-  customerEmail: String,
+  customerEmail: { type: String, required: true },
   pickupLocation: { type: String, required: true },
   dropLocation: { type: String, required: true },
   journeyDate: { type: Date, required: true },
   journeyTime: String,
-  estimatedKm: Number,
+  estimatedKm: { type: Number, required: true, min: 1 },
   totalPrice: Number,
   status: { type: String, enum: ['pending','confirmed','completed','cancelled'], default: 'pending' },
   advancePaid: { type: Boolean, default: false },
+  advanceConfirmedByAdmin: { type: Boolean, default: false },
+  actualKm: Number,           // uploaded by driver after trip
+  finalFare: Number,          // calculated from actualKm
   assignedPartner: { type: mongoose.Schema.Types.ObjectId, ref: 'CarPartner', default: null },
   assignedPartnerName: String,
   driverLat: Number,
@@ -40,6 +45,7 @@ const bookingSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// ── Push Subscription ────────────────────────────────────────
 const subscriptionSchema = new mongoose.Schema({
   endpoint: { type: String, unique: true },
   keys: { p256dh: String, auth: String },
@@ -48,6 +54,7 @@ const subscriptionSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// ── Chat Message ─────────────────────────────────────────────
 const chatMessageSchema = new mongoose.Schema({
   sessionId: { type: String, required: true, index: true },
   customerName: { type: String, required: true },
@@ -58,16 +65,17 @@ const chatMessageSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// ── Testimonial ──────────────────────────────────────────────
 const testimonialSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phone: { type: String, required: true },
   rating: { type: Number, required: true, min: 1, max: 5 },
-  message: { type: String, required: true },
+  message: { type: String, required: true, maxlength: 500 },
   approved: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
 
-// Car Partner / Owner registration
+// ── Car Partner / Driver ─────────────────────────────────────
 const carPartnerSchema = new mongoose.Schema({
   ownerName: { type: String, required: true },
   phone: { type: String, required: true },
@@ -78,16 +86,28 @@ const carPartnerSchema = new mongoose.Schema({
   seats: { type: Number, default: 7 },
   ac: { type: Boolean, default: true },
   pricePerKm: { type: Number, required: true },
-  fixedKm: { type: Number },
-  fixedPrice: { type: Number },
+  fixedKm: Number,
+  fixedPrice: Number,
   extraKmCharge: { type: Number, required: true },
-  // Document uploads
-  licensePhoto: { type: String },
-  rcPhoto: { type: String },
-  insurancePhoto: { type: String },
-  // Status
+  licensePhoto: String,
+  rcPhoto: String,
+  insurancePhoto: String,
   status: { type: String, enum: ['pending','approved','rejected'], default: 'pending' },
   commissionPct: { type: Number, default: 10 },
+  // Driver secret for location sharing (set at registration, changeable via OTP)
+  driverSecret: { type: String, required: false },
+  // OTP for secret reset
+  resetOtp: String,
+  resetOtpExpiry: Date,
+  createdAt: { type: Date, default: Date.now }
+});
+
+// ── Customer OTP Login ───────────────────────────────────────
+const otpSchema = new mongoose.Schema({
+  email: { type: String, required: true },
+  name: String,
+  otp: { type: String, required: true },
+  expiry: { type: Date, required: true },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -97,5 +117,6 @@ const PushSubscription = mongoose.model('PushSubscription', subscriptionSchema);
 const ChatMessage = mongoose.model('ChatMessage', chatMessageSchema);
 const Testimonial = mongoose.model('Testimonial', testimonialSchema);
 const CarPartner = mongoose.model('CarPartner', carPartnerSchema);
+const OtpRecord = mongoose.model('OtpRecord', otpSchema);
 
-module.exports = { Car, Booking, PushSubscription, ChatMessage, Testimonial, CarPartner };
+module.exports = { Car, Booking, PushSubscription, ChatMessage, Testimonial, CarPartner, OtpRecord };

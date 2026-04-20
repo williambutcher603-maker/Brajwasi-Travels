@@ -174,8 +174,9 @@ input:checked+.toggle-slider:before{transform:translateX(19px);background:var(--
 </head>
 <body>
 
+<div id="sidebarOverlay" onclick="closeSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;backdrop-filter:blur(2px)"></div>
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
+  <div class="sidebar-brand" style="justify-content:space-between">
     <div class="brand-icon">
       <img src="/images/favicon.png" alt="BT" onerror="this.style.display='none';this.parentNode.innerHTML='<i class=\'fas fa-car\'></i>'">
     </div>
@@ -214,7 +215,7 @@ input:checked+.toggle-slider:before{transform:translateX(19px);background:var(--
 <main class="main">
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:12px">
-      <button onclick="document.getElementById('sidebar').classList.toggle('open')" id="menu-btn" style="display:none;background:none;border:1px solid var(--border);color:var(--gold);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:15px"><i class="fas fa-bars"></i></button>
+      <button onclick="toggleSidebar()" id="menu-btn" style="display:none;background:none;border:1px solid var(--border);color:var(--gold);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:15px"><i class="fas fa-bars"></i></button>
       <h2 id="page-title">Dashboard</h2>
     </div>
     <div class="topbar-right">
@@ -626,6 +627,23 @@ async function clearChat(sessionId) {
 }
 
 if (window.innerWidth < 900) document.getElementById('menu-btn').style.display = 'block';
+
+function toggleSidebar() {
+  var s = document.getElementById('sidebar');
+  var o = document.getElementById('sidebarOverlay');
+  var isOpen = s.classList.toggle('open');
+  o.style.display = isOpen ? 'block' : 'none';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').style.display = 'none';
+}
+// Close sidebar when any nav link is clicked on mobile
+document.querySelectorAll('.sidebar .nav-item').forEach(function(el) {
+  el.addEventListener('click', function() {
+    if (window.innerWidth < 900) closeSidebar();
+  });
+});
 </script>
 </body>
 </html>
