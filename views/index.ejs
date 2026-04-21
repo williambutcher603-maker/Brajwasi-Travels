@@ -400,7 +400,8 @@ document.addEventListener('DOMContentLoaded',function(){
   wireBookingForm();
   wirePayBtn();
   wireEnquiry();
-  wireFeedback();
+  // wireFeedback runs after a tiny delay to ensure feedbackModal DOM exists
+  setTimeout(wireFeedback, 0);
   checkSession();
 });
 window.addEventListener('scroll',function(){
@@ -412,7 +413,7 @@ window.addEventListener('scroll',function(){
 //  CUSTOMER SESSION
 // ═══════════════════════════════════════════════
 function checkSession(){
-  fetch('/api/auth/me').then(function(r){return r.json();}).then(function(d){
+  fetch('/api/auth/me',{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
     if(d.loggedIn){customerSession=d;renderLoginBar(d);}
   }).catch(function(){});
 }
@@ -426,7 +427,7 @@ function renderLoginBar(user){
   }
 }
 function logoutCustomer(){
-  fetch('/api/auth/logout',{method:'POST'}).then(function(){customerSession=null;renderLoginBar(null);toast('Logged out','success');});
+  fetch('/api/auth/logout',{method:'POST',credentials:'include'}).then(function(){customerSession=null;renderLoginBar(null);toast('Logged out','success');});
 }
 
 // ═══════════════════════════════════════════════
@@ -488,8 +489,8 @@ function wireChat(){
   var sendB=document.getElementById('chatSendBtn');
   var inp=document.getElementById('chatIn');
   if(!toggle){return;}
-  toggle.addEventListener('click',function(e){e.stopPropagation();toggleChat();});
-  if(closeB)closeB.addEventListener('click',function(e){e.stopPropagation();toggleChat();});
+  toggle.addEventListener('click',function(){toggleChat();});
+  if(closeB)closeB.addEventListener('click',function(){toggleChat();});
   if(startB)startB.addEventListener('click',startChat);
   if(sendB)sendB.addEventListener('click',sendChatMsg);
   if(inp)inp.addEventListener('keypress',function(e){if(e.key==='Enter')sendChatMsg();});
@@ -601,6 +602,13 @@ function wireModals(){
     var el=document.getElementById(id);
     if(el)el.addEventListener('click',function(e){if(e.target===e.currentTarget)closeModal(id);});
   });
+  // Re-wire after slight delay so elements created after script tag are available
+  setTimeout(function(){
+    var fb=document.getElementById('closeFeedbackBtn');
+    if(fb&&!fb._wired){fb._wired=true;fb.addEventListener('click',function(){closeModal('feedbackModal');});}
+    var fbo=document.getElementById('feedbackModal');
+    if(fbo&&!fbo._wired){fbo._wired=true;fbo.addEventListener('click',function(e){if(e.target===e.currentTarget)closeModal('feedbackModal');});}
+  },100);
   // OTP buttons
   var soBtn=document.getElementById('sendOtpBtn'),voBtn=document.getElementById('verifyOtpBtn');
   var oEmail=document.getElementById('otpEmailIn'),oCode=document.getElementById('otpCodeIn');
@@ -620,7 +628,7 @@ function sendOtp(){
   if(!email){al.innerHTML='<div style="color:var(--red);font-size:13px;margin-bottom:8px">Please enter your email</div>';return;}
   var btn=document.getElementById('sendOtpBtn');
   btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...'; btn.disabled=true;
-  fetch('/api/auth/send-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,name:name})}).then(function(r){return r.json();}).then(function(d){
+  fetch('/api/auth/send-otp',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,name:name})}).then(function(r){return r.json();}).then(function(d){
     if(d.success){
       document.getElementById('otpStep1').style.display='none';
       document.getElementById('otpStep2').style.display='block';
@@ -638,7 +646,7 @@ function verifyOtp(){
   if(!otp){al.innerHTML='<div style="color:var(--red);font-size:13px">Enter the OTP</div>';return;}
   var btn=document.getElementById('verifyOtpBtn');
   btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Verifying...'; btn.disabled=true;
-  fetch('/api/auth/verify-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,otp:otp})}).then(function(r){return r.json();}).then(function(d){
+  fetch('/api/auth/verify-otp',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,otp:otp})}).then(function(r){return r.json();}).then(function(d){
     if(d.success){
       customerSession=d; closeModal('loginModal'); renderLoginBar(d);
       toast('Logged in as '+d.name+'! Complete your booking.','success');
@@ -676,7 +684,7 @@ function wireBookingForm(){
     if(!customerSession){openLoginModal();return;}
     var btn=document.getElementById('bookSubmitBtn');
     btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Processing...'; btn.disabled=true;
-    fetch('/api/book',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    fetch('/api/book',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       carId:document.getElementById('bookCarId').value,
       customerName:document.getElementById('bkName').value,
       customerPhone:document.getElementById('bkPhone').value,
@@ -712,7 +720,7 @@ function calcPrice(){
 // ═══════════════════════════════════════════════
 function openPayModal(bookingId){
   document.getElementById('payBookingId').textContent='Booking ID: '+bookingId;
-  fetch('/api/payment/'+bookingId).then(function(r){return r.json();}).then(function(d){
+  fetch('/api/payment/'+bookingId,{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
     if(d.error){showSuccess(bookingId);return;}
     payData=d;
     document.getElementById('upiIdTxt').textContent='UPI: '+d.upiId;
@@ -745,7 +753,7 @@ function drawQR(data){
 function wirePayBtn(){
   var btn=document.getElementById('paidBtn');
   if(btn)btn.addEventListener('click',function(){
-    if(currentBookingId)fetch('/api/payment/'+currentBookingId+'/confirm',{method:'POST'}).catch(function(){});
+    if(currentBookingId)fetch('/api/payment/'+currentBookingId+'/confirm',{method:'POST',credentials:'include'}).catch(function(){});
     closeModal('paymentModal');
     showSuccess(currentBookingId);
   });
@@ -841,7 +849,7 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 <!-- FEEDBACK MODAL -->
 <div class="modal-overlay" id="feedbackModal">
   <div class="modal" style="max-width:480px">
-    <button class="modal-close" onclick="closeFeedback()"><i class="fas fa-times"></i></button>
+    <button class="modal-close" id="closeFeedbackBtn"><i class="fas fa-times"></i></button>
     <div class="modal-header">
       <h2><i class="fas fa-star" style="color:var(--gold);margin-right:8px"></i>Share Your Experience</h2>
       <p>Your review helps other travellers choose wisely</p>

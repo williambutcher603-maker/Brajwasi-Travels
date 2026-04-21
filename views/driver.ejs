@@ -3,309 +3,386 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Driver App – Brajwasi Travels</title>
+<title>Driver – Brajwasi Travels</title>
+<meta name="description" content="Brajwasi Travels Driver App – Share live location and complete trips">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" type="image/png" href="/images/favicon.png">
+<meta name="theme-color" content="#B8780A">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#B8780A">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-:root{--gold:#B8780A;--gold-l:#D4920E;--gold-d:#8A5A06;--gold-bg:#FFF8EC;--bg:#fff;--bg2:#F8F5F0;--border:#E8DDD0;--text:#1A1208;--muted:#7A6A55;--green:#1A7A3A;--green-bg:#EAF7EE;--red:#C0392B;--red-bg:#FDEDEB;}
+:root{--gold:#B8780A;--gold-l:#F5C842;--gold-bg:#FFF8EC;--green:#1A7A3A;--green-bg:#E8F5ED;--red:#C0392B;--red-bg:#FDEDEB;--text:#1A1208;--muted:#7a6a55;--border:#E8DDD0;--bg:#FBF8F3;--white:#fff;--r:12px;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg2);color:var(--text);min-height:100vh;}
-.app{max-width:440px;margin:0 auto;padding:20px 16px;min-height:100vh;display:flex;flex-direction:column;gap:16px;}
-.logo-bar{display:flex;align-items:center;gap:10px;padding:14px 18px;background:linear-gradient(135deg,#B8780A,#8A5A06);border-radius:14px;color:#fff;}
-.logo-bar img{width:36px;height:36px;border-radius:8px;object-fit:cover;}
-.logo-bar h1{font-size:16px;font-weight:700;}
-.logo-bar span{font-size:11px;opacity:.8;}
-.card{background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(184,120,10,.08);}
-.card-head{padding:14px 18px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;}
-.card-head i{color:var(--gold);}
-.card-body{padding:18px;}
-label{display:block;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
-input,select{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:all .2s;margin-bottom:12px;}
-input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,120,10,.1);}
-.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;}
-.btn-gold{background:linear-gradient(135deg,var(--gold-l),var(--gold-d));color:#fff;}
-.btn-gold:hover{opacity:.9;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.header{background:var(--white);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(184,120,10,.08);}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,#B8780A,#8A5A06);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.logo-icon img{width:100%;height:100%;object-fit:cover;}
+.header h1{font-family:'Playfair Display',serif;font-size:18px;color:var(--text);}
+.header span{font-size:11px;color:var(--gold);}
+.container{max-width:480px;margin:0 auto;padding:20px 16px;}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(184,120,10,.05);}
+.card-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.card-title i{color:var(--gold);}
+.fg{margin-bottom:12px;}
+.fg label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;}
+.fg input{width:100%;border:1px solid var(--border);background:var(--bg);color:var(--text);padding:10px 13px;border-radius:9px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:all .2s;}
+.fg input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,120,10,.08);}
+.fg input[type=password]{letter-spacing:4px;}
+.btn{width:100%;padding:13px;border:none;border-radius:9px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;}
+.btn-gold{background:linear-gradient(135deg,#B8780A,#8A5A06);color:#fff;}
+.btn-gold:hover{opacity:.92;}
+.btn-green{background:linear-gradient(135deg,#1A7A3A,#145C2C);color:#fff;}
+.btn-green:hover{opacity:.92;}
 .btn-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
-.btn-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,58,.2);}
-.status-card{padding:16px 18px;border-radius:12px;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600;}
-.status-live{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,58,.2);}
-.status-stopped{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
-.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.dot-green{background:var(--green);animation:pulse 1.5s infinite;}
-.dot-red{background:var(--red);}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.3)}}
-.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
-.info-row:last-child{border-bottom:none;}
-.info-row .lbl{color:var(--muted);}
-.info-row .val{font-weight:600;}
-.alert{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:12px;}
-.alert-success{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,58,.2);}
-.alert-error{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
-.hidden{display:none;}
-.link-btn{background:none;border:none;color:var(--gold);font-size:13px;font-weight:600;cursor:pointer;padding:0;font-family:'DM Sans',sans-serif;text-decoration:underline;}
-.divider{text-align:center;color:var(--muted);font-size:13px;margin:4px 0;}
+.btn-outline{background:var(--bg);color:var(--muted);border:1px solid var(--border);font-size:13px;}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.tabs{display:flex;background:var(--bg);border-radius:10px;padding:4px;gap:4px;margin-bottom:16px;}
+.tab-btn{flex:1;padding:9px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;background:none;color:var(--muted);transition:all .2s;}
+.tab-btn.active{background:var(--white);color:var(--gold);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+.status-pill{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:30px;font-size:13px;font-weight:700;}
+.status-off{background:var(--red-bg);color:var(--red);}
+.status-on{background:var(--green-bg);color:var(--green);}
+.pulse-dot{width:10px;height:10px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
+.info-box{background:var(--gold-bg);border:1px solid rgba(184,120,10,.2);border-radius:9px;padding:12px 14px;font-size:13px;color:var(--muted);margin-bottom:14px;}
+.info-box strong{color:var(--text);}
+.alert{border-radius:9px;padding:11px 14px;font-size:13px;font-weight:600;margin-bottom:12px;display:none;align-items:center;gap:8px;}
+.alert.visible{display:flex;}
+.alert-ok{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,58,.2);}
+.alert-err{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.stat-row:last-child{border-bottom:none;}
+.stat-row .lbl{color:var(--muted);}
+.stat-row .val{font-weight:700;color:var(--text);}
+.stat-row .val.green{color:var(--green);}
+.divider{border:none;border-top:1px solid var(--border);margin:14px 0;}
+a.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--gold);text-decoration:none;font-size:13px;font-weight:600;margin-top:8px;}
+.gps-accuracy{font-size:12px;color:var(--muted);margin-top:6px;text-align:center;}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="logo-bar">
-    <img src="/images/favicon.png" alt="BT" onerror="this.style.display='none'">
-    <div><h1>Driver App</h1><span>Brajwasi Tour & Travels</span></div>
+
+<div class="header">
+  <div class="logo-icon">
+    <img src="/images/favicon.png" alt="BT" onerror="this.outerHTML='<i class=\'fas fa-car\' style=\'color:#fff;font-size:16px\'></i>'">
   </div>
-
-  <!-- Setup form -->
-  <div id="setupSection">
-    <div class="card">
-      <div class="card-head"><i class="fas fa-key"></i> Login to Driver App</div>
-      <div class="card-body">
-        <div id="loginAlert"></div>
-        <label>Your Driver Secret Code</label>
-        <input type="password" id="secretInput" placeholder="Enter your secret code" autocomplete="off">
-        <label>Booking ID assigned to you</label>
-        <input type="text" id="bookingIdInput" placeholder="e.g. BT-A1B2C3" style="text-transform:uppercase">
-        <button class="btn btn-gold" onclick="startDriver()"><i class="fas fa-play"></i> Start Session</button>
-        <div class="divider" style="margin:16px 0">— Forgot your secret? —</div>
-        <button class="link-btn" onclick="showResetForm()">Reset via email OTP</button>
-      </div>
-    </div>
-
-    <!-- Reset secret form -->
-    <div class="card hidden" id="resetForm">
-      <div class="card-head"><i class="fas fa-unlock"></i> Reset Driver Secret</div>
-      <div class="card-body">
-        <div id="resetAlert"></div>
-        <label>Your Registered Email</label>
-        <input type="email" id="resetEmail" placeholder="you@example.com">
-        <button class="btn btn-gold" onclick="sendResetOtp()" id="sendOtpBtn"><i class="fas fa-paper-plane"></i> Send OTP to Email</button>
-        <div id="otpSection" class="hidden" style="margin-top:12px">
-          <label>OTP from Email</label>
-          <input type="text" id="resetOtp" placeholder="6-digit OTP" maxlength="6">
-          <label>New Secret Code (min 6 chars)</label>
-          <input type="password" id="newSecret" placeholder="New secret code">
-          <button class="btn btn-green" onclick="verifyResetOtp()"><i class="fas fa-check"></i> Set New Secret</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Active session -->
-  <div id="sessionSection" class="hidden">
-    <div id="liveStatus" class="status-card status-stopped">
-      <div class="status-dot dot-red" id="statusDot"></div>
-      <span id="statusText">Location sharing OFF</span>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><i class="fas fa-info-circle"></i> Session Info</div>
-      <div class="card-body">
-        <div class="info-row"><span class="lbl">Booking ID</span><span class="val" id="sessionBookingId"></span></div>
-        <div class="info-row"><span class="lbl">Updates Sent</span><span class="val" id="updateCount">0</span></div>
-        <div class="info-row"><span class="lbl">Last Update</span><span class="val" id="lastUpdateTime">—</span></div>
-        <div class="info-row"><span class="lbl">GPS Status</span><span class="val" id="gpsStatus">Waiting…</span></div>
-      </div>
-    </div>
-
-    <button class="btn btn-gold" id="toggleBtn" onclick="toggleSharing()">
-      <i class="fas fa-location-arrow"></i> Start Sharing Location
-    </button>
-
-    <!-- Complete trip -->
-    <div class="card">
-      <div class="card-head"><i class="fas fa-flag-checkered"></i> Complete Trip</div>
-      <div class="card-body">
-        <div id="completeAlert"></div>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:12px">After the trip ends, enter the actual kilometres driven. This will calculate the final fare.</p>
-        <label>Actual KM Driven</label>
-        <input type="number" id="actualKmInput" placeholder="e.g. 145" min="1">
-        <button class="btn btn-green" onclick="submitActualKm()"><i class="fas fa-check-circle"></i> Submit & Complete Trip</button>
-      </div>
-    </div>
-
-    <button class="btn btn-red" onclick="endSession()" style="margin-top:4px"><i class="fas fa-power-off"></i> End Session & Logout</button>
+  <div>
+    <h1>Driver App</h1>
+    <span>Brajwasi Tour & Travels</span>
   </div>
 </div>
 
+<div class="container">
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('location',this)"><i class="fas fa-map-marker-alt"></i> Location</button>
+    <button class="tab-btn" onclick="switchTab('trip',this)"><i class="fas fa-flag-checkered"></i> Complete Trip</button>
+    <button class="tab-btn" onclick="switchTab('reset',this)"><i class="fas fa-key"></i> Reset Secret</button>
+  </div>
+
+  <!-- ── LOCATION TAB ── -->
+  <div id="tab-location" class="tab-panel active">
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-shield-alt"></i> Authentication</div>
+      <div class="fg">
+        <label>Booking ID <span style="color:var(--red)">*</span></label>
+        <input type="text" id="loc-booking" placeholder="e.g. BT-ABC12345" autocomplete="off"
+               oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="fg">
+        <label>Your Driver Secret Code <span style="color:var(--red)">*</span></label>
+        <input type="password" id="loc-secret" placeholder="Your secret code" autocomplete="current-password">
+      </div>
+    </div>
+
+    <div class="info-box">
+      <i class="fas fa-info-circle" style="color:var(--gold);margin-right:6px"></i>
+      <strong>Keep screen on or lock it</strong> — location sharing continues even when screen is off. Make sure your phone is charged and GPS is enabled.
+    </div>
+
+    <div id="loc-alert" class="alert"></div>
+
+    <div style="text-align:center;margin-bottom:14px">
+      <div class="status-pill status-off" id="loc-status">
+        <span class="pulse-dot"></span> GPS Sharing OFF
+      </div>
+      <div class="gps-accuracy" id="gps-accuracy"></div>
+    </div>
+
+    <button class="btn btn-green" id="loc-start-btn" onclick="startSharing()">
+      <i class="fas fa-location-arrow"></i> Start Sharing Location
+    </button>
+    <button class="btn btn-red" id="loc-stop-btn" onclick="stopSharing()" style="display:none;margin-top:8px">
+      <i class="fas fa-stop-circle"></i> Stop Sharing
+    </button>
+  </div>
+
+  <!-- ── TRIP COMPLETE TAB ── -->
+  <div id="tab-trip" class="tab-panel">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-flag-checkered"></i> Complete Trip & Upload KM</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">
+        Enter the actual distance driven. Your final earnings will be calculated and sent to admin.
+      </p>
+      <div class="fg">
+        <label>Booking ID <span style="color:var(--red)">*</span></label>
+        <input type="text" id="trip-booking" placeholder="e.g. BT-ABC12345"
+               oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="fg">
+        <label>Driver Secret Code <span style="color:var(--red)">*</span></label>
+        <input type="password" id="trip-secret" placeholder="Your secret code">
+      </div>
+      <div class="fg">
+        <label>Actual KM Driven <span style="color:var(--red)">*</span></label>
+        <input type="number" id="trip-km" placeholder="e.g. 245" min="1">
+      </div>
+      <div id="trip-alert" class="alert"></div>
+      <div id="trip-result" style="display:none" class="card" style="background:var(--green-bg)">
+        <div class="stat-row"><span class="lbl">Actual KM</span><span class="val" id="r-km"></span></div>
+        <div class="stat-row"><span class="lbl">Final Fare</span><span class="val green" id="r-fare"></span></div>
+        <div class="stat-row"><span class="lbl">Advance Deducted</span><span class="val" id="r-advance"></span></div>
+        <div class="stat-row"><span class="lbl"><strong>Balance Due from Customer</strong></span><span class="val green" id="r-balance" style="font-size:16px"></span></div>
+      </div>
+      <button class="btn btn-gold" id="trip-submit-btn" onclick="submitTrip()" style="margin-top:4px">
+        <i class="fas fa-check-circle"></i> Submit Trip Completion
+      </button>
+    </div>
+  </div>
+
+  <!-- ── RESET SECRET TAB ── -->
+  <div id="tab-reset" class="tab-panel">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-key"></i> Reset Driver Secret</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">
+        Forgot your secret code? Enter your registered email to receive an OTP, then set a new secret.
+      </p>
+
+      <!-- Step 1: Email -->
+      <div id="reset-step1">
+        <div class="fg">
+          <label>Your Registered Email <span style="color:var(--red)">*</span></label>
+          <input type="email" id="reset-email" placeholder="you@example.com">
+        </div>
+        <div id="reset-alert1" class="alert"></div>
+        <button class="btn btn-gold" onclick="sendResetOtp()">
+          <i class="fas fa-paper-plane"></i> Send OTP to Email
+        </button>
+      </div>
+
+      <!-- Step 2: OTP + new secret -->
+      <div id="reset-step2" style="display:none">
+        <div class="info-box">OTP sent to <strong id="reset-email-display"></strong>. Check your inbox.</div>
+        <div class="fg">
+          <label>Enter OTP <span style="color:var(--red)">*</span></label>
+          <input type="text" id="reset-otp" placeholder="6-digit OTP"
+                 maxlength="6" style="text-align:center;font-size:22px;letter-spacing:8px;font-weight:800">
+        </div>
+        <div class="fg">
+          <label>New Secret Code (min 6 chars) <span style="color:var(--red)">*</span></label>
+          <input type="password" id="reset-new-secret" placeholder="Choose a strong secret">
+        </div>
+        <div id="reset-alert2" class="alert"></div>
+        <button class="btn btn-gold" onclick="verifyResetOtp()">
+          <i class="fas fa-check"></i> Verify & Update Secret
+        </button>
+        <button class="btn btn-outline" style="margin-top:8px"
+          onclick="document.getElementById('reset-step1').style.display='block';document.getElementById('reset-step2').style.display='none'">
+          ← Use a different email
+        </button>
+      </div>
+    </div>
+
+    <a href="/partner" class="back-link"><i class="fas fa-handshake"></i> New partner? Register here</a>
+  </div>
+
+</div><!-- /container -->
+
 <script>
-let secret = '', bookingId = '', sharing = false, watchId = null, updateCount = 0;
+var shareInterval = null;
+var watchId = null;
 
-// Persist session in localStorage so screen off / reopen works
-function loadSession() {
-  secret = localStorage.getItem('drv_secret') || '';
-  bookingId = localStorage.getItem('drv_booking') || '';
-  if (secret && bookingId) {
-    document.getElementById('setupSection').classList.add('hidden');
-    document.getElementById('sessionSection').classList.remove('hidden');
-    document.getElementById('sessionBookingId').textContent = bookingId;
-    autoStartSharing();
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+function showAlert(elId, msg, type) {
+  var el = document.getElementById(elId);
+  el.textContent = msg;
+  el.className = 'alert visible alert-' + (type === 'ok' ? 'ok' : 'err');
+}
+function hideAlert(elId) {
+  document.getElementById(elId).className = 'alert';
+}
+
+// ── LOCATION SHARING ──────────────────────────────────────
+function startSharing() {
+  var bookingId = document.getElementById('loc-booking').value.trim().toUpperCase();
+  var secret    = document.getElementById('loc-secret').value.trim();
+  if (!bookingId || !secret) {
+    showAlert('loc-alert', 'Enter Booking ID and Secret Code first.', 'err');
+    return;
   }
-}
-
-function startDriver() {
-  const s = document.getElementById('secretInput').value.trim();
-  const b = document.getElementById('bookingIdInput').value.trim().toUpperCase();
-  if (!s || !b) { showAlert('loginAlert', 'Please enter both secret and booking ID', 'error'); return; }
-  secret = s; bookingId = b;
-  localStorage.setItem('drv_secret', s);
-  localStorage.setItem('drv_booking', b);
-  document.getElementById('setupSection').classList.add('hidden');
-  document.getElementById('sessionSection').classList.remove('hidden');
-  document.getElementById('sessionBookingId').textContent = b;
-  autoStartSharing();
-}
-
-function autoStartSharing() {
-  // Auto-start if was sharing before (handles screen-off scenario)
-  if (localStorage.getItem('drv_sharing') === 'true') toggleSharing();
-}
-
-function toggleSharing() {
-  if (!sharing) {
-    if (!navigator.geolocation) { alert('GPS not available on this device'); return; }
-    sharing = true;
-    localStorage.setItem('drv_sharing', 'true');
-    document.getElementById('toggleBtn').innerHTML = '<i class="fas fa-stop-circle"></i> Stop Sharing Location';
-    document.getElementById('toggleBtn').className = 'btn btn-red';
-    document.getElementById('liveStatus').className = 'status-card status-live';
-    document.getElementById('statusDot').className = 'status-dot dot-green';
-    document.getElementById('statusText').textContent = 'Location sharing LIVE';
-    watchId = navigator.geolocation.watchPosition(onLocation, onGpsError, {
-      enableHighAccuracy: true,
-      maximumAge: 5000,
-      timeout: 15000
-    });
-  } else {
-    stopSharing();
+  if (!navigator.geolocation) {
+    showAlert('loc-alert', 'GPS not supported on this device.', 'err');
+    return;
   }
+  hideAlert('loc-alert');
+
+  // Request wake lock to keep sharing when screen is locked
+  requestWakeLock();
+
+  // Use watchPosition for continuous updates
+  watchId = navigator.geolocation.watchPosition(
+    function(pos) {
+      sendLocation(bookingId, secret, pos.coords.latitude, pos.coords.longitude);
+      document.getElementById('gps-accuracy').textContent =
+        'Accuracy: ±' + Math.round(pos.coords.accuracy) + 'm';
+    },
+    function(err) {
+      showAlert('loc-alert', 'GPS error: ' + err.message, 'err');
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+
+  // Also send every 10 seconds regardless
+  shareInterval = setInterval(function() {
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        sendLocation(bookingId, secret, pos.coords.latitude, pos.coords.longitude);
+      },
+      function() {}, // silent fail on interval
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
+    );
+  }, 10000);
+
+  document.getElementById('loc-status').className = 'status-pill status-on';
+  document.getElementById('loc-status').innerHTML = '<span class="pulse-dot"></span> GPS Sharing LIVE';
+  document.getElementById('loc-start-btn').style.display = 'none';
+  document.getElementById('loc-stop-btn').style.display = 'flex';
+  showAlert('loc-alert', '✅ Location sharing started. Keep this tab open.', 'ok');
 }
 
 function stopSharing() {
-  sharing = false;
-  localStorage.setItem('drv_sharing', 'false');
-  if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; }
-  document.getElementById('toggleBtn').innerHTML = '<i class="fas fa-location-arrow"></i> Start Sharing Location';
-  document.getElementById('toggleBtn').className = 'btn btn-gold';
-  document.getElementById('liveStatus').className = 'status-card status-stopped';
-  document.getElementById('statusDot').className = 'status-dot dot-red';
-  document.getElementById('statusText').textContent = 'Location sharing OFF';
+  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+  if (shareInterval) { clearInterval(shareInterval); shareInterval = null; }
+  releaseWakeLock();
+  document.getElementById('loc-status').className = 'status-pill status-off';
+  document.getElementById('loc-status').innerHTML = '<span class="pulse-dot"></span> GPS Sharing OFF';
+  document.getElementById('loc-start-btn').style.display = 'flex';
+  document.getElementById('loc-stop-btn').style.display = 'none';
+  document.getElementById('gps-accuracy').textContent = '';
+  showAlert('loc-alert', 'Location sharing stopped.', 'err');
 }
 
-async function onLocation(pos) {
-  const lat = pos.coords.latitude, lng = pos.coords.longitude;
-  document.getElementById('gpsStatus').textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
-  try {
-    const r = await fetch('/api/driver/location', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bookingId, lat, lng, secret })
-    });
-    const d = await r.json();
-    if (d.success) {
-      updateCount++;
-      document.getElementById('updateCount').textContent = updateCount;
-      document.getElementById('lastUpdateTime').textContent = new Date().toLocaleTimeString('en-IN');
-    } else if (d.error === 'Invalid secret') {
-      stopSharing();
-      alert('Invalid secret code. Please login again.');
-      endSession();
-    }
-  } catch(e) { /* Network error — will retry on next GPS update */ }
+function sendLocation(bookingId, secret, lat, lng) {
+  fetch('/api/driver/location', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bookingId: bookingId, lat: lat, lng: lng, secret: secret })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.error) showAlert('loc-alert', d.error, 'err');
+  }).catch(function() {});
 }
 
-function onGpsError(err) {
-  document.getElementById('gpsStatus').textContent = 'GPS error: ' + err.message;
-}
-
-async function submitActualKm() {
-  const km = document.getElementById('actualKmInput').value;
-  if (!km || +km < 1) { showAlert('completeAlert', 'Please enter actual kilometres', 'error'); return; }
-  try {
-    const r = await fetch('/api/driver/complete', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bookingId, actualKm: km, secret })
-    });
-    const d = await r.json();
-    if (d.success) {
-      stopSharing();
-      showAlert('completeAlert', `Trip completed! Final fare: ₹${d.finalFare.toLocaleString('en-IN')} | Advance deducted: ₹${d.advanceDeducted} | Balance due: ₹${d.balanceDue}`, 'success');
-    } else { showAlert('completeAlert', d.error || 'Failed', 'error'); }
-  } catch(e) { showAlert('completeAlert', 'Network error', 'error'); }
-}
-
-function endSession() {
-  stopSharing();
-  localStorage.removeItem('drv_secret');
-  localStorage.removeItem('drv_booking');
-  localStorage.removeItem('drv_sharing');
-  secret = ''; bookingId = '';
-  document.getElementById('setupSection').classList.remove('hidden');
-  document.getElementById('sessionSection').classList.add('hidden');
-}
-
-function showResetForm() {
-  document.getElementById('resetForm').classList.toggle('hidden');
-}
-
-async function sendResetOtp() {
-  const email = document.getElementById('resetEmail').value.trim();
-  if (!email) { showAlert('resetAlert', 'Please enter your email', 'error'); return; }
-  const btn = document.getElementById('sendOtpBtn');
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...'; btn.disabled = true;
-  try {
-    const r = await fetch('/api/driver/reset-secret/send-otp', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
-    });
-    const d = await r.json();
-    if (d.success) {
-      showAlert('resetAlert', 'OTP sent! Check your email.', 'success');
-      document.getElementById('otpSection').classList.remove('hidden');
-    } else { showAlert('resetAlert', d.error, 'error'); }
-  } catch(e) { showAlert('resetAlert', 'Network error', 'error'); }
-  btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP to Email'; btn.disabled = false;
-}
-
-async function verifyResetOtp() {
-  const email = document.getElementById('resetEmail').value.trim();
-  const otp = document.getElementById('resetOtp').value.trim();
-  const newSecret = document.getElementById('newSecret').value.trim();
-  if (!email || !otp || !newSecret) { showAlert('resetAlert', 'Fill all fields', 'error'); return; }
-  const r = await fetch('/api/driver/reset-secret/verify', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, otp, newSecret })
-  });
-  const d = await r.json();
-  if (d.success) { showAlert('resetAlert', 'Secret reset! Use your new code to login.', 'success'); document.getElementById('otpSection').classList.add('hidden'); document.getElementById('resetForm').classList.add('hidden'); }
-  else showAlert('resetAlert', d.error, 'error');
-}
-
-function showAlert(id, msg, type) {
-  const el = document.getElementById(id);
-  el.innerHTML = `<div class="alert alert-${type}"><i class="fas fa-${type==='success'?'check-circle':'exclamation-circle'}"></i>${msg}</div>`;
-  if (type === 'success') setTimeout(() => { if (el) el.innerHTML = ''; }, 6000);
-}
-
-// Keep GPS alive even when screen is off via Wake Lock API
+// Wake Lock API – keeps screen/GPS active
+var wakeLock = null;
 async function requestWakeLock() {
-  try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e) {}
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      console.log('Wake lock acquired');
+    }
+  } catch(e) { console.log('Wake lock failed:', e.message); }
 }
-
-// Register service worker for background operation
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').then(() => console.log('SW registered')).catch(console.error);
+function releaseWakeLock() {
+  if (wakeLock) { wakeLock.release(); wakeLock = null; }
 }
-
-requestWakeLock();
-loadSession();
-
-// Restore wake lock when page becomes visible again
-document.addEventListener('visibilitychange', async () => {
-  if (!document.hidden) { await requestWakeLock(); if (sharing && !watchId) toggleSharing(); }
+// Re-acquire wake lock when page becomes visible again
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible' && shareInterval !== null) requestWakeLock();
 });
+
+// ── TRIP COMPLETION ──────────────────────────────────────
+function submitTrip() {
+  var bookingId = document.getElementById('trip-booking').value.trim().toUpperCase();
+  var secret    = document.getElementById('trip-secret').value.trim();
+  var km        = document.getElementById('trip-km').value.trim();
+  if (!bookingId || !secret || !km || +km < 1) {
+    showAlert('trip-alert', 'All fields are required. KM must be at least 1.', 'err');
+    return;
+  }
+  var btn = document.getElementById('trip-submit-btn');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+  btn.disabled = true;
+  hideAlert('trip-alert');
+  fetch('/api/driver/complete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bookingId: bookingId, actualKm: km, secret: secret })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) {
+      document.getElementById('r-km').textContent    = d.actualKm + ' km';
+      document.getElementById('r-fare').textContent  = '₹' + d.finalFare.toLocaleString('en-IN');
+      document.getElementById('r-advance').textContent = d.advanceDeducted > 0 ? '₹' + d.advanceDeducted : 'None (not confirmed)';
+      document.getElementById('r-balance').textContent = '₹' + d.balanceDue.toLocaleString('en-IN');
+      document.getElementById('trip-result').style.display = 'block';
+      showAlert('trip-alert', '✅ Trip completed successfully! Admin has been notified.', 'ok');
+    } else {
+      showAlert('trip-alert', d.error || 'Failed to submit. Please try again.', 'err');
+    }
+    btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Trip Completion';
+    btn.disabled = false;
+  }).catch(function() {
+    showAlert('trip-alert', 'Network error. Please try again.', 'err');
+    btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Trip Completion';
+    btn.disabled = false;
+  });
+}
+
+// ── RESET SECRET ──────────────────────────────────────────
+function sendResetOtp() {
+  var email = document.getElementById('reset-email').value.trim();
+  if (!email) { showAlert('reset-alert1', 'Enter your registered email.', 'err'); return; }
+  fetch('/api/driver/reset-secret/send-otp', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) {
+      document.getElementById('reset-email-display').textContent = email;
+      document.getElementById('reset-step1').style.display = 'none';
+      document.getElementById('reset-step2').style.display = 'block';
+      hideAlert('reset-alert1');
+    } else { showAlert('reset-alert1', d.error || 'Failed to send OTP.', 'err'); }
+  }).catch(function() { showAlert('reset-alert1', 'Network error.', 'err'); });
+}
+
+function verifyResetOtp() {
+  var email     = document.getElementById('reset-email').value.trim();
+  var otp       = document.getElementById('reset-otp').value.trim();
+  var newSecret = document.getElementById('reset-new-secret').value.trim();
+  if (!otp || !newSecret) { showAlert('reset-alert2', 'Enter OTP and new secret code.', 'err'); return; }
+  fetch('/api/driver/reset-secret/verify', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, otp: otp, newSecret: newSecret })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.success) {
+      showAlert('reset-alert2', '✅ Secret updated successfully! Use your new secret in the Location tab.', 'ok');
+      document.getElementById('reset-otp').value = '';
+      document.getElementById('reset-new-secret').value = '';
+    } else { showAlert('reset-alert2', d.error || 'Failed.', 'err'); }
+  }).catch(function() { showAlert('reset-alert2', 'Network error.', 'err'); });
+}
 </script>
 </body>
 </html>

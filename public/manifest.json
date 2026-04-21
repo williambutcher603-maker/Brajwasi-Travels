@@ -1,19 +1,20 @@
 {
-  "name": "Brajwasi Tour & Travels",
+  "name": "Brajwasi Tour & Travels Agra",
   "short_name": "Brajwasi",
-  "description": "Premium car rental in Agra – Est. 2018",
+  "description": "Trusted cab service in Agra since 2018. Book for Taj Mahal tours and outstation trips.",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
+  "background_color": "#FBF8F3",
   "theme_color": "#B8780A",
-  "orientation": "portrait-primary",
-  "shortcuts": [
-    { "name": "Track Booking", "url": "/track", "icons": [{ "src": "/images/favicon.png", "sizes": "192x192" }] },
-    { "name": "Driver App", "url": "/driver", "icons": [{ "src": "/images/favicon.png", "sizes": "192x192" }] }
-  ],
+  "orientation": "any",
   "icons": [
     { "src": "/images/favicon.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/images/favicon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/images/favicon.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "shortcuts": [
+    { "name": "Book a Cab", "url": "/#cars", "description": "Browse and book cabs" },
+    { "name": "Track Booking", "url": "/track", "description": "Track your booking" },
+    { "name": "Driver App", "url": "/driver", "description": "Share location" },
+    { "name": "Call Now", "url": "tel:9411061000", "description": "Call Brajwasi Travels" }
   ]
 }

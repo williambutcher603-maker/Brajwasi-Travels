@@ -177,13 +177,16 @@ input:checked+.toggle-slider:before{transform:translateX(19px);background:var(--
 <div id="sidebarOverlay" onclick="closeSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;backdrop-filter:blur(2px)"></div>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand" style="justify-content:space-between">
-    <div class="brand-icon">
-      <img src="/images/favicon.png" alt="BT" onerror="this.style.display='none';this.parentNode.innerHTML='<i class=\'fas fa-car\'></i>'">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="brand-icon">
+        <img src="/images/favicon.png" alt="BT" onerror="this.style.display='none';this.parentNode.innerHTML='<i class=\'fas fa-car\'></i>'">
+      </div>
+      <div>
+        <h1>Brajwasi Tour & Travels</h1>
+        <span>Admin Panel</span>
+      </div>
     </div>
-    <div>
-      <h1>Brajwasi Tour & Travels</h1>
-      <span>Admin Panel</span>
-    </div>
+    <button id="sidebarCloseBtn" onclick="closeSidebar()" title="Close menu" style="display:none;background:none;border:1px solid var(--border);color:var(--text-muted);width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:14px;flex-shrink:0;align-items:center;justify-content:center"><i class="fas fa-times"></i></button>
   </div>
 
   <div style="padding:10px 12px;flex:1;overflow-y:auto;">
@@ -191,7 +194,7 @@ input:checked+.toggle-slider:before{transform:translateX(19px);background:var(--
     <button class="nav-item active" onclick="showTab('dashboard',this)"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
     <a href="/admin/bookings" class="nav-item"><i class="fas fa-calendar-check"></i> All Bookings</a>
     <a href="/admin/partners" class="nav-item"><i class="fas fa-handshake"></i> Partners <% if(stats.pendingPartners > 0){ %><span class="nav-badge"><%= stats.pendingPartners %></span><% } %></a>
-    <a href="/admin/testimonials" class="nav-item"><i class="fas fa-star"></i> Reviews <% if(stats.testimonialsPending > 0){ %><span class="nav-badge"><%= stats.testimonialsPending %></span><% } %></a>
+    <a href="/admin/testimonials" class="nav-item"><i class="fas fa-star"></i> Reviews <% if(stats.pendingTestimonials > 0){ %><span class="nav-badge"><%= stats.pendingTestimonials %></span><% } %></a>
 
     <div class="nav-section" style="margin-top:8px">Fleet</div>
     <button class="nav-item" onclick="showTab('add-car',this)"><i class="fas fa-plus-circle"></i> Add New Car</button>
@@ -626,7 +629,20 @@ async function clearChat(sessionId) {
   } catch(e) { alert('Failed to clear chat'); }
 }
 
-if (window.innerWidth < 900) document.getElementById('menu-btn').style.display = 'block';
+function isMobile(){ return window.innerWidth < 900; }
+
+if (isMobile()) {
+  document.getElementById('menu-btn').style.display = 'block';
+  document.getElementById('sidebarCloseBtn').style.display = 'flex';
+}
+window.addEventListener('resize', function(){
+  var isMob = isMobile();
+  var mb = document.getElementById('menu-btn');
+  var cb = document.getElementById('sidebarCloseBtn');
+  if(mb) mb.style.display = isMob ? 'block' : 'none';
+  if(cb) cb.style.display = isMob ? 'flex' : 'none';
+  if(!isMob) closeSidebar();
+});
 
 function toggleSidebar() {
   var s = document.getElementById('sidebar');
@@ -641,7 +657,7 @@ function closeSidebar() {
 // Close sidebar when any nav link is clicked on mobile
 document.querySelectorAll('.sidebar .nav-item').forEach(function(el) {
   el.addEventListener('click', function() {
-    if (window.innerWidth < 900) closeSidebar();
+    if (isMobile()) closeSidebar();
   });
 });
 </script>
