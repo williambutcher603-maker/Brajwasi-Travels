@@ -117,6 +117,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg2);color:var(--text);mi
       </div>
     </div>
 
+    <!-- Cancellation policy -->
+    <div id="cancelSection" style="padding:16px 24px;border-top:1px solid var(--border);background:var(--bg-2)">
+      <div id="cancelPolicyBox" style="background:var(--gold-bg);border:1px solid rgba(184,120,10,.2);border-radius:10px;padding:12px 16px;font-size:13px;margin-bottom:12px">
+        <div style="font-weight:700;color:var(--gold-d);margin-bottom:6px"><i class="fas fa-info-circle" style="margin-right:5px"></i>Cancellation Policy</div>
+        <div id="cancelPolicyText" style="color:var(--muted);line-height:1.6"></div>
+      </div>
+      <div id="cancelBtnWrap"></div>
+    </div>
     <button class="refresh-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh Status</button>
   </div>
 </div>
@@ -198,9 +206,13 @@ function renderBooking(d) {
 
   // Advance
   const advEl = document.getElementById('advSection');
-  advEl.innerHTML = d.advancePaid
-    ? '<div class="adv-paid"><i class="fas fa-check-circle"></i> ₹500 Advance Paid – Booking Secured</div>'
-    : '<div class="adv-unpaid"><i class="fas fa-exclamation-circle"></i> ₹500 Advance Pending – Pay to confirm</div>';
+  if (d.advanceConfirmedByAdmin) {
+    advEl.innerHTML = '<div class="adv-paid"><i class="fas fa-check-circle"></i> ₹500 Advance Confirmed by Admin – Booking Secured</div>';
+  } else if (d.advancePaid) {
+    advEl.innerHTML = '<div style="background:#FFF8EC;border:1px solid rgba(184,120,10,.25);border-radius:10px;padding:10px 16px;color:#8A5A06;font-size:13px;font-weight:600"><i class="fas fa-clock" style="margin-right:6px"></i>₹500 Payment Claimed – Awaiting Admin Confirmation</div>';
+  } else {
+    advEl.innerHTML = '<div class="adv-unpaid"><i class="fas fa-exclamation-circle"></i> ₹500 Advance Pending – Pay to confirm your booking</div>';
+  }
 
   // Map
   if (d.driverLat && d.driverLng) {
@@ -221,8 +233,61 @@ function renderBooking(d) {
     document.getElementById('trackMap').style.display = 'none';
   }
 
+  // Show cancellation options
+  renderCancelSection(d);
+
   document.getElementById('resultCard').style.display = 'block';
   document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderCancelSection(d) {
+  var sect = document.getElementById('cancelSection');
+  var policyText = document.getElementById('cancelPolicyText');
+  var btnWrap = document.getElementById('cancelBtnWrap');
+  if (!sect) return;
+
+  if (!['pending','confirmed'].includes(d.status)) {
+    sect.style.display = 'none'; return;
+  }
+  sect.style.display = 'block';
+
+  var hasAdvance = d.advancePaid;
+  var driverArrived = !!d.driverArrivalTime;
+  var driverOnWay = !driverArrived && d.driverLat && d.driverLng;
+
+  var policy = '';
+  if (!hasAdvance) {
+    policy = 'You can cancel for free — no advance has been paid yet.';
+  } else if (driverArrived) {
+    policy = '⚠️ Driver has arrived at your location. Cancelling now forfeits the <strong>full ₹500 advance</strong> as penalty.';
+  } else if (driverOnWay) {
+    policy = '⚠️ Driver is on the way. Cancelling now incurs a <strong>₹250 penalty</strong>. You will receive ₹250 back.';
+  } else {
+    policy = '✅ Driver not yet dispatched. Cancel now for a <strong>full ₹500 refund</strong>.';
+  }
+
+  if (policyText) policyText.innerHTML = policy;
+  if (btnWrap) {
+    btnWrap.innerHTML = '';
+    var btn = document.createElement('button');
+    btn.textContent = 'Cancel Booking';
+    btn.style.cssText = 'width:100%;padding:11px;background:var(--red-bg);color:var(--red);border:1.5px solid rgba(192,57,43,.25);border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit';
+    btn.setAttribute('data-bookingid', d.bookingId);
+    btn.addEventListener('click', function() { cancelBooking(this.getAttribute('data-bookingid')); });
+    btnWrap.appendChild(btn);
+  }
+}
+
+async function cancelBooking(bookingId) {
+  if (!confirm('Cancel booking ' + bookingId + '? A penalty may apply based on driver status.')) return;
+  try {
+    const r = await fetch('/api/booking/' + bookingId + '/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const d = await r.json();
+    if (d.success) {
+      alert('Booking cancelled. ' + (d.message || ''));
+      fetchBooking('/api/track?bookingId=' + bookingId);
+    } else { alert(d.error || 'Failed to cancel'); }
+  } catch(e) { alert('Network error. Please try again.'); }
 }
 
 function showErr(msg) {

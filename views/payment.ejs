@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Bookings & Payments – Brajwasi Travels</title>
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<meta name="theme-color" content="#B8780A">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--gold:#B8780A;--gold-l:#D4920E;--gold-d:#8A5A06;--gold-bg:#FFF8EC;--gold-bg2:#FEF3DC;--bg:#fff;--bg2:#F8F5F0;--bg3:#F0EBE3;--border:#E8DDD0;--text:#1A1208;--muted:#7A6A55;--light:#A0917E;--green:#1A7A3A;--green-bg:#EAF7EE;--red:#C0392B;--red-bg:#FDEDEB;--blue:#1A5DAB;--blue-bg:#EEF4FF;--r:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg2);color:var(--text);min-height:100vh;}
+.header{background:var(--bg);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 10px rgba(184,120,10,.07);}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--gold-l),var(--gold-d));border-radius:9px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+.logo-icon img{width:100%;height:100%;object-fit:cover;border-radius:9px;}
+.logo-txt h1{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);}
+.logo-txt span{font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;}
+.back-btn{margin-left:auto;display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:13px;font-weight:600;padding:7px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg);transition:all .2s;}
+.back-btn:hover{color:var(--gold);border-color:var(--gold);}
+.page{max-width:680px;margin:0 auto;padding:28px 20px;}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 2px 14px rgba(184,120,10,.08);margin-bottom:20px;}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;background:var(--bg);}
+.card-head i{color:var(--gold);}
+.card-body{padding:18px 20px;}
+/* Login wall */
+.login-wall{text-align:center;padding:40px 24px;background:var(--bg);border:1px solid var(--border);border-radius:16px;}
+.login-wall i{font-size:40px;color:var(--border);display:block;margin-bottom:14px;}
+/* Booking list */
+.booking-item{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border:1px solid var(--border);border-radius:10px;cursor:pointer;background:var(--bg);margin-bottom:10px;transition:all .2s;gap:12px;}
+.booking-item:hover,.booking-item.selected{border-color:var(--gold);background:var(--gold-bg);}
+.booking-id{font-family:monospace;font-weight:800;font-size:14px;color:var(--gold-d);}
+.booking-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.st-pending{background:var(--gold-bg2);color:var(--gold-d);}
+.st-confirmed{background:var(--green-bg);color:var(--green);}
+.st-completed{background:var(--blue-bg);color:var(--blue);}
+.st-cancelled{background:var(--red-bg);color:var(--red);}
+/* Bill breakdown */
+.bill-table{width:100%;border-collapse:collapse;}
+.bill-table tr td{padding:11px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.bill-table tr:last-child td{border-bottom:none;}
+.bill-table td:last-child{text-align:right;font-weight:600;}
+.bill-total-row td{font-size:16px;font-weight:800;color:var(--text);border-top:2px solid var(--border);padding-top:14px;}
+.bill-balance-row td{font-size:18px;font-weight:800;color:var(--green);padding-top:14px;}
+.bill-note{background:var(--gold-bg);border:1px solid rgba(184,120,10,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6;}
+/* UPI buttons */
+.upi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+.upi-btn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:11px;font-weight:700;color:var(--text);font-family:inherit;transition:all .2s;}
+.upi-btn:hover{border-color:var(--gold);background:var(--gold-bg);}
+.upi-btn span{font-size:20px;}
+.btn-pay{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold-l),var(--gold-d));color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;font-family:inherit;}
+.btn-pay:hover{opacity:.9;}
+.btn-secondary{width:100%;padding:11px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.empty{text-align:center;padding:40px;color:var(--light);}
+.empty i{font-size:36px;color:var(--border);display:block;margin-bottom:10px;}
+.loading{text-align:center;padding:24px;color:var(--light);font-size:14px;}
+/* OTP Login inline */
+.otp-form{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
+.otp-form h3{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:4px;}
+.otp-form p{font-size:13px;color:var(--muted);margin-bottom:16px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+input.fi{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 13px;border-radius:8px;font-size:13px;font-family:inherit;outline:none;}
+input.fi:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,120,10,.1);}
+.btn-gold{padding:12px 20px;background:linear-gradient(135deg,var(--gold-l),var(--gold-d));color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;}
+.btn-gold:hover{opacity:.9;}
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.alert-success{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,122,58,.2);}
+.alert-error{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
+#qrCanvas{border-radius:10px;border:1px solid var(--border);}
+@media(max-width:480px){.form-row{grid-template-columns:1fr;}.upi-grid{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo-icon"><img src="/images/favicon.png" alt="BT" onerror="this.style.display='none';this.parentNode.innerHTML='<i class=\'fas fa-car\' style=\'color:#fff\'></i>'"></div>
+  <div class="logo-txt"><h1>My Bookings & Payments</h1><span>Brajwasi Tour & Travels</span></div>
+  <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Home</a>
+</div>
+
+<div class="page">
+  <!-- Login wall / session check -->
+  <div id="loginSection">
+    <div class="otp-form">
+      <h3><i class="fas fa-lock" style="color:var(--gold);margin-right:8px"></i>Login to View Payments</h3>
+      <p>Enter your email to receive a one-time password</p>
+      <div id="loginAlert"></div>
+      <div id="loginStep1">
+        <div class="form-row" style="margin-bottom:12px">
+          <div><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:700;text-transform:uppercase">Your Name</label><input type="text" id="loginName" class="fi" placeholder="Full name"></div>
+          <div><label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:700;text-transform:uppercase">Email *</label><input type="email" id="loginEmail" class="fi" placeholder="you@example.com"></div>
+        </div>
+        <button class="btn-gold" id="sendOtpBtn" style="width:100%;justify-content:center;padding:12px"><i class="fas fa-paper-plane"></i> Send OTP to Email</button>
+      </div>
+      <div id="loginStep2" style="display:none">
+        <div style="background:var(--gold-bg);border:1px solid rgba(184,120,10,.2);border-radius:8px;padding:12px 14px;margin-bottom:12px;text-align:center;font-size:13px;color:var(--muted)">OTP sent to <strong id="otpEmailShow"></strong></div>
+        <input type="text" id="loginOtp" class="fi" placeholder="Enter 6-digit OTP" maxlength="6" style="text-align:center;font-size:22px;font-weight:800;letter-spacing:10px;margin-bottom:12px">
+        <button class="btn-gold" id="verifyOtpBtn" style="width:100%;justify-content:center;padding:12px"><i class="fas fa-check"></i> Verify & Login</button>
+        <button onclick="document.getElementById('loginStep1').style.display='block';document.getElementById('loginStep2').style.display='none'" style="width:100%;margin-top:8px;padding:10px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-size:13px;font-family:inherit">← Different email</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content (shown after login) -->
+  <div id="mainSection" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:14px;color:var(--muted)">Logged in as <strong id="userNameDisplay"></strong></div>
+      <button onclick="doLogout()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Logout</button>
+    </div>
+
+    <!-- Booking selector -->
+    <div class="card">
+      <div class="card-head"><i class="fas fa-list"></i> Select a Booking</div>
+      <div class="card-body">
+        <div id="bookingList"><div class="loading"><i class="fas fa-spinner fa-spin" style="margin-right:8px"></i>Loading your bookings...</div></div>
+      </div>
+    </div>
+
+    <!-- Bill detail (shown after selection) -->
+    <div id="billSection" style="display:none">
+      <div class="card">
+        <div class="card-head"><i class="fas fa-receipt"></i> Payment Breakdown — <span id="billBookingId" style="font-family:monospace;color:var(--gold-d)"></span></div>
+        <div class="card-body">
+          <table class="bill-table">
+            <tr><td style="color:var(--muted)">Car</td><td id="billCarName"></td></tr>
+            <tr><td style="color:var(--muted)">Route</td><td id="billRoute"></td></tr>
+            <tr><td style="color:var(--muted)">Journey Date</td><td id="billDate"></td></tr>
+            <tr id="estKmRow"><td style="color:var(--muted)">Estimated KM</td><td id="billEstKm"></td></tr>
+            <tr id="actualKmRow"><td style="color:var(--muted);font-weight:600">Actual KM (final)</td><td id="billActualKm" style="color:var(--blue)"></td></tr>
+            <tr><td style="color:var(--muted)">Base Fare</td><td id="billBaseFare" style="color:var(--text)"></td></tr>
+            <tr id="tollRow"><td style="color:var(--muted)">Toll Tax</td><td id="billToll" style="color:var(--muted)"></td></tr>
+            <tr id="advPendingRow" style="display:none"><td style="color:var(--red)">Advance (₹500 — not yet confirmed)</td><td id="billAdvPending" style="color:var(--red)"></td></tr>
+            <tr id="advConfRow" style="display:none"><td style="color:var(--green)">Advance Paid ✓</td><td id="billAdvConf" style="color:var(--green)"></td></tr>
+            <tr class="bill-total-row"><td>Total Amount</td><td id="billTotal"></td></tr>
+            <tr id="alreadyPaidRow" style="display:none"><td style="color:var(--muted);font-weight:400;font-size:13px">Already Paid (confirmed advance)</td><td id="billAlreadyPaid" style="color:var(--muted)"></td></tr>
+            <tr class="bill-balance-row"><td>Balance Due</td><td id="billBalance"></td></tr>
+          </table>
+          <div id="billNote" class="bill-note"></div>
+        </div>
+      </div>
+
+      <!-- Payment section -->
+      <div id="paySection" class="card">
+        <div class="card-head"><i class="fas fa-university"></i> Pay Balance Due</div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Tap your preferred UPI app to pay the balance directly.</p>
+          <div class="upi-grid">
+            <button class="upi-btn" id="payPhonePe"><span>📱</span>PhonePe</button>
+            <button class="upi-btn" id="payGPay"><span>💳</span>Google Pay</button>
+            <button class="upi-btn" id="payPaytm"><span>💰</span>Paytm</button>
+          </div>
+          <button class="btn-pay" id="payAnyBtn"><i class="fas fa-university"></i> Open Any UPI App</button>
+          <div id="billQrWrap" style="text-align:center;border-top:1px solid var(--border);padding-top:14px;margin-top:4px">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:10px"><i class="fas fa-qrcode" style="margin-right:5px"></i>Scan with any UPI app (desktop)</p>
+            <canvas id="qrCanvas" width="176" height="176"></canvas>
+            <p id="billUpiId" style="font-family:monospace;font-size:12px;color:var(--muted);margin-top:6px"></p>
+          </div>
+          <p style="text-align:center;font-size:11px;color:var(--light);margin-top:10px">After payment, please send a screenshot to us on WhatsApp: <a href="https://wa.me/919411061000" style="color:var(--gold)">9411061000</a></p>
+        </div>
+      </div>
+
+      <div id="nothingDue" class="card" style="display:none">
+        <div class="card-body" style="text-align:center;padding:28px">
+          <div style="font-size:40px;margin-bottom:12px">✅</div>
+          <div style="font-size:16px;font-weight:700;color:var(--green);margin-bottom:6px">No Payment Due!</div>
+          <p style="font-size:14px;color:var(--muted)">This booking is fully paid or payment will be collected after the trip.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var _session = null;
+var _payData = null;
+var _qrInst = null;
+
+// Check session on load
+fetch('/api/auth/me').then(function(r){return r.json();}).then(function(d){
+  if (d.loggedIn) { _session = d; showMain(d); }
+}).catch(function(){});
+
+// OTP login
+document.getElementById('sendOtpBtn').addEventListener('click', function() {
+  var email = document.getElementById('loginEmail').value.trim();
+  var name  = document.getElementById('loginName').value.trim();
+  var al    = document.getElementById('loginAlert');
+  if (!email) { al.innerHTML = '<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i>Please enter your email</div>'; return; }
+  var btn = this; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...'; btn.disabled = true;
+  fetch('/api/auth/send-otp', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:email, name:name }) })
+    .then(function(r){return r.json();}).then(function(d){
+      if (d.success) {
+        document.getElementById('loginStep1').style.display = 'none';
+        document.getElementById('loginStep2').style.display = 'block';
+        document.getElementById('otpEmailShow').textContent = email;
+        al.innerHTML = '';
+        setTimeout(function(){document.getElementById('loginOtp').focus();},100);
+      } else { al.innerHTML = '<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i>'+(d.error||'Failed')+'</div>'; }
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP to Email'; btn.disabled = false;
+    }).catch(function(){ al.innerHTML = '<div class="alert alert-error">Network error</div>'; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP'; btn.disabled = false; });
+});
+document.getElementById('loginEmail').addEventListener('keypress', function(e){if(e.key==='Enter')document.getElementById('sendOtpBtn').click();});
+
+document.getElementById('verifyOtpBtn').addEventListener('click', function() {
+  var email = document.getElementById('loginEmail').value.trim();
+  var otp   = document.getElementById('loginOtp').value.trim();
+  var al    = document.getElementById('loginAlert');
+  if (!otp) return;
+  var btn = this; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...'; btn.disabled = true;
+  fetch('/api/auth/verify-otp', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:email, otp:otp }) })
+    .then(function(r){return r.json();}).then(function(d){
+      if (d.success) { _session = d; document.getElementById('loginSection').style.display = 'none'; showMain(d); }
+      else { al.innerHTML = '<div class="alert alert-error">'+(d.error||'Invalid OTP')+'</div>'; }
+      btn.innerHTML = '<i class="fas fa-check"></i> Verify & Login'; btn.disabled = false;
+    }).catch(function(){ al.innerHTML = '<div class="alert alert-error">Network error</div>'; btn.innerHTML = '<i class="fas fa-check"></i> Verify & Login'; btn.disabled = false; });
+});
+document.getElementById('loginOtp').addEventListener('keypress', function(e){if(e.key==='Enter')document.getElementById('verifyOtpBtn').click();});
+
+function showMain(user) {
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('mainSection').style.display = 'block';
+  document.getElementById('userNameDisplay').textContent = user.name || user.email;
+  loadBookings();
+}
+
+function doLogout() {
+  fetch('/api/auth/logout', {method:'POST'}).then(function(){
+    _session = null;
+    document.getElementById('loginSection').style.display = 'block';
+    document.getElementById('mainSection').style.display = 'none';
+    document.getElementById('loginStep1').style.display = 'block';
+    document.getElementById('loginStep2').style.display = 'none';
+  });
+}
+
+function loadBookings() {
+  var list = document.getElementById('bookingList');
+  list.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin" style="margin-right:8px"></i>Loading...</div>';
+  fetch('/api/my-bookings').then(function(r){return r.json();}).then(function(d){
+    if (!d.bookings || !d.bookings.length) {
+      list.innerHTML = '<div class="empty"><i class="fas fa-calendar-times"></i><p>No bookings found for your email.</p></div>'; return;
+    }
+    list.innerHTML = '';
+    d.bookings.forEach(function(b) {
+      var div = document.createElement('div');
+      div.className = 'booking-item';
+      var sc = {pending:'st-pending',confirmed:'st-confirmed',completed:'st-completed',cancelled:'st-cancelled'}[b.status]||'st-pending';
+      var se = {pending:'⏳ Pending',confirmed:'✅ Confirmed',completed:'🏁 Completed',cancelled:'❌ Cancelled'}[b.status]||b.status;
+      div.innerHTML = '<div><div class="booking-id">'+b.bookingId+'</div><div class="booking-meta">'+esc(b.carName||'')+ ' · '+new Date(b.journeyDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})+'</div><div class="booking-meta">'+esc(b.pickupLocation)+' → '+esc(b.dropLocation)+'</div></div><div><span class="status-badge '+sc+'">'+se+'</span></div>';
+      div.addEventListener('click', function() {
+        document.querySelectorAll('.booking-item').forEach(function(x){x.classList.remove('selected');});
+        div.classList.add('selected');
+        loadBill(b.bookingId);
+      });
+      list.appendChild(div);
+    });
+  }).catch(function(){ list.innerHTML = '<div class="empty"><i class="fas fa-exclamation-triangle"></i><p>Failed to load bookings</p></div>'; });
+}
+
+function loadBill(bookingId) {
+  document.getElementById('billSection').style.display = 'none';
+  fetch('/api/booking-bill/'+bookingId).then(function(r){return r.json();}).then(function(d){
+    if (d.error) { alert(d.error); return; }
+    document.getElementById('billBookingId').textContent = d.bookingId;
+    document.getElementById('billCarName').textContent = d.carName || '—';
+    document.getElementById('billRoute').textContent = (d.pickupLocation||'')+ ' → '+(d.dropLocation||'');
+    document.getElementById('billDate').textContent = new Date(d.journeyDate).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})+' at '+(d.journeyTime||'—');
+    document.getElementById('billEstKm').textContent = (d.estimatedKm||'—')+' km (estimated)';
+    if (d.actualKm) {
+      document.getElementById('actualKmRow').style.display = '';
+      document.getElementById('billActualKm').textContent = d.actualKm+' km (actual by driver)';
+    } else { document.getElementById('actualKmRow').style.display = 'none'; }
+    document.getElementById('billBaseFare').textContent = '₹'+fmt(d.baseFare);
+    if (d.toll > 0) {
+      document.getElementById('tollRow').style.display = '';
+      document.getElementById('billToll').textContent = '₹'+fmt(d.toll);
+    } else {
+      document.getElementById('tollRow').style.display = 'none';
+    }
+    if (d.advancePending > 0) {
+      document.getElementById('advPendingRow').style.display = '';
+      document.getElementById('billAdvPending').textContent = '+ ₹'+fmt(d.advancePending)+' (claimed, not confirmed)';
+    } else { document.getElementById('advPendingRow').style.display = 'none'; }
+    if (d.advanceConfirmed > 0) {
+      document.getElementById('advConfRow').style.display = '';
+      document.getElementById('billAdvConf').textContent = '− ₹'+fmt(d.advanceConfirmed);
+    } else { document.getElementById('advConfRow').style.display = 'none'; }
+    document.getElementById('billTotal').textContent = '₹'+fmt(d.total);
+    if (d.alreadyPaid > 0) {
+      document.getElementById('alreadyPaidRow').style.display = '';
+      document.getElementById('billAlreadyPaid').textContent = '− ₹'+fmt(d.alreadyPaid);
+    } else { document.getElementById('alreadyPaidRow').style.display = 'none'; }
+    document.getElementById('billBalance').textContent = '₹'+fmt(d.balanceDue);
+
+    // Note about advance
+    var note = '';
+    if (d.advancePending > 0) {
+      note = '⚠️ Your ₹500 advance payment has been claimed but <strong>not yet confirmed by admin</strong>. It is included in your balance due. Once admin confirms it, it will be deducted.';
+    } else if (!d.actualKm) {
+      note = '📌 Final fare will be calculated after the driver uploads actual kilometres. Toll tax will also be added at that time.';
+    } else {
+      note = '✅ Final calculation complete. Please pay the balance due.';
+    }
+    document.getElementById('billNote').innerHTML = note;
+
+    document.getElementById('billSection').style.display = 'block';
+
+    if (d.balanceDue > 0) {
+      loadPayment(bookingId, d.balanceDue);
+      document.getElementById('paySection').style.display = 'block';
+      document.getElementById('nothingDue').style.display = 'none';
+    } else {
+      document.getElementById('paySection').style.display = 'none';
+      document.getElementById('nothingDue').style.display = 'block';
+    }
+    document.getElementById('billSection').scrollIntoView({behavior:'smooth'});
+  }).catch(function(e){ alert('Failed to load bill: ' + e.message); });
+}
+
+function loadPayment(bookingId, amount) {
+  fetch('/api/payment-balance/'+bookingId).then(function(r){return r.json();}).then(function(d){
+    if (d.error || !d.upiId) return;
+    _payData = d;
+    document.getElementById('billUpiId').textContent = 'UPI: '+d.upiId;
+    document.getElementById('payPhonePe').onclick = function(){ window.location.href = d.phonepe; };
+    document.getElementById('payGPay').onclick    = function(){ window.location.href = d.gpay; };
+    document.getElementById('payPaytm').onclick   = function(){ window.location.href = d.paytm; };
+    document.getElementById('payAnyBtn').onclick  = function(){ window.location.href = d.upiUrl; };
+    // QR for desktop
+    var isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    document.getElementById('billQrWrap').style.display = isMobile ? 'none' : 'block';
+    if (!isMobile && window.QRCode) {
+      var canvas = document.getElementById('qrCanvas');
+      var ctx = canvas.getContext('2d'); ctx.clearRect(0,0,176,176);
+      var div = document.createElement('div');
+      new QRCode(div,{text:d.qrData,width:176,height:176,colorDark:'#1A1208',colorLight:'#FFFFFF',correctLevel:QRCode.CorrectLevel.M});
+      setTimeout(function(){var img=div.querySelector('img');if(img){var i=new Image();i.onload=function(){ctx.drawImage(i,0,0,176,176);};i.src=img.src;}},300);
+    }
+  }).catch(function(){});
+}
+
+function fmt(n){ return (n||0).toLocaleString('en-IN'); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

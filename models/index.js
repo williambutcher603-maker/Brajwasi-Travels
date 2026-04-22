@@ -35,7 +35,14 @@ const bookingSchema = new mongoose.Schema({
   advancePaid: { type: Boolean, default: false },
   advanceConfirmedByAdmin: { type: Boolean, default: false },
   actualKm: Number,           // uploaded by driver after trip
-  finalFare: Number,          // calculated from actualKm
+  tollAmount: Number,         // toll entered by driver/admin
+  finalFare: Number,          // calculated from actualKm + toll
+  balanceDue: Number,         // finalFare - advanceDeducted
+  cancelledBy: String,        // 'customer' or 'admin'
+  cancelledAt: Date,
+  penaltyAmount: Number,      // deducted from advance on late cancel
+  refundAmount: Number,       // amount returned to customer
+  driverArrivalTime: Date,    // when driver marked arrived
   assignedPartner: { type: mongoose.Schema.Types.ObjectId, ref: 'CarPartner', default: null },
   assignedPartnerName: String,
   driverLat: Number,

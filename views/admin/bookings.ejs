@@ -158,6 +158,12 @@ select.status-select{background:var(--bg-2);border:1px solid var(--border);color
                 <a href="https://wa.me/91<%= b.customerPhone %>?text=<%= encodeURIComponent('Hello '+b.customerName+', your booking '+b.bookingId+' with Brajwasi Tour & Travels is confirmed. Journey on '+new Date(b.journeyDate).toLocaleDateString('en-IN')+' at '+b.journeyTime+'. For queries: 9411061000') %>" target="_blank" class="btn" style="background:#EAF7EE;color:#1A7A3A;border:1px solid rgba(26,122,58,.2)">
                   <i class="fab fa-whatsapp"></i>
                 </a>
+                <% if(b.advancePaid && !b.advanceConfirmedByAdmin){ %>
+                <button class="btn" style="background:#EEF4FF;color:#1A5DAB;border:1px solid rgba(26,93,171,.2);font-size:11px" onclick="confirmAdvance('<%= b._id %>')"><i class="fas fa-check-double"></i> Confirm ₹500</button>
+                <% } %>
+                <% if(b.status==='confirmed'){ %>
+                <button class="btn" style="background:#FDEDEB;color:#C0392B;border:1px solid rgba(192,57,43,.2);font-size:11px" onclick="markLate('<%= b._id %>')"><i class="fas fa-clock"></i> Late Alert</button>
+                <% } %>
               </td>
             </tr>
             <% })} %>
@@ -179,6 +185,20 @@ function filterBookings() {
   });
 }
 
+async function confirmAdvance(id) {
+  if (!confirm('Confirm ₹500 advance payment for this booking? This will mark it as received and reduce customer balance.')) return;
+  const r = await fetch('/admin/bookings/' + id + '/confirm-advance', { method: 'POST' });
+  const d = await r.json();
+  if (d.success) { alert('Advance confirmed!'); location.reload(); }
+  else alert(d.error || 'Failed');
+}
+async function markLate(id) {
+  if (!confirm('Send late-delay notification to customer? (If car is >30 mins late, customer gets full refund on cancellation)')) return;
+  const r = await fetch('/admin/bookings/' + id + '/mark-late', { method: 'POST' });
+  const d = await r.json();
+  if (d.success) alert('Late notification sent to customer.');
+  else alert(d.error || 'Failed');
+}
 async function assignPartner(bookingId) {
   const sel = document.getElementById('assign-' + bookingId);
   const partnerId = sel?.value;

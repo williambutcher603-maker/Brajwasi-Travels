@@ -208,9 +208,96 @@ app.get('/api/payment/:bookingId', async (req, res) => {
   res.json({ upiId, bookingId: booking.bookingId, upiUrl: `upi://pay?${base}`, phonepe: `phonepe://pay?${base}`, gpay: `tez://upi/pay?${base}`, paytm: `paytmmp://pay?${base}`, qrData: `upi://pay?${base}` });
 });
 app.post('/api/payment/:bookingId/confirm', async (req, res) => {
-  // Customer flags payment made — admin must confirm it
+  // Customer CLAIMS to have paid — sets advancePaid=true but advanceConfirmedByAdmin stays false
+  // Only admin confirming via /admin/bookings/:id/confirm-advance sets advanceConfirmedByAdmin=true
   await Booking.findOneAndUpdate({ bookingId: req.params.bookingId }, { advancePaid: true });
   res.json({ success: true });
+});
+
+// Customer cancels their own booking — with penalty logic
+app.post('/api/booking/:bookingId/cancel', async (req, res) => {
+  const booking = await Booking.findOne({ bookingId: req.params.bookingId.toUpperCase() });
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  if (!['pending','confirmed'].includes(booking.status)) return res.status(400).json({ error: 'Cannot cancel a ' + booking.status + ' booking' });
+
+  let penaltyAmount = 0;
+  let refundAmount = 0;
+  const advPaid = booking.advancePaid;
+  const now = new Date();
+
+  if (advPaid) {
+    // Check if driver has arrived (driverArrivalTime set)
+    if (booking.driverArrivalTime) {
+      // Driver already at location — full penalty (no refund)
+      penaltyAmount = 500;
+      refundAmount = 0;
+    } else if (booking.driverLat && booking.driverLng) {
+      // Driver on the way — partial penalty
+      penaltyAmount = 250;
+      refundAmount = 250;
+    } else {
+      // Driver not dispatched yet — full refund
+      penaltyAmount = 0;
+      refundAmount = 500;
+    }
+  }
+
+  await Booking.findOneAndUpdate({ bookingId: booking.bookingId }, {
+    status: 'cancelled', cancelledBy: 'customer', cancelledAt: now,
+    penaltyAmount, refundAmount
+  });
+
+  await pushAdmin('❌ Booking Cancelled', `${booking.customerName} cancelled ${booking.bookingId}. Penalty: ₹${penaltyAmount}, Refund: ₹${refundAmount}`, { url: '/admin/bookings' });
+  res.json({ success: true, penaltyAmount, refundAmount, message: refundAmount > 0 ? `₹${refundAmount} will be refunded to you.` : penaltyAmount > 0 ? `₹${penaltyAmount} penalty applied. No refund.` : 'Booking cancelled.' });
+});
+
+// Customer gets their bookings (for payment page)
+app.get('/api/my-bookings', async (req, res) => {
+  if (!req.session.customer) return res.status(401).json({ error: 'Login required' });
+  const bookings = await Booking.find({ customerEmail: req.session.customer.email }).sort({ createdAt: -1 }).limit(20);
+  res.json({ bookings });
+});
+
+// Get full payment breakdown for a booking
+app.get('/api/booking-bill/:bookingId', async (req, res) => {
+  const booking = await Booking.findOne({ bookingId: req.params.bookingId.toUpperCase() });
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  const advancePending = booking.advancePaid && !booking.advanceConfirmedByAdmin ? 500 : 0;
+  const advanceConfirmed = booking.advanceConfirmedByAdmin ? 500 : 0;
+  const baseFare = booking.finalFare || booking.totalPrice || 0;
+  const toll = booking.tollAmount || 0;
+  const total = baseFare + toll + advancePending;
+  const alreadyPaid = advanceConfirmed;
+  const balanceDue = Math.max(0, total - alreadyPaid);
+  res.json({
+    bookingId: booking.bookingId, carName: booking.carName,
+    pickupLocation: booking.pickupLocation, dropLocation: booking.dropLocation,
+    journeyDate: booking.journeyDate, journeyTime: booking.journeyTime,
+    estimatedKm: booking.estimatedKm, actualKm: booking.actualKm,
+    baseFare, toll, advancePaid: booking.advancePaid,
+    advanceConfirmedByAdmin: booking.advanceConfirmedByAdmin,
+    advancePending, advanceConfirmed, total, alreadyPaid, balanceDue,
+    status: booking.status
+  });
+});
+
+// Customer pays balance due
+app.get('/api/payment-balance/:bookingId', async (req, res) => {
+  const booking = await Booking.findOne({ bookingId: req.params.bookingId.toUpperCase() });
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  const upiId = process.env.UPI_ID;
+  if (!upiId) return res.status(500).json({ error: 'UPI_ID not configured' });
+  const advancePending = booking.advancePaid && !booking.advanceConfirmedByAdmin ? 500 : 0;
+  const baseFare = booking.finalFare || booking.totalPrice || 0;
+  const toll = booking.tollAmount || 0;
+  const total = baseFare + toll + advancePending;
+  const alreadyPaid = booking.advanceConfirmedByAdmin ? 500 : 0;
+  const balanceDue = Math.max(0, total - alreadyPaid);
+  if (balanceDue <= 0) return res.json({ error: 'No payment due', balanceDue: 0 });
+  const pn = encodeURIComponent('Brajwasi Tour & Travels');
+  const tn = encodeURIComponent('Balance ' + booking.bookingId);
+  const base = `pa=${upiId}&pn=${pn}&am=${balanceDue.toFixed(2)}&tn=${tn}&cu=INR`;
+  res.json({ upiId, bookingId: booking.bookingId, amount: balanceDue, upiUrl: `upi://pay?${base}`, phonepe: `phonepe://pay?${base}`, gpay: `tez://upi/pay?${base}`, paytm: `paytmmp://pay?${base}`, qrData: `upi://pay?${base}` });
 });
 
 // ── Tracking ─────────────────────────────────────────────────
@@ -220,10 +307,11 @@ app.get('/api/track', async (req, res) => {
   if (bookingId) b = await Booking.findOne({ bookingId: bookingId.trim().toUpperCase() });
   else if (phone) b = await Booking.findOne({ customerPhone: phone.trim() }).sort({ createdAt: -1 });
   if (!b) return res.status(404).json({ error: 'Booking not found' });
-  res.json({ bookingId: b.bookingId, customerName: b.customerName, carName: b.carName, pickupLocation: b.pickupLocation, dropLocation: b.dropLocation, journeyDate: b.journeyDate, journeyTime: b.journeyTime, status: b.status, advancePaid: b.advancePaid, advanceConfirmedByAdmin: b.advanceConfirmedByAdmin, totalPrice: b.totalPrice, finalFare: b.finalFare, actualKm: b.actualKm, assignedPartnerName: b.assignedPartnerName, driverLat: b.driverLat, driverLng: b.driverLng, driverLastSeen: b.driverLastSeen });
+  res.json({ bookingId: b.bookingId, customerName: b.customerName, carName: b.carName, pickupLocation: b.pickupLocation, dropLocation: b.dropLocation, journeyDate: b.journeyDate, journeyTime: b.journeyTime, status: b.status, advancePaid: b.advancePaid, advanceConfirmedByAdmin: b.advanceConfirmedByAdmin, totalPrice: b.totalPrice, finalFare: b.finalFare, actualKm: b.actualKm, assignedPartnerName: b.assignedPartnerName, driverLat: b.driverLat, driverLng: b.driverLng, driverLastSeen: b.driverLastSeen, driverArrivalTime: b.driverArrivalTime });
 });
 
 app.get('/track', (_, res) => res.render('track'));
+app.get('/payment', (_, res) => res.render('payment'));
 app.get('/driver', (_, res) => res.render('driver'));
 
 // ── Driver location sharing (from PWA) ──────────────────────
@@ -255,9 +343,12 @@ app.post('/api/driver/complete', async (req, res) => {
     else finalFare = km * car.pricePerKm;
   }
   // Subtract 500 advance only if confirmed by admin
+  const tollAmt = Number(req.body.tollAmount) || 0;
+  const finalTotal = finalFare + tollAmt;
   const advanceDeducted = booking.advanceConfirmedByAdmin ? 500 : 0;
-  const balanceDue = Math.max(0, finalFare - advanceDeducted);
-  await Booking.findOneAndUpdate({ bookingId }, { actualKm: km, finalFare, status: 'completed' });
+  const advancePending = booking.advancePaid && !booking.advanceConfirmedByAdmin ? 500 : 0;
+  const balanceDue = Math.max(0, finalTotal + advancePending - advanceDeducted);
+  await Booking.findOneAndUpdate({ bookingId }, { actualKm: km, tollAmount: tollAmt, finalFare: finalTotal, balanceDue, status: 'completed' });
   // Notify admin
   await pushAdmin('🏁 Trip Completed', `${booking.customerName} · ${bookingId} · ${km}km · ₹${finalFare}`, { url: '/admin/bookings' });
   res.json({ success: true, actualKm: km, finalFare, advanceDeducted, balanceDue });
@@ -343,6 +434,29 @@ app.post('/api/partner/register', uploadDocs.fields([
       `<div style="font-family:Arial;max-width:480px"><h2 style="color:#B8780A">New Partner Registration</h2><p><b>Name:</b> ${ownerName}</p><p><b>Phone:</b> ${phone}</p><p><b>Car:</b> ${carModel} (${carNumber})</p><p>Login to admin to review.</p></div>`);
     res.json({ success: true, partnerId: partner._id });
   } catch(e) { console.error(e); res.status(500).json({ error: e.message }); }
+});
+
+
+// Driver marks arrival at pickup location
+app.post('/api/driver/arrived', async (req, res) => {
+  const { bookingId, secret } = req.body;
+  const globalSecret = process.env.DRIVER_SECRET || 'brajwasi_driver';
+  const partner = await CarPartner.findOne({ driverSecret: secret });
+  if (secret !== globalSecret && !partner) return res.status(403).json({ error: 'Invalid secret' });
+  const booking = await Booking.findOneAndUpdate({ bookingId }, { driverArrivalTime: new Date() }, { new: true });
+  if (!booking) return res.status(404).json({ error: 'Booking not found' });
+  // Notify customer
+  await pushCustomer(booking.customerPhone, '🚗 Driver Arrived!', `Your cab is at the pickup location for booking ${bookingId}. Please come quickly!`, { url: '/track?bookingId=' + bookingId });
+  res.json({ success: true });
+});
+
+// Admin marks driver late (auto refund eligible)
+app.post('/admin/bookings/:id/mark-late', adminAuth, async (req, res) => {
+  const booking = await Booking.findById(req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Not found' });
+  // If car is more than 30 mins late and customer cancels, full refund
+  await pushCustomer(booking.customerPhone, '⏰ We apologise for the delay', `Your cab for ${booking.bookingId} is running late. If you cancel now, ₹500 full refund will be given.`, {});
+  res.json({ success: true });
 });
 
 // ════════════════════════════════════════════════════════════

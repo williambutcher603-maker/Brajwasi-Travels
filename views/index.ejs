@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brajwasi Travels Agra | Tour and Travels in Agra</title>
-<meta name="description" content="Brajwasi Travels Agra – Trusted Tour and Travels in Agra since 2018. Book cab for Taj Mahal tours, Fatehpur Sikri, outstation trips and airport transfers. Call 9411061000.">
-<meta name="keywords" content="tour and travels in agra, cab service agra, taxi agra, brajwasi travels, agra to delhi cab, taj mahal tour cab, outstation taxi agra">
+<title>Cab Service in Agra | Brajwasi Tour & Travels – Taxi for Taj Mahal, Outstation</title>
+<meta name="description" content="Best cab service in Agra since 2018. Book Toyota Innova Crysta for Taj Mahal tours, Fatehpur Sikri, Agra to Delhi, Jaipur, Lucknow. 24/7 available. Call 9411061000.">
+<meta name="keywords" content="cab service in agra, taxi in agra, agra cab booking, taj mahal cab, agra to delhi taxi, tour and travels agra, innova crysta agra, outstation cab agra, brajwasi travels">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="Brajwasi Travels Agra | Tour and Travels in Agra">
 <meta property="og:description" content="Trusted cab service in Agra since 2018. Book Toyota Crysta and more for Taj Mahal tours and outstation trips.">
@@ -36,6 +36,25 @@
 .star-picker i.lit{color:#F59E0B;}
 /* ── Login bar ── */
 #loginBar{display:flex;align-items:center;gap:8px;}
+/* Chat real-time animations */
+@keyframes chatBounce {
+  0%   { transform: scale(0); }
+  60%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+@keyframes fadeSlideUp {
+  from { opacity:0; transform:translateY(6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes chatPulse {
+  0%,100% { box-shadow: 0 4px 20px rgba(26,86,219,.4); }
+  50%      { box-shadow: 0 4px 28px rgba(26,86,219,.8), 0 0 0 8px rgba(26,86,219,.15); }
+}
+.chat-has-unread { animation: chatPulse 1.8s ease infinite; }
+@keyframes typingDot {
+  0%,60%,100% { opacity:.3; transform:translateY(0); }
+  30%          { opacity:1;  transform:translateY(-3px); }
+}
 </style>
 </head>
 <body>
@@ -60,6 +79,7 @@
       <a href="#testimonials">Reviews</a>
       <a href="/partner">Partner With Us</a>
       <a href="/track">Track Booking</a>
+      <a href="/payment">My Payments</a>
       <a href="#contact">Contact</a>
       <div id="loginBar"></div>
       <a href="tel:9411061000" class="call-btn"><i class="fas fa-phone"></i> Call Now</a>
@@ -232,7 +252,8 @@
     <div class="footer-links">
       <h4>Quick Links</h4>
       <a href="#cars">Our Fleet</a><a href="#why-us">Why Us</a><a href="#testimonials">Reviews</a>
-      <a href="/track">Track Booking</a><a href="/partner">Partner With Us</a><a href="#contact">Contact</a>
+      <a href="/track">Track Booking</a>
+      <a href="/payment">My Payments</a><a href="/partner">Partner With Us</a><a href="#contact">Contact</a>
     </div>
     <div class="footer-contact">
       <h4>Contact</h4>
@@ -248,10 +269,15 @@
 <a href="https://wa.me/919411061000" class="float-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
 
 <!-- ═══ CHAT WIDGET ═══ -->
-<div class="chat-float" id="chatFloat" style="position:fixed;bottom:90px;left:20px;z-index:99991;pointer-events:auto">
-  <button id="chatBtn" style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#1a56db,#0e3eb3);color:#fff;border:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(26,86,219,.4);pointer-events:auto">
-    <i class="fas fa-comment-dots"></i>
+<div id="chatFloat" style="position:fixed;bottom:90px;left:20px;z-index:99991;pointer-events:auto">
+  <button id="chatBtn" style="position:relative;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#1a56db,#0e3eb3);color:#fff;border:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(26,86,219,.4);pointer-events:auto;transition:transform .2s">
+    <i class="fas fa-comment-dots" id="chatBtnIcon"></i>
+    <span id="chatBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border-radius:20px;font-size:10px;font-weight:800;min-width:20px;height:20px;padding:0 5px;align-items:center;justify-content:center;border:2px solid #fff;font-family:DM Sans,sans-serif;animation:chatBounce .4s ease"></span>
   </button>
+  <div id="chatPreview" style="display:none;position:absolute;bottom:64px;left:0;background:#1a1a2e;color:#fff;border-radius:12px;padding:10px 14px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3);max-width:220px;animation:fadeSlideUp .3s ease;pointer-events:none">
+    <span id="chatPreviewText"></span>
+    <div style="position:absolute;bottom:-6px;left:18px;width:12px;height:12px;background:#1a1a2e;transform:rotate(45deg);border-radius:2px"></div>
+  </div>
 </div>
 <div id="chatWindow" style="position:fixed;bottom:158px;left:20px;width:340px;background:#fff;border:1px solid #E8DDD0;border-radius:18px;box-shadow:0 16px 50px rgba(26,18,8,.18);z-index:99992;display:none;flex-direction:column;overflow:hidden;max-height:520px">
   <div style="background:linear-gradient(135deg,#1a56db,#0e3eb3);padding:14px 18px;display:flex;justify-content:space-between;align-items:center">
@@ -699,28 +725,44 @@ document.getElementById('feedbackForm').addEventListener('submit', function(e) {
   .finally(function() { btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Review'; btn.disabled = false; });
 });
 
-// ── CHAT ──────────────────────────────────────────────────
+// ── CHAT — Real-time with unread badge & preview ─────────
+var _unreadCount = 0;
+var _chatOpen    = false;
+var _bgPoll      = null;   // background poll even when window closed
+
+// Wire buttons
 document.getElementById('chatBtn').addEventListener('click', function() {
+  _chatOpen = !_chatOpen;
   var win = document.getElementById('chatWindow');
-  var showing = win.style.display === 'flex';
-  win.style.display = showing ? 'none' : 'flex';
-  if (!showing) {
+  win.style.display = _chatOpen ? 'flex' : 'none';
+  if (_chatOpen) {
+    _clearBadge();
+    _hidePreview();
     if (_chatPhone) _showChatBody();
     _startChatPoll();
-  } else { _stopChatPoll(); }
+  } else {
+    _stopChatPoll();
+    _startBgPoll();   // keep bg polling so badge updates
+  }
 });
 document.getElementById('chatCloseBtn').addEventListener('click', function() {
+  _chatOpen = false;
   document.getElementById('chatWindow').style.display = 'none';
   _stopChatPoll();
+  _startBgPoll();
 });
 document.getElementById('chatStartBtn').addEventListener('click', _startChat);
 document.getElementById('chatSendBtn').addEventListener('click', _sendChat);
 document.getElementById('chatIn').addEventListener('keypress', function(e) { if (e.key === 'Enter') _sendChat(); });
-// Pre-fill if returning user
+
+// Pre-fill returning user
 if (_chatPhone) {
   var _ni = document.getElementById('chatNameIn'); var _pi = document.getElementById('chatPhoneIn');
   if (_ni) _ni.value = _chatName; if (_pi) _pi.value = _chatPhone;
+  // Start background poll silently — shows badge if admin replied while away
+  _startBgPoll();
 }
+
 function _showChatBody() {
   document.getElementById('chatSetup').style.display = 'none';
   document.getElementById('chatBody').style.display = 'flex';
@@ -734,7 +776,47 @@ function _startChat() {
   localStorage.setItem('bt_name', n); localStorage.setItem('bt_phone', p);
   _resubPhone(p);
   _showChatBody();
+  _stopBgPoll();
 }
+
+// ── Badge helpers ──────────────────────────────────────────
+function _setBadge(count) {
+  var badge = document.getElementById('chatBadge');
+  var btn   = document.getElementById('chatBtn');
+  if (!badge) return;
+  if (count > 0) {
+    badge.style.display = 'flex';
+    badge.textContent = count > 9 ? '9+' : count;
+    btn.classList.add('chat-has-unread');
+    btn.style.transform = 'scale(1.05)';
+  } else {
+    _clearBadge();
+  }
+}
+function _clearBadge() {
+  _unreadCount = 0;
+  var badge = document.getElementById('chatBadge');
+  var btn   = document.getElementById('chatBtn');
+  if (badge) badge.style.display = 'none';
+  if (btn)   { btn.classList.remove('chat-has-unread'); btn.style.transform = ''; }
+  _hidePreview();
+}
+function _showPreview(text) {
+  var prev = document.getElementById('chatPreview');
+  var txt  = document.getElementById('chatPreviewText');
+  if (!prev || !txt) return;
+  txt.textContent = '💬 ' + (text.length > 35 ? text.substring(0, 35) + '…' : text);
+  prev.style.display = 'block';
+  // Auto-hide after 5s
+  clearTimeout(window._previewTimer);
+  window._previewTimer = setTimeout(_hidePreview, 5000);
+}
+function _hidePreview() {
+  var prev = document.getElementById('chatPreview');
+  if (prev) prev.style.display = 'none';
+}
+
+// ── Load history ────────────────────────────────────────────
 function _loadChatHistory() {
   fetch('/api/chat/' + encodeURIComponent(_chatPhone) + '/history')
     .then(function(r) { return r.json(); })
@@ -750,31 +832,70 @@ function _loadChatHistory() {
       box.scrollTop = box.scrollHeight;
     }).catch(function() {});
 }
+
+// ── Append a single message bubble ─────────────────────────
 function _appendMsg(msg, scroll) {
   if (scroll === undefined) scroll = true;
-  var box = document.getElementById('chatMsgs');
+  var box   = document.getElementById('chatMsgs');
   var empty = document.getElementById('chatEmpty');
   if (empty) empty.remove();
   if (msg._id && document.getElementById('cm-' + msg._id)) return;
-  var d = document.createElement('div');
-  d.style.cssText = 'max-width:82%;padding:9px 13px;border-radius:12px;font-size:13px;line-height:1.4;word-break:break-word;' + (msg.fromCustomer ? 'background:linear-gradient(135deg,#1a56db,#0e3eb3);color:#fff;align-self:flex-end;margin-left:auto;border-bottom-right-radius:4px' : 'background:#fff;color:#1A1208;align-self:flex-start;border-bottom-left-radius:4px;border:1px solid #E8DDD0');
-  if (msg._id) d.id = 'cm-' + msg._id;
+
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-direction:column;align-items:' + (msg.fromCustomer ? 'flex-end' : 'flex-start') + ';margin-bottom:2px';
+
+  var bubble = document.createElement('div');
+  bubble.style.cssText = 'max-width:82%;padding:9px 13px;border-radius:' + (msg.fromCustomer ? '14px 14px 4px 14px' : '14px 14px 14px 4px') + ';font-size:13px;line-height:1.5;word-break:break-word;animation:fadeSlideUp .25s ease;' + (msg.fromCustomer ? 'background:linear-gradient(135deg,#1a56db,#0e3eb3);color:#fff' : 'background:#fff;color:#1A1208;border:1px solid #E8DDD0;box-shadow:0 1px 3px rgba(0,0,0,.06)');
+  if (msg._id) bubble.id = 'cm-' + msg._id;
+
   var t = new Date(msg.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-  d.innerHTML = '<div>' + _esc(msg.message) + '</div><div style="font-size:10px;opacity:.6;margin-top:3px">' + (msg.fromCustomer ? 'You' : 'Brajwasi') + ' \u00b7 ' + t + '</div>';
-  box.appendChild(d);
-  if (scroll) box.scrollTop = box.scrollHeight;
+  var senderLabel = msg.fromCustomer ? 'You' : '🧑‍💼 Brajwasi';
+  bubble.innerHTML = '<div>' + _esc(msg.message) + '</div><div style="font-size:10px;opacity:.55;margin-top:3px;display:flex;align-items:center;gap:3px;justify-content:' + (msg.fromCustomer ? 'flex-end' : 'flex-start') + '">' + senderLabel + ' · ' + t + (msg.fromCustomer ? ' <span style="color:rgba(255,255,255,.6)">✓</span>' : '') + '</div>';
+
+  wrap.appendChild(bubble);
+  box.appendChild(wrap);
+  if (scroll) { box.scrollTop = box.scrollHeight; }
 }
+
+// ── Send message ────────────────────────────────────────────
 function _sendChat() {
   var inp = document.getElementById('chatIn');
   var msg = inp.value.trim();
   if (!msg || !_chatPhone) return;
   inp.value = '';
+  inp.focus();
+  // Optimistic bubble
   var tid = 'tmp-' + Date.now();
   _appendMsg({ _id: tid, message: msg, fromCustomer: true, createdAt: new Date().toISOString() });
-  fetch('/api/chat/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ customerName: _chatName, customerPhone: _chatPhone, message: msg }) })
-    .then(function() { _lastMsgTs = new Date().toISOString(); var te = document.getElementById('cm-' + tid); if (te) te.remove(); _loadChatHistory(); })
-    .catch(function() {});
+  // Show typing indicator
+  _showTypingIndicator();
+  fetch('/api/chat/send', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ customerName: _chatName, customerPhone: _chatPhone, message: msg })
+  }).then(function() {
+    _lastMsgTs = new Date().toISOString();
+    var te = document.getElementById('cm-' + tid); if (te) te.parentNode && te.parentNode.remove();
+    _hideTypingIndicator();
+    _loadChatHistory();
+  }).catch(function() { _hideTypingIndicator(); });
 }
+
+function _showTypingIndicator() {
+  var box = document.getElementById('chatMsgs');
+  if (document.getElementById('typingIndicator')) return;
+  var el = document.createElement('div');
+  el.id = 'typingIndicator';
+  el.style.cssText = 'display:flex;align-items:flex-start;margin-bottom:2px';
+  el.innerHTML = '<div style="background:#fff;border:1px solid #E8DDD0;border-radius:14px 14px 14px 4px;padding:10px 14px;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="display:flex;gap:4px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:#ccc;animation:typingDot 1.2s ease infinite"></span><span style="width:6px;height:6px;border-radius:50%;background:#ccc;animation:typingDot 1.2s ease .2s infinite"></span><span style="width:6px;height:6px;border-radius:50%;background:#ccc;animation:typingDot 1.2s ease .4s infinite"></span></div></div>';
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+}
+function _hideTypingIndicator() {
+  var el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+// ── Real-time poll (window open) ────────────────────────────
 function _pollChat() {
   if (!_chatPhone) return;
   var since = _lastMsgTs || new Date(0).toISOString();
@@ -783,14 +904,50 @@ function _pollChat() {
     .then(function(d) {
       if (d.messages && d.messages.length) {
         d.messages.forEach(function(m) {
-          _appendMsg(m);
+          _appendMsg(m, true);
           if (!_lastMsgTs || new Date(m.createdAt) > new Date(_lastMsgTs)) _lastMsgTs = m.createdAt;
         });
       }
     }).catch(function() {});
 }
-function _startChatPoll() { if (!_chatPoll) _chatPoll = setInterval(_pollChat, 4000); }
-function _stopChatPoll() { clearInterval(_chatPoll); _chatPoll = null; }
+
+// ── Background poll (window closed) — shows badge ──────────
+function _bgPollFn() {
+  if (!_chatPhone || _chatOpen) return;
+  var since = _lastMsgTs || new Date(0).toISOString();
+  fetch('/api/chat/' + encodeURIComponent(_chatPhone) + '/updates?since=' + encodeURIComponent(since))
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var newAdminMsgs = d.messages ? d.messages.filter(function(m) { return !m.fromCustomer; }) : [];
+      if (newAdminMsgs.length > 0) {
+        _unreadCount += newAdminMsgs.length;
+        _setBadge(_unreadCount);
+        // Show preview bubble of latest message
+        _showPreview(newAdminMsgs[newAdminMsgs.length - 1].message);
+        // Update lastMsgTs
+        _lastMsgTs = d.messages[d.messages.length - 1].createdAt;
+        // Play notification sound (tiny oscillator beep)
+        _playBeep();
+      }
+    }).catch(function() {});
+}
+function _playBeep() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.35);
+  } catch(e) {}
+}
+
+function _startChatPoll() { if (!_chatPoll) _chatPoll = setInterval(_pollChat, 2500); }
+function _stopChatPoll()  { clearInterval(_chatPoll); _chatPoll = null; }
+function _startBgPoll()   { if (!_bgPoll) _bgPoll = setInterval(_bgPollFn, 5000); }
+function _stopBgPoll()    { clearInterval(_bgPoll); _bgPoll = null; }
 
 // ── Enquiry form ───────────────────────────────────────────
 document.getElementById('enquiryForm').addEventListener('submit', function(e) {

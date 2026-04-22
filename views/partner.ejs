@@ -124,6 +124,10 @@ input[type=file]{position:absolute;opacity:0;width:0;height:0;}
           <div class="form-group"><label>Full Name *</label><input type="text" name="ownerName" placeholder="Your full name" required></div>
           <div class="form-group"><label>Phone Number *</label><input type="tel" name="phone" placeholder="10-digit mobile number" required></div>
           <div class="form-group full"><label>Email Address *</label><input type="email" name="email" placeholder="you@example.com (booking assignments will be sent here)" required></div>
+          <div class="form-group full">
+            <label>Driver Secret Code * <span style="font-size:11px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">(min 6 characters — used to share live location. Keep it private!)</span></label>
+            <input type="password" name="driverSecret" placeholder="Create a secret code (min 6 chars)" required minlength="6" autocomplete="new-password">
+          </div>
         </div>
       </div>
 
@@ -133,7 +137,7 @@ input[type=file]{position:absolute;opacity:0;width:0;height:0;}
         <div class="form-grid">
           <div class="form-group"><label>Car Brand *</label><input type="text" name="carName" placeholder="e.g. Toyota, Maruti" required></div>
           <div class="form-group"><label>Car Model *</label><input type="text" name="carModel" placeholder="e.g. Innova Crysta, Ertiga" required></div>
-          <div class="form-group"><label>Registration Number *</label><input type="text" name="carNumber" placeholder="e.g. UP80AB1234" required style="text-transform:uppercase"></div>
+          <div class="form-group"><label>Registration Number *</label><input type="text" id="carNumber" name="carNumber" placeholder="e.g. UP80AB1234" required style="text-transform:uppercase"></div>
           <div class="form-group"><label>Seating Capacity</label>
             <select name="seats">
               <option value="4">4 Seater</option>
@@ -246,13 +250,57 @@ document.getElementById('carNumber')?.addEventListener('input', function() {
 
 document.getElementById('partnerForm').addEventListener('submit', async e => {
   e.preventDefault();
+
+  // Client-side validation before sending
+  var required = ['ownerName','phone','email','driverSecret','carName','carModel','carNumber','pricePerKm','extraKmCharge'];
+  var missing = [];
+  var form = e.target;
+  for (var i=0; i<required.length; i++) {
+    var el = form.elements[required[i]];
+    if (!el || !el.value.trim()) missing.push(required[i]);
+  }
+  if (missing.length > 0) {
+    var alertBox = document.getElementById('alertBox');
+    alertBox.className = 'alert alert-error';
+    alertBox.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please fill: ' + missing.join(', ');
+    alertBox.classList.remove('hidden');
+    alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  var secretEl = form.elements['driverSecret'];
+  if (secretEl && secretEl.value.trim().length < 6) {
+    var alertBox = document.getElementById('alertBox');
+    alertBox.className = 'alert alert-error';
+    alertBox.innerHTML = '<i class="fas fa-exclamation-circle"></i> Driver secret code must be at least 6 characters.';
+    alertBox.classList.remove('hidden');
+    alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  var fileFields = ['licensePhoto','rcPhoto','insurancePhoto'];
+  for (var j=0; j<fileFields.length; j++) {
+    var fileEl = form.elements[fileFields[j]];
+    if (!fileEl || !fileEl.files || !fileEl.files.length) {
+      var alertBox = document.getElementById('alertBox');
+      alertBox.className = 'alert alert-error';
+      alertBox.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please upload all 3 documents (Licence, RC, Insurance).';
+      alertBox.classList.remove('hidden');
+      alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
+
   const btn = document.getElementById('submitPartnerBtn');
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...'; btn.disabled = true;
 
   const formData = new FormData(e.target);
 
   try {
-    const r = await fetch('/api/partner/register', { method: 'POST', body: formData });
+    const r = await fetch('/api/partner/register', { 
+      method: 'POST', 
+      body: formData
+    });
     const d = await r.json();
     if (d.success) {
       document.getElementById('partnerForm').classList.add('hidden');
