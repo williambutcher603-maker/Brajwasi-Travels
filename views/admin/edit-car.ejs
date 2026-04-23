@@ -44,7 +44,7 @@ select option{background:var(--bg);}
       <div class="form-group"><label>Car Model *</label><input type="text" name="model" value="<%= car.model %>" required></div>
       <div class="form-group full">
         <label>Current Photo</label>
-        <img src="<%= car.image %>" class="current-img" onerror="this.src='/images/default-crysta.jpg'" alt="Current">
+        <img src="<%= car.image %>" class="current-img" onerror="this.src='/images/default-crysta.jpeg'" alt="Current">
         <label style="margin-top:6px">Upload New Photo (leave empty to keep current)</label>
         <input type="file" name="image" accept="image/*">
       </div>

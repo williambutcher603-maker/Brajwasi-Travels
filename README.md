@@ -152,7 +152,7 @@ brajwasi-travels/
 │   ├── manifest.json      # PWA manifest
 │   ├── images/
 │   │   ├── favicon.png
-│   │   └── default-crysta.jpg
+│   │   └── default-crysta.jpeg
 │   └── uploads/           # Admin-uploaded car images
 └── views/
     ├── index.ejs          # Main homepage

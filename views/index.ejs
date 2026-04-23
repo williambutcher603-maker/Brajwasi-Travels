@@ -136,7 +136,7 @@
       <% } else { cars.forEach(function(car){ var fkm=car.fixedPackage&&car.fixedPackage.km?car.fixedPackage.km:0; var fp=car.fixedPackage&&car.fixedPackage.price?car.fixedPackage.price:0; %>
       <div class="car-card">
         <div class="car-img-wrap">
-          <img src="<%= car.image %>" alt="<%= car.model %>" loading="lazy" onerror="this.src='/images/default-crysta.jpg'">
+          <img src="<%= car.image %>" alt="<%= car.model %>" loading="lazy" onerror="this.src='/images/default-crysta.jpeg'">
           <div class="car-badge"><%= car.availableIn.join(', ') %></div>
           <% if(car.ac){ %><div class="ac-badge"><i class="fas fa-snowflake"></i> AC</div><% } %>
         </div>

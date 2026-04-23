@@ -301,7 +301,7 @@ input:checked+.toggle-slider:before{transform:translateX(19px);background:var(--
               <tr><td colspan="7"><div class="empty-state"><i class="fas fa-car"></i><p>No cars added yet</p></div></td></tr>
               <% } else { cars.forEach(car => { %>
               <tr id="car-row-<%= car._id %>">
-                <td><img src="<%= car.image %>" class="car-img-thumb" onerror="this.src='/images/default-crysta.jpg'" alt="<%= car.model %>"></td>
+                <td><img src="<%= car.image %>" class="car-img-thumb" onerror="this.src='/images/default-crysta.jpeg'" alt="<%= car.model %>"></td>
                 <td><div style="font-weight:700"><%= car.model %></div><div style="font-size:11px;color:var(--text-muted)"><%= car.name %> · <%= car.seats %> Seats<%= car.ac?' · AC':'' %></div></td>
                 <td><div style="font-weight:700;color:var(--gold-dark)">₹<%= car.pricePerKm %>/km</div><div style="font-size:11px;color:var(--text-muted)">Extra: ₹<%= car.extraKmCharge %>/km</div></td>
                 <td><% if(car.fixedPackage&&car.fixedPackage.km){ %><div style="font-weight:700;color:var(--green)">₹<%= car.fixedPackage.price %></div><div style="font-size:11px;color:var(--text-muted)">for <%= car.fixedPackage.km %>km</div><% }else{ %><span style="color:var(--text-light);font-size:12px">No package</span><% } %></td>

@@ -497,7 +497,7 @@ app.get('/admin/logout', (req, res) => { req.session.destroy(); res.redirect('/a
 // Cars CRUD
 app.post('/admin/cars/add', adminAuth, uploadImg.single('image'), async (req, res) => {
   const { name, model, pricePerKm, fixedKm, fixedPrice, extraKmCharge, tollTax, availableIn, seats, ac, description } = req.body;
-  await Car.create({ name, model, image: req.file ? '/uploads/' + req.file.filename : '/images/default-crysta.jpg', pricePerKm: +pricePerKm, extraKmCharge: +extraKmCharge, fixedPackage: (fixedKm && fixedPrice) ? { km: +fixedKm, price: +fixedPrice } : undefined, tollTax: tollTax || 'As per actual', availableIn: availableIn ? availableIn.split(',').map(s => s.trim()) : ['Agra'], seats: +seats || 7, ac: ac === 'true', description });
+  await Car.create({ name, model, image: req.file ? '/uploads/' + req.file.filename : '/images/default-crysta.jpeg', pricePerKm: +pricePerKm, extraKmCharge: +extraKmCharge, fixedPackage: (fixedKm && fixedPrice) ? { km: +fixedKm, price: +fixedPrice } : undefined, tollTax: tollTax || 'As per actual', availableIn: availableIn ? availableIn.split(',').map(s => s.trim()) : ['Agra'], seats: +seats || 7, ac: ac === 'true', description });
   res.redirect('/admin');
 });
 app.get('/admin/cars/:id/edit', adminAuth, async (req, res) => { const car = await Car.findById(req.params.id); if (!car) return res.redirect('/admin'); res.render('admin/edit-car', { car }); });

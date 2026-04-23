@@ -18,7 +18,7 @@ const seedDefaultCar = async () => {
     await Car.create({
       name: 'Toyota Crysta',
       model: 'Innova Crysta',
-      image: '/images/default-crysta.jpg',
+      image: '/images/default-crysta.jpeg',
       pricePerKm: 12,
       fixedPackage: { km: 300, price: 3200 },
       extraKmCharge: 12,
