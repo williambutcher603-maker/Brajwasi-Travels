@@ -344,14 +344,14 @@ app.post('/api/driver/complete', async (req, res) => {
   }
   // Subtract 500 advance only if confirmed by admin
   const tollAmt = Number(req.body.tollAmount) || 0;
-  const finalTotal = finalFare + tollAmt;
+  // finalFare = base km fare only. Toll stored separately. billing adds them.
   const advanceDeducted = booking.advanceConfirmedByAdmin ? 500 : 0;
   const advancePending = booking.advancePaid && !booking.advanceConfirmedByAdmin ? 500 : 0;
-  const balanceDue = Math.max(0, finalTotal + advancePending - advanceDeducted);
-  await Booking.findOneAndUpdate({ bookingId }, { actualKm: km, tollAmount: tollAmt, finalFare: finalTotal, balanceDue, status: 'completed' });
+  const balanceDue = Math.max(0, finalFare + tollAmt + advancePending - advanceDeducted);
+  await Booking.findOneAndUpdate({ bookingId }, { actualKm: km, tollAmount: tollAmt, finalFare: finalFare, balanceDue, status: 'completed' });
   // Notify admin
   await pushAdmin('🏁 Trip Completed', `${booking.customerName} · ${bookingId} · ${km}km · ₹${finalFare}`, { url: '/admin/bookings' });
-  res.json({ success: true, actualKm: km, finalFare, advanceDeducted, balanceDue });
+  res.json({ success: true, actualKm: km, finalFare, tollAmount: tollAmt, advanceDeducted, balanceDue });
 });
 
 // ── Driver secret OTP reset ──────────────────────────────────
@@ -475,7 +475,14 @@ app.get('/admin', adminAuth, async (req, res) => {
     CarPartner.countDocuments({ status: 'pending' }),
     Testimonial.countDocuments({ approved: false })
   ]);
-  const stats = { totalCars: await Car.countDocuments({ isActive: true }), totalBookings: await Booking.countDocuments(), pendingBookings: await Booking.countDocuments({ status: 'pending' }), confirmedBookings: await Booking.countDocuments({ status: 'confirmed' }), pendingPartners, pendingTestimonials };
+  const completedBookings = await Booking.find({ status: 'completed' });
+  const totalRevenue = completedBookings.reduce((s, b) => s + (b.finalFare||0) + (b.tollAmount||0), 0);
+  const adminCommission = completedBookings.reduce((s, b) => {
+    if (b.assignedPartner) { return s + Math.round(((b.finalFare||0)+(b.tollAmount||0)) * 0.10); }
+    return s + (b.finalFare||0) + (b.tollAmount||0); // unassigned — full revenue to admin
+  }, 0);
+  const partnerPayouts = totalRevenue - adminCommission;
+  const stats = { totalCars: await Car.countDocuments({ isActive: true }), totalBookings: await Booking.countDocuments(), pendingBookings: await Booking.countDocuments({ status: 'pending' }), confirmedBookings: await Booking.countDocuments({ status: 'confirmed' }), completedBookings: completedBookings.length, pendingPartners, pendingTestimonials, totalRevenue, adminCommission, partnerPayouts };
   res.render('admin/dashboard', { cars, bookings, stats, chatSessions });
 });
 
@@ -540,6 +547,16 @@ app.post('/admin/bookings/:id/assign', adminAuth, async (req, res) => {
       <div style="padding:14px 18px;background:#fff8ec;font-size:13px;color:#7a6a55">After completing the trip, use the Driver app to upload actual KM and your earnings will be finalised.</div>
     </div>`);
   res.json({ success: true, assignedPartnerName: booking.assignedPartnerName });
+});
+
+// Admin confirms customer payment received
+app.post('/admin/bookings/:id/mark-payment-received', adminAuth, async (req, res) => {
+  const booking = await Booking.findByIdAndUpdate(req.params.id,
+    { paymentReceivedByAdmin: true, paymentReceivedAt: new Date() }, { new: true });
+  if (!booking) return res.status(404).json({ error: 'Not found' });
+  await pushCustomer(booking.customerPhone, '✅ Payment Confirmed!',
+    `Your payment for booking ${booking.bookingId} has been confirmed by Brajwasi Travels.`);
+  res.json({ success: true });
 });
 
 // Push

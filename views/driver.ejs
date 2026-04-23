@@ -140,6 +140,20 @@ input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,
       </div>
     </div>
 
+    <!-- Revenue Card -->
+    <div class="card" id="revenueCard" style="display:none">
+      <div class="card-head"><i class="fas fa-rupee-sign"></i> Your Earnings This Trip</div>
+      <div class="card-body">
+        <div class="info-row"><span class="lbl">Base Fare</span><span class="val" id="revBaseFare"></span></div>
+        <div class="info-row"><span class="lbl">Toll Collected</span><span class="val" id="revToll"></span></div>
+        <div class="info-row"><span class="lbl" style="color:var(--red)">Brajwasi Commission (10%)</span><span class="val" style="color:var(--red)" id="revCommission"></span></div>
+        <div class="info-row" style="border-bottom:none"><span class="lbl" style="color:var(--green);font-weight:700">Your Net Earning</span><span class="val" style="color:var(--green);font-size:18px;font-weight:800" id="revEarning"></span></div>
+        <div style="margin-top:10px;padding:10px;background:var(--gold-bg);border-radius:8px;font-size:13px;color:var(--muted)">
+          Balance to collect from customer: <strong id="revBalance" style="color:var(--text)"></strong>
+        </div>
+      </div>
+    </div>
+
     <button class="btn btn-red" onclick="endSession()" style="margin-top:4px"><i class="fas fa-power-off"></i> End Session & Logout</button>
   </div>
 </div>
@@ -258,7 +272,25 @@ async function submitActualKm() {
     const d = await r.json();
     if (d.success) {
       stopSharing();
-      showAlert('completeAlert', `Trip completed! Final fare: ₹${d.finalFare.toLocaleString('en-IN')} | Advance deducted: ₹${d.advanceDeducted} | Balance due: ₹${d.balanceDue}`, 'success');
+      var commission = Math.round(d.finalFare * 0.10);
+      var driverEarning = d.finalFare - commission + (d.tollAmount||0);
+      var msg = 'Trip completed!\n'
+        + 'Base Fare: ₹' + d.finalFare.toLocaleString('en-IN') + '\n'
+        + 'Toll: ₹' + (d.tollAmount||0).toLocaleString('en-IN') + '\n'
+        + 'Commission (10%): ₹' + commission.toLocaleString('en-IN') + '\n'
+        + 'Your Earning: ₹' + driverEarning.toLocaleString('en-IN') + '\n'
+        + 'Balance due from customer: ₹' + d.balanceDue.toLocaleString('en-IN');
+      showAlert('completeAlert', msg, 'success');
+      // Show revenue card
+      var rc = document.getElementById('revenueCard');
+      if (rc) {
+        document.getElementById('revBaseFare').textContent = '₹' + d.finalFare.toLocaleString('en-IN');
+        document.getElementById('revToll').textContent = '₹' + (d.tollAmount||0).toLocaleString('en-IN');
+        document.getElementById('revCommission').textContent = '₹' + commission.toLocaleString('en-IN');
+        document.getElementById('revEarning').textContent = '₹' + driverEarning.toLocaleString('en-IN');
+        document.getElementById('revBalance').textContent = '₹' + d.balanceDue.toLocaleString('en-IN');
+        rc.style.display = 'block';
+      }
     } else { showAlert('completeAlert', d.error || 'Failed', 'error'); }
   } catch(e) { showAlert('completeAlert', 'Network error', 'error'); }
 }

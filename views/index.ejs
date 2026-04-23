@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cab Service in Agra | Brajwasi Tour & Travels – Taxi for Taj Mahal, Outstation</title>
-<meta name="description" content="Best cab service in Agra since 2018. Book Toyota Innova Crysta for Taj Mahal tours, Fatehpur Sikri, Agra to Delhi, Jaipur, Lucknow. 24/7 available. Call 9411061000.">
+<meta name="description" content="Best cab service in Agra since 2018. Book cars now for Taj Mahal tours, Fatehpur Sikri, Agra to Delhi, Jaipur, Lucknow. 24/7 available. Call 9411061000.">
 <meta name="keywords" content="cab service in agra, taxi in agra, agra cab booking, taj mahal cab, agra to delhi taxi, tour and travels agra, innova crysta agra, outstation cab agra, brajwasi travels">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="Brajwasi Travels Agra | Tour and Travels in Agra">
@@ -93,6 +93,8 @@
     <a href="/track" onclick="document.getElementById('mob-menu').classList.remove('open')"><i class="fas fa-map-marker-alt" style="color:var(--gold);margin-right:8px"></i>Track Booking</a>
     <a href="/partner" onclick="document.getElementById('mob-menu').classList.remove('open')"><i class="fas fa-handshake" style="color:var(--gold);margin-right:8px"></i>Partner With Us</a>
     <a href="#contact" onclick="document.getElementById('mob-menu').classList.remove('open')"><i class="fas fa-envelope" style="color:var(--gold);margin-right:8px"></i>Contact</a>
+    <a href="/payment" onclick="document.getElementById('mob-menu').classList.remove('open')"><i class="fas fa-rupee-sign" style="color:var(--gold);margin-right:8px"></i>My Payments</a>
+    <div id="mobileLoginBar" style="padding:10px 20px;border-top:1px solid rgba(255,255,255,.1)"></div>
     <a href="tel:9411061000"><i class="fas fa-phone" style="color:var(--gold);margin-right:8px"></i>9411061000</a>
   </div>
 </header>
@@ -112,9 +114,9 @@
     <div class="hero-stats">
       <div class="stat"><span>2018</span><em>Est. in Agra</em></div>
       <div class="stat-div"></div>
-      <div class="stat"><span>5000+</span><em>Trips Done</em></div>
-      <div class="stat-div"></div>
       <div class="stat"><span>24/7</span><em>Service</em></div>
+      <div class="stat-div"></div>
+      <div class="stat"><span>Agra</span><em>Based In</em></div>
     </div>
   </div>
   <div class="scroll-ind"><i class="fas fa-chevron-down"></i></div>
@@ -638,13 +640,17 @@ fetch('/api/auth/me').then(function(r) { return r.json(); }).then(function(d) {
 }).catch(function() {});
 
 function renderLoginBar(user) {
-  var bar = document.getElementById('loginBar');
-  if (!bar) return;
-  if (user) {
-    bar.innerHTML = '<span style="font-size:13px;color:#7A6A55"><i class="fas fa-user-circle" style="color:#B8780A;margin-right:5px"></i>' + _esc(user.name) + '</span><button onclick="logoutUser()" style="background:none;border:1px solid #E8DDD0;color:#7A6A55;padding:5px 11px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-left:6px">Logout</button>';
-  } else {
-    bar.innerHTML = '<button onclick="showModal(\'loginModal\')" style="display:inline-flex;align-items:center;gap:6px;background:#FFF8EC;border:1px solid rgba(184,120,10,.3);color:#8A5A06;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit"><i class="fas fa-user-circle"></i>Login</button>';
+  var ids = ['loginBar','mobileLoginBar'];
+  for (var i=0; i<ids.length; i++) {
+    var bar = document.getElementById(ids[i]);
+    if (!bar) continue;
+    if (user) {
+      bar.innerHTML = '<span style="font-size:13px;color:#7A6A55"><i class="fas fa-user-circle" style="color:#B8780A;margin-right:5px"></i>' + _esc(user.name) + '</span><button onclick="logoutUser()" style="background:none;border:1px solid #E8DDD0;color:#7A6A55;padding:5px 11px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-left:6px">Logout</button>';
+    } else {
+      bar.innerHTML = '<button onclick="showModal('loginModal')" style="display:inline-flex;align-items:center;gap:6px;background:#FFF8EC;border:1px solid rgba(184,120,10,.3);color:#8A5A06;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit"><i class="fas fa-user-circle"></i>Login</button>';
+    }
   }
+}
 }
 function logoutUser() {
   fetch('/api/auth/logout', { method: 'POST' }).then(function() { _session = null; renderLoginBar(null); });
@@ -729,6 +735,7 @@ document.getElementById('feedbackForm').addEventListener('submit', function(e) {
 var _unreadCount = 0;
 var _chatOpen    = false;
 var _bgPoll      = null;   // background poll even when window closed
+var _bgLastTs    = new Date().toISOString(); // start from NOW so old msgs don't trigger badge
 
 // Wire buttons
 document.getElementById('chatBtn').addEventListener('click', function() {
@@ -795,6 +802,7 @@ function _setBadge(count) {
 }
 function _clearBadge() {
   _unreadCount = 0;
+  _bgLastTs = new Date().toISOString(); // reset so bg poll doesn't re-show cleared messages
   var badge = document.getElementById('chatBadge');
   var btn   = document.getElementById('chatBtn');
   if (badge) badge.style.display = 'none';
@@ -914,19 +922,17 @@ function _pollChat() {
 // ── Background poll (window closed) — shows badge ──────────
 function _bgPollFn() {
   if (!_chatPhone || _chatOpen) return;
-  var since = _lastMsgTs || new Date(0).toISOString();
-  fetch('/api/chat/' + encodeURIComponent(_chatPhone) + '/updates?since=' + encodeURIComponent(since))
+  fetch('/api/chat/' + encodeURIComponent(_chatPhone) + '/updates?since=' + encodeURIComponent(_bgLastTs))
     .then(function(r) { return r.json(); })
     .then(function(d) {
-      var newAdminMsgs = d.messages ? d.messages.filter(function(m) { return !m.fromCustomer; }) : [];
+      if (!d.messages || !d.messages.length) return;
+      var newAdminMsgs = d.messages.filter(function(m) { return !m.fromCustomer; });
+      // Update bgLastTs to latest received
+      _bgLastTs = d.messages[d.messages.length - 1].createdAt;
       if (newAdminMsgs.length > 0) {
         _unreadCount += newAdminMsgs.length;
         _setBadge(_unreadCount);
-        // Show preview bubble of latest message
         _showPreview(newAdminMsgs[newAdminMsgs.length - 1].message);
-        // Update lastMsgTs
-        _lastMsgTs = d.messages[d.messages.length - 1].createdAt;
-        // Play notification sound (tiny oscillator beep)
         _playBeep();
       }
     }).catch(function() {});

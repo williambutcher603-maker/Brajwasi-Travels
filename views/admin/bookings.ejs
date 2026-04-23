@@ -159,7 +159,20 @@ select.status-select{background:var(--bg-2);border:1px solid var(--border);color
                   <i class="fab fa-whatsapp"></i>
                 </a>
                 <% if(b.advancePaid && !b.advanceConfirmedByAdmin){ %>
-                <button class="btn" style="background:#EEF4FF;color:#1A5DAB;border:1px solid rgba(26,93,171,.2);font-size:11px" onclick="confirmAdvance('<%= b._id %>')"><i class="fas fa-check-double"></i> Confirm ₹500</button>
+                <button class="btn" style="background:#EEF4FF;color:#1A5DAB;border:1px solid rgba(26,93,171,.2);font-size:11px" onclick="confirmAdvance('<%= b._id %>')"><i class="fas fa-check-double"></i> Confirm ₹500 Advance</button>
+                <% } %>
+                <% if(b.status==='completed' && !b.paymentReceivedByAdmin){ %>
+                <button class="btn" style="background:#EAF7EE;color:#1A7A3A;border:1px solid rgba(26,122,58,.2);font-size:11px;margin-top:4px" onclick="markPaymentReceived('<%= b._id %>')"><i class="fas fa-money-bill-wave"></i> Mark Full Payment Received</button>
+                <% } %>
+                <% if(b.paymentReceivedByAdmin){ %>
+                <div style="font-size:11px;color:#1A7A3A;font-weight:700;margin-top:2px"><i class="fas fa-check-circle"></i> Full Payment Received</div>
+                <% } %>
+                <% if(b.status==='completed'){ %>
+                <div style="font-size:11px;color:#7A6A55;margin-top:4px">
+                  <% const bFare = b.finalFare||b.totalPrice||0; const bToll = b.tollAmount||0; const bComm = b.assignedPartner ? Math.round((bFare+bToll)*0.10) : 0; %>
+                  Fare: ₹<%= bFare.toLocaleString('en-IN') %><% if(bToll){ %> + Toll: ₹<%= bToll.toLocaleString('en-IN') %><% } %>
+                  <% if(bComm){ %><br><span style="color:#C0392B">Commission: ₹<%= bComm.toLocaleString('en-IN') %></span><% } %>
+                </div>
                 <% } %>
                 <% if(b.status==='confirmed'){ %>
                 <button class="btn" style="background:#FDEDEB;color:#C0392B;border:1px solid rgba(192,57,43,.2);font-size:11px" onclick="markLate('<%= b._id %>')"><i class="fas fa-clock"></i> Late Alert</button>
@@ -185,6 +198,13 @@ function filterBookings() {
   });
 }
 
+async function markPaymentReceived(id) {
+  if (!confirm('Confirm full payment received from customer?')) return;
+  const r = await fetch('/admin/bookings/' + id + '/mark-payment-received', { method: 'POST' });
+  const d = await r.json();
+  if (d.success) { alert('Payment confirmed! Customer notified.'); location.reload(); }
+  else alert(d.error || 'Failed');
+}
 async function confirmAdvance(id) {
   if (!confirm('Confirm ₹500 advance payment for this booking? This will mark it as received and reduce customer balance.')) return;
   const r = await fetch('/admin/bookings/' + id + '/confirm-advance', { method: 'POST' });

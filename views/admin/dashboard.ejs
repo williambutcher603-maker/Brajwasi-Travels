@@ -233,6 +233,10 @@ input:checked+.toggle-slider:before{transform:translateX(19px);background:var(--
         <div class="stat-card"><div class="stat-icon si-blue" style="float:right"><i class="fas fa-calendar-check"></i></div><div class="stat-label">Total Bookings</div><div class="stat-num"><%= stats.totalBookings %></div></div>
         <div class="stat-card"><div class="stat-icon si-red" style="float:right"><i class="fas fa-clock"></i></div><div class="stat-label">Pending</div><div class="stat-num"><%= stats.pendingBookings %></div></div>
         <div class="stat-card"><div class="stat-icon si-green" style="float:right"><i class="fas fa-check"></i></div><div class="stat-label">Confirmed</div><div class="stat-num"><%= stats.confirmedBookings %></div></div>
+        <div class="stat-card" style="border-left:3px solid #1A7A3A"><div class="stat-icon si-green" style="float:right"><i class="fas fa-rupee-sign"></i></div><div class="stat-label">Total Revenue</div><div class="stat-num" style="color:#1A7A3A">₹<%= (stats.totalRevenue||0).toLocaleString('en-IN') %></div></div>
+        <div class="stat-card" style="border-left:3px solid #B8780A"><div class="stat-icon si-gold" style="float:right"><i class="fas fa-percent"></i></div><div class="stat-label">Admin Earnings</div><div class="stat-num" style="color:#B8780A">₹<%= (stats.adminCommission||0).toLocaleString('en-IN') %></div></div>
+        <div class="stat-card" style="border-left:3px solid #1A5DAB"><div class="stat-icon si-blue" style="float:right"><i class="fas fa-handshake"></i></div><div class="stat-label">Partner Payouts</div><div class="stat-num" style="color:#1A5DAB">₹<%= (stats.partnerPayouts||0).toLocaleString('en-IN') %></div></div>
+        <div class="stat-card"><div class="stat-icon si-blue" style="float:right"><i class="fas fa-flag-checkered"></i></div><div class="stat-label">Completed Trips</div><div class="stat-num"><%= stats.completedBookings||0 %></div></div>
       </div>
 
       <div class="section-card">

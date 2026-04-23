@@ -39,6 +39,8 @@ const bookingSchema = new mongoose.Schema({
   finalFare: Number,          // calculated from actualKm + toll
   balanceDue: Number,         // finalFare - advanceDeducted
   cancelledBy: String,        // 'customer' or 'admin'
+  paymentReceivedByAdmin: { type: Boolean, default: false },
+  paymentReceivedAt: Date,
   cancelledAt: Date,
   penaltyAmount: Number,      // deducted from advance on late cancel
   refundAmount: Number,       // amount returned to customer
