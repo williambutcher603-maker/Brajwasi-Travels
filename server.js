@@ -358,6 +358,22 @@ app.post('/api/driver/complete', async (req, res) => {
   res.json({ success: true, actualKm: km, finalFare, tollAmount: tollAmt, advanceDeducted, balanceDue });
 });
 
+// Driver views their own revenue
+app.post('/api/driver/my-revenue', async (req, res) => {
+  const { secret } = req.body;
+  if (!secret) return res.status(400).json({ error: 'Secret required' });
+  const partner = await CarPartner.findOne({ driverSecret: secret });
+  if (!partner) return res.json({ success: true, bookings: [], totalEarning: 0, commissionPct: 10 });
+  const bookings = await Booking.find({ assignedPartner: partner._id, status: 'completed' })
+    .select('bookingId journeyDate finalFare tollAmount customerName pickupLocation dropLocation actualKm').sort({ createdAt: -1 }).lean();
+  const commissionPct = partner.commissionPct || 10;
+  const totalEarning = bookings.reduce((s,b) => {
+    const gross = (b.finalFare||0)+(b.tollAmount||0);
+    return s + gross - Math.round(gross*commissionPct/100);
+  }, 0);
+  res.json({ success: true, bookings, totalEarning, commissionPct, partnerName: partner.ownerName });
+});
+
 // ── Driver secret OTP reset ──────────────────────────────────
 app.post('/api/driver/reset-secret/send-otp', async (req, res) => {
   const { email } = req.body;
@@ -588,6 +604,26 @@ app.get('/admin/partner-revenue', adminAuth, async (req, res) => {
     return { ...p, bookings, grossRevenue, commission, netEarning, tripCount: bookings.length };
   }));
   res.render('admin/partner-revenue', { partnerStats });
+});
+
+// Admin: live session list for global poll (returns sessions + unread counts)
+app.get('/api/admin/chat-sessions', adminAuth, async (req, res) => {
+  const sessions = await ChatMessage.aggregate([
+    { $sort: { createdAt: -1 } },
+    { $group: {
+        _id: '$sessionId',
+        customerName:  { $first: '$customerName' },
+        customerPhone: { $first: '$customerPhone' },
+        lastMessage:   { $first: '$message' },
+        lastTime:      { $first: '$createdAt' },
+        totalUnread:   { $sum: { $cond: {
+          if: { $and: [{ $eq: ['$fromCustomer',true] }, { $eq: ['$read',false] }] },
+          then: 1, else: 0
+        }}}
+    }},
+    { $sort: { lastTime: -1 } }
+  ]);
+  res.json({ sessions });
 });
 
 // Chat admin

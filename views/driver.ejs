@@ -154,6 +154,16 @@ input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,
       </div>
     </div>
 
+    <!-- My Revenue History -->
+    <div class="card">
+      <div class="card-head"><i class="fas fa-history"></i> My Trip Revenue</div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Your completed trips and earnings (after 10% commission)</p>
+        <button class="btn btn-gold" onclick="loadMyRevenue()" style="width:100%;margin-bottom:12px"><i class="fas fa-sync-alt"></i> Load My Revenue</button>
+        <div id="myRevenueList"></div>
+      </div>
+    </div>
+
     <button class="btn btn-red" onclick="endSession()" style="margin-top:4px"><i class="fas fa-power-off"></i> End Session & Logout</button>
   </div>
 </div>
@@ -340,6 +350,33 @@ async function verifyResetOtp() {
   const d = await r.json();
   if (d.success) { showAlert('resetAlert', 'Secret reset! Use your new code to login.', 'success'); document.getElementById('otpSection').classList.add('hidden'); document.getElementById('resetForm').classList.add('hidden'); }
   else showAlert('resetAlert', d.error, 'error');
+}
+
+async function loadMyRevenue() {
+  var list = document.getElementById('myRevenueList');
+  if (!list) return;
+  list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+  try {
+    var r = await fetch('/api/driver/my-revenue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: secret })
+    });
+    var d = await r.json();
+    if (!d.success) { list.innerHTML = '<div style="color:var(--red);font-size:13px">' + (d.error||'Failed') + '</div>'; return; }
+    if (!d.bookings || !d.bookings.length) { list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px">No completed trips yet.</div>'; return; }
+    var html = '<div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:10px">Total Earned: ₹' + d.totalEarning.toLocaleString('en-IN') + ' across ' + d.bookings.length + ' trips</div>';
+    d.bookings.forEach(function(b) {
+      var gross = (b.finalFare||0) + (b.tollAmount||0);
+      var comm  = Math.round(gross * (d.commissionPct||10) / 100);
+      var net   = gross - comm;
+      html += '<div class="info-row">'
+        + '<span class="lbl">' + b.bookingId + ' · ' + new Date(b.journeyDate).toLocaleDateString('en-IN') + '</span>'
+        + '<span class="val" style="color:var(--green)">₹' + net.toLocaleString('en-IN') + '</span>'
+        + '</div>';
+    });
+    list.innerHTML = html;
+  } catch(e) { list.innerHTML = '<div style="color:var(--red);font-size:13px">Network error</div>'; }
 }
 
 function showAlert(id, msg, type) {

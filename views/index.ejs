@@ -436,550 +436,423 @@
 <!-- QR code library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-// ═══════════════════════════════════════════════════════════
-// BRAJWASI TRAVELS - MAIN JS
-// ALL code runs inline after HTML is parsed (script at bottom of body)
-// NO DOMContentLoaded needed - DOM is already ready here
-// ═══════════════════════════════════════════════════════════
+// ── STATE ─────────────────────────────────────────────────
+var _carData={},_bookingId=null,_payData=null;
+var _chatPhone=localStorage.getItem('bt_phone')||'';
+var _chatName=localStorage.getItem('bt_name')||'';
+var _lastMsgTs=null,_chatPoll=null,_bgPoll=null;
+var _bgLastTs=new Date().toISOString();
+var _unreadCount=0,_chatOpen=false;
+var _session=null,_fbRating=0;
 
-// ── State ──────────────────────────────────────────────────
-var _carData = {}, _bookingId = null, _payData = null;
-var _chatPhone = localStorage.getItem('bt_phone') || '';
-var _chatName  = localStorage.getItem('bt_name')  || '';
-var _lastMsgTs = null, _chatPoll = null;
-var _session   = null;
-var _fbRating  = 0;
-
-// ── Scroll ─────────────────────────────────────────────────
-window.addEventListener('scroll', function() {
-  var h = document.getElementById('header');
-  if (h) h.classList.toggle('scrolled', window.scrollY > 50);
+// ── SCROLL ────────────────────────────────────────────────
+window.addEventListener('scroll',function(){
+  var h=document.getElementById('header');
+  if(h) h.classList.toggle('scrolled',window.scrollY>50);
 });
-document.getElementById('heroBg') && document.getElementById('heroBg').classList.add('loaded');
+var hb=document.getElementById('heroBg');
+if(hb) hb.classList.add('loaded');
 
-// ── Push Notifications ─────────────────────────────────────
-if ('serviceWorker' in navigator && 'PushManager' in window) {
-  navigator.serviceWorker.register('/sw.js').then(function() {
-    if (Notification.permission === 'default') {
-      setTimeout(function() {
-        var nb = document.getElementById('notif-bar');
-        if (nb) nb.style.display = 'flex';
-      }, 5000);
+// ── SERVICE WORKER / PUSH ─────────────────────────────────
+if('serviceWorker'in navigator&&'PushManager'in window){
+  navigator.serviceWorker.register('/sw.js').then(function(){
+    if(Notification.permission==='default'){
+      setTimeout(function(){var nb=document.getElementById('notif-bar');if(nb)nb.style.display='flex';},5000);
     }
-  }).catch(function() {});
+  }).catch(function(){});
 }
-function requestPush() {
-  var nb = document.getElementById('notif-bar');
-  if (nb) nb.style.display = 'none';
-  Notification.requestPermission().then(function(p) {
-    if (p !== 'granted') return;
-    navigator.serviceWorker.ready.then(function(reg) {
-      fetch('/vapid-public-key').then(function(r) { return r.json(); }).then(function(d) {
-        if (!d.publicKey) return;
-        var pad = '='.repeat((4 - d.publicKey.length % 4) % 4);
-        var raw = atob((d.publicKey + pad).replace(/-/g, '+').replace(/_/g, '/'));
-        var key = Uint8Array.from(raw, function(c) { return c.charCodeAt(0); });
-        reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key }).then(function(sub) {
-          var sd = JSON.parse(JSON.stringify(sub));
-          sd.role = 'customer'; sd.phone = _chatPhone || '';
-          fetch('/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sd) });
-          showToast('Notifications enabled!', 'success');
+function requestPush(){
+  var nb=document.getElementById('notif-bar');if(nb)nb.style.display='none';
+  Notification.requestPermission().then(function(p){
+    if(p!=='granted')return;
+    navigator.serviceWorker.ready.then(function(reg){
+      fetch('/vapid-public-key').then(function(r){return r.json();}).then(function(d){
+        if(!d.publicKey)return;
+        var pad='='.repeat((4-d.publicKey.length%4)%4);
+        var raw=atob((d.publicKey+pad).replace(/-/g,'+').replace(/_/g,'/'));
+        var key=Uint8Array.from(raw,function(c){return c.charCodeAt(0);});
+        reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key}).then(function(sub){
+          var sd=JSON.parse(JSON.stringify(sub));
+          sd.role='customer';sd.phone=_chatPhone||'';
+          fetch('/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sd)});
+          _toast('Notifications enabled!','success');
         });
       });
     });
   });
 }
-function _resubPhone(phone) {
-  if (!('serviceWorker' in navigator) || Notification.permission !== 'granted') return;
-  navigator.serviceWorker.ready.then(function(reg) {
-    reg.pushManager.getSubscription().then(function(sub) {
-      if (!sub) return;
-      var sd = JSON.parse(JSON.stringify(sub));
-      sd.role = 'customer'; sd.phone = phone;
-      fetch('/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sd) });
+function _resubPhone(phone){
+  if(!('serviceWorker'in navigator)||Notification.permission!=='granted')return;
+  navigator.serviceWorker.ready.then(function(reg){
+    reg.pushManager.getSubscription().then(function(sub){
+      if(!sub)return;
+      var sd=JSON.parse(JSON.stringify(sub));sd.role='customer';sd.phone=phone;
+      fetch('/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sd)});
     });
   });
 }
 
-// ── Modal helpers ──────────────────────────────────────────
-function showModal(id) {
-  var el = document.getElementById(id);
-  if (el) { el.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-function openLoginModal() { showModal('loginModal'); }
-function toggleChat() { document.getElementById('chatBtn').click(); }
-}
-function hideModal(id) {
-  var el = document.getElementById(id);
-  if (el) { el.style.display = 'none'; document.body.style.overflow = ''; }
-}
-// Overlay click to close
-['bookingModal','paymentModal','successModal','feedbackModal','loginModal'].forEach(function(id) {
-  var el = document.getElementById(id);
-  if (el) el.addEventListener('click', function(e) { if (e.target === el) hideModal(id); });
-});
-// Close buttons
-document.getElementById('closeBookingBtn').addEventListener('click', function() { hideModal('bookingModal'); });
-document.getElementById('closePayBtn').addEventListener('click', function() { hideModal('paymentModal'); });
-document.getElementById('closeSuccessBtn').addEventListener('click', function() { hideModal('successModal'); });
-document.getElementById('closeFeedbackBtn').addEventListener('click', function() { hideModal('feedbackModal'); });
-document.getElementById('closeLoginBtn').addEventListener('click', function() { hideModal('loginModal'); });
+// ── MODALS ────────────────────────────────────────────────
+function showModal(id){var e=document.getElementById(id);if(e){e.style.display='flex';document.body.style.overflow='hidden';}}
+function hideModal(id){var e=document.getElementById(id);if(e){e.style.display='none';document.body.style.overflow='';}}
+function openLoginModal(){showModal('loginModal');}
+function openFeedback(){showModal('feedbackModal');}
+function toggleChat(){var btn=document.getElementById('chatBtn');if(btn)btn.click();}
 
-// ── BOOK NOW buttons (data-* attributes, no inline JS needed) ─
-document.querySelectorAll('.book-btn').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    var d = btn.dataset;
-    openBooking(d.carid, d.model, +d.ppk, +d.fkm, +d.fp, +d.ekc);
+// Wire close buttons
+var _closePairs=[['closeBookingBtn','bookingModal'],['closePayBtn','paymentModal'],['closeSuccessBtn','successModal'],['closeFeedbackBtn','feedbackModal'],['closeLoginBtn','loginModal']];
+_closePairs.forEach(function(pr){
+  var btn=document.getElementById(pr[0]);
+  if(btn)btn.addEventListener('click',function(){hideModal(pr[1]);});
+});
+// Overlay click closes modal
+['bookingModal','paymentModal','successModal','feedbackModal','loginModal'].forEach(function(id){
+  var el=document.getElementById(id);
+  if(el)el.addEventListener('click',function(e){if(e.target===el)hideModal(id);});
+});
+
+// ── BOOK NOW BUTTONS ──────────────────────────────────────
+document.querySelectorAll('.book-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var d=btn.dataset;
+    _openBooking(d.carid,d.model,+d.ppk,+d.fkm,+d.fp,+d.ekc);
   });
 });
-function openBooking(id, model, ppk, fkm, fp, ekc) {
-  _carData = { id: id, model: model, ppk: ppk, fkm: fkm, fp: fp, ekc: ekc };
-  document.getElementById('bookCarId').value = id;
-  document.getElementById('modalCarName').textContent = model;
-  document.getElementById('estKm').value = '';
-  document.getElementById('calcResult').style.display = 'none';
-  document.getElementById('bkDate').min = new Date().toISOString().split('T')[0];
-  if (_session) {
-    document.getElementById('bkEmail').value = _session.email;
-    if (!document.getElementById('bkName').value) document.getElementById('bkName').value = _session.name || '';
+function _openBooking(id,model,ppk,fkm,fp,ekc){
+  _carData={id:id,model:model,ppk:ppk,fkm:fkm,fp:fp,ekc:ekc};
+  document.getElementById('bookCarId').value=id;
+  document.getElementById('modalCarName').textContent=model;
+  document.getElementById('estKm').value='';
+  document.getElementById('calcResult').style.display='none';
+  document.getElementById('bkDate').min=new Date().toISOString().split('T')[0];
+  if(_session){
+    var ee=document.getElementById('bkEmail');if(ee)ee.value=_session.email;
+    var nn=document.getElementById('bkName');if(nn&&!nn.value)nn.value=_session.name||'';
   }
   showModal('bookingModal');
 }
-
-// ── Price calculator ───────────────────────────────────────
-document.getElementById('estKm').addEventListener('input', function() {
-  var km = parseInt(this.value);
-  var d = _carData;
-  if (!km || km <= 0) { document.getElementById('calcResult').style.display = 'none'; return; }
-  var total = 0, bd = '';
-  if (d.fkm && d.fp && km <= d.fkm) { total = d.fp; bd = 'Fixed ' + d.fkm + 'km Package'; }
-  else if (d.fkm && d.fp) { var ex = km - d.fkm; total = d.fp + ex * d.ekc; bd = d.fkm + 'km: \u20b9' + d.fp + ' + Extra ' + ex + 'km \u00d7 \u20b9' + d.ekc; }
-  else { total = km * d.ppk; bd = km + 'km \u00d7 \u20b9' + d.ppk + '/km'; }
-  document.getElementById('calcBreakdown').textContent = bd;
-  document.getElementById('calcTotal').textContent = 'Estimated Fare: \u20b9' + total.toLocaleString('en-IN') + ' (excl. toll)';
-  document.getElementById('calcResult').style.display = 'block';
+document.getElementById('estKm').addEventListener('input',function(){
+  var km=parseInt(this.value),d=_carData;
+  if(!km||km<=0){document.getElementById('calcResult').style.display='none';return;}
+  var total=0,bd='';
+  if(d.fkm&&d.fp&&km<=d.fkm){total=d.fp;bd='Fixed '+d.fkm+'km Package';}
+  else if(d.fkm&&d.fp){var ex=km-d.fkm;total=d.fp+ex*d.ekc;bd=d.fkm+'km: \u20b9'+d.fp+' + Extra '+ex+'km \xd7 \u20b9'+d.ekc;}
+  else{total=km*d.ppk;bd=km+'km \xd7 \u20b9'+d.ppk+'/km';}
+  document.getElementById('calcBreakdown').textContent=bd;
+  document.getElementById('calcTotal').textContent='Estimated Fare: \u20b9'+total.toLocaleString('en-IN')+' (excl. toll)';
+  document.getElementById('calcResult').style.display='block';
 });
-
-// ── Booking form submit ────────────────────────────────────
-document.getElementById('bookingForm').addEventListener('submit', function(e) {
+document.getElementById('bookingForm').addEventListener('submit',function(e){
   e.preventDefault();
-  var km = document.getElementById('estKm').value;
-  if (!km || +km < 1) { showToast('Please enter estimated distance in KM', 'error'); document.getElementById('estKm').focus(); return; }
-  if (!_session) { showModal('loginModal'); return; }
-  var btn = document.getElementById('bookSubmitBtn');
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...'; btn.disabled = true;
-  fetch('/api/book', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      carId: document.getElementById('bookCarId').value,
-      customerName: document.getElementById('bkName').value,
-      customerPhone: document.getElementById('bkPhone').value,
-      pickupLocation: document.getElementById('bkPickup').value,
-      dropLocation: document.getElementById('bkDrop').value,
-      journeyDate: document.getElementById('bkDate').value,
-      journeyTime: document.getElementById('bkTime').value,
-      estimatedKm: km,
-      notes: document.getElementById('bkNotes').value
-    })
-  }).then(function(r) { return r.json(); }).then(function(d) {
-    if (d.success) {
-      _bookingId = d.bookingId;
-      hideModal('bookingModal');
-      document.getElementById('bookingForm').reset();
-      openPayModal(d.bookingId);
-    } else if (d.loginRequired) {
-      showModal('loginModal');
-    } else {
-      showToast(d.error || 'Booking failed. Call 9411061000', 'error');
-    }
-  }).catch(function() { showToast('Network error. Call 9411061000', 'error'); })
-  .finally(function() { btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking'; btn.disabled = false; });
+  var km=document.getElementById('estKm').value;
+  if(!km||+km<1){_toast('Please enter estimated distance in KM','error');document.getElementById('estKm').focus();return;}
+  if(!_session){openLoginModal();return;}
+  var btn=document.getElementById('bookSubmitBtn');
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Processing...';btn.disabled=true;
+  fetch('/api/book',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    carId:document.getElementById('bookCarId').value,
+    customerName:document.getElementById('bkName').value,
+    customerPhone:document.getElementById('bkPhone').value,
+    pickupLocation:document.getElementById('bkPickup').value,
+    dropLocation:document.getElementById('bkDrop').value,
+    journeyDate:document.getElementById('bkDate').value,
+    journeyTime:document.getElementById('bkTime').value,
+    estimatedKm:km,
+    notes:document.getElementById('bkNotes').value
+  })}).then(function(r){return r.json();}).then(function(d){
+    if(d.success){_bookingId=d.bookingId;hideModal('bookingModal');document.getElementById('bookingForm').reset();_openPayModal(d.bookingId);}
+    else if(d.loginRequired){openLoginModal();}
+    else{_toast(d.error||'Booking failed. Call 9411061000','error');}
+  }).catch(function(){_toast('Network error. Call 9411061000','error');})
+  .finally(function(){btn.innerHTML='<i class="fas fa-check-circle"></i> Confirm Booking';btn.disabled=false;});
 });
 
-// ── Payment ────────────────────────────────────────────────
-function openPayModal(bookingId) {
-  document.getElementById('payBookingId').textContent = 'Booking ID: ' + bookingId;
-  fetch('/api/payment/' + bookingId).then(function(r) { return r.json(); }).then(function(d) {
-    if (d.error) { showSuccessModal(bookingId); return; }
-    _payData = d;
-    document.getElementById('upiIdTxt').textContent = 'UPI: ' + d.upiId;
-    document.getElementById('upiPhonePe').onclick = function() { window.location.href = d.phonepe; };
-    document.getElementById('upiGPay').onclick    = function() { window.location.href = d.gpay; };
-    document.getElementById('upiPaytm').onclick   = function() { window.location.href = d.paytm; };
-    document.getElementById('upiAnyBtn').onclick  = function() { window.location.href = d.upiUrl; };
-    setTimeout(function() { showToast('If app did not open, try another or scan QR', 'info'); }, 2000);
-    var isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-    document.getElementById('upiQrWrap').style.display = isMobile ? 'none' : 'block';
-    if (!isMobile && window.QRCode) {
-      var canvas = document.getElementById('upiQR');
-      var ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, 176, 176);
-      var div = document.createElement('div');
-      new QRCode(div, { text: d.qrData, width: 176, height: 176, colorDark: '#1A1208', colorLight: '#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
-      setTimeout(function() {
-        var img = div.querySelector('img');
-        if (img) { var i = new Image(); i.onload = function() { ctx.drawImage(i, 0, 0, 176, 176); }; i.src = img.src; }
-      }, 300);
+// ── PAYMENT ───────────────────────────────────────────────
+function _openPayModal(bookingId){
+  document.getElementById('payBookingId').textContent='Booking ID: '+bookingId;
+  fetch('/api/payment/'+bookingId).then(function(r){return r.json();}).then(function(d){
+    if(d.error){_showSuccess(bookingId);return;}
+    _payData=d;
+    document.getElementById('upiIdTxt').textContent='UPI: '+d.upiId;
+    document.getElementById('upiPhonePe').onclick=function(){window.location.href=d.phonepe;};
+    document.getElementById('upiGPay').onclick=function(){window.location.href=d.gpay;};
+    document.getElementById('upiPaytm').onclick=function(){window.location.href=d.paytm;};
+    document.getElementById('upiAnyBtn').onclick=function(){window.location.href=d.upiUrl;};
+    var isMobile=/Android|iPhone|iPad/i.test(navigator.userAgent);
+    var qw=document.getElementById('upiQrWrap');if(qw)qw.style.display=isMobile?'none':'block';
+    if(!isMobile&&window.QRCode){
+      var canvas=document.getElementById('upiQR'),ctx=canvas.getContext('2d');ctx.clearRect(0,0,176,176);
+      var div=document.createElement('div');
+      new QRCode(div,{text:d.qrData,width:176,height:176,colorDark:'#1A1208',colorLight:'#FFFFFF',correctLevel:QRCode.CorrectLevel.M});
+      setTimeout(function(){var img=div.querySelector('img');if(img){var i=new Image();i.onload=function(){ctx.drawImage(i,0,0,176,176);};i.src=img.src;}},300);
     }
     showModal('paymentModal');
-  }).catch(function() { showSuccessModal(bookingId); });
+  }).catch(function(){_showSuccess(bookingId);});
 }
-document.getElementById('paidBtn').addEventListener('click', function() {
-  if (_bookingId) fetch('/api/payment/' + _bookingId + '/confirm', { method: 'POST' }).catch(function() {});
-  hideModal('paymentModal');
-  showSuccessModal(_bookingId);
+document.getElementById('paidBtn').addEventListener('click',function(){
+  if(_bookingId)fetch('/api/payment/'+_bookingId+'/confirm',{method:'POST'}).catch(function(){});
+  hideModal('paymentModal');_showSuccess(_bookingId);
 });
-function showSuccessModal(bookingId) {
-  document.getElementById('successBookingId').textContent = bookingId;
-  var tl = document.getElementById('trackLink');
-  if (tl) tl.href = '/track?bookingId=' + bookingId;
+function _showSuccess(bookingId){
+  document.getElementById('successBookingId').textContent=bookingId;
+  var tl=document.getElementById('trackLink');if(tl)tl.href='/track?bookingId='+bookingId;
   showModal('successModal');
 }
 
-// ── OTP Login ──────────────────────────────────────────────
-fetch('/api/auth/me').then(function(r) { return r.json(); }).then(function(d) {
-  if (d.loggedIn) { _session = d; renderLoginBar(d); }
-  else renderLoginBar(null);
-}).catch(function() {});
+// ── OTP LOGIN ─────────────────────────────────────────────
+fetch('/api/auth/me').then(function(r){return r.json();}).then(function(d){
+  if(d.loggedIn){_session=d;_renderLoginBar(d);}else{_renderLoginBar(null);}
+}).catch(function(){});
 
-function renderLoginBar(user) {
-  var ids = ['loginBar','mobileLoginBar'];
-  for (var i=0; i<ids.length; i++) {
-    var bar = document.getElementById(ids[i]);
-    if (!bar) continue;
-    if (user) {
-      bar.innerHTML = '<span style="font-size:13px;color:#7A6A55"><i class="fas fa-user-circle" style="color:#B8780A;margin-right:5px"></i>' + _esc(user.name) + '</span> <button onclick="logoutUser()" style="background:none;border:1px solid #E8DDD0;color:#7A6A55;padding:5px 11px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-left:4px">Logout</button>';
-    } else {
-      bar.innerHTML = '<button onclick="openLoginModal()" style="display:inline-flex;align-items:center;gap:6px;background:#FFF8EC;border:1px solid rgba(184,120,10,.3);color:#8A5A06;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit"><i class="fas fa-user-circle"></i> Login</button>';
+function _renderLoginBar(user){
+  var ids=['loginBar','mobileLoginBar'];
+  for(var i=0;i<ids.length;i++){
+    var bar=document.getElementById(ids[i]);
+    if(!bar)continue;
+    if(user){
+      bar.innerHTML='<span style="font-size:13px;color:#7A6A55"><i class="fas fa-user-circle" style="color:#B8780A;margin-right:5px"></i>'+_esc(user.name)+'</span>'
+        +'<button onclick="logoutUser()" style="background:none;border:1px solid #E8DDD0;color:#7A6A55;padding:5px 11px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-left:6px">Logout</button>';
+    }else{
+      bar.innerHTML='<button onclick="openLoginModal()" style="display:inline-flex;align-items:center;gap:6px;background:#FFF8EC;border:1px solid rgba(184,120,10,.3);color:#8A5A06;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit"><i class="fas fa-user-circle"></i> Login</button>';
     }
   }
 }
+function logoutUser(){
+  fetch('/api/auth/logout',{method:'POST'}).then(function(){_session=null;_renderLoginBar(null);});
 }
-function logoutUser() {
-  fetch('/api/auth/logout', { method: 'POST' }).then(function() { _session = null; renderLoginBar(null); });
-}
-document.getElementById('sendOtpBtn').addEventListener('click', function() {
-  var email = document.getElementById('otpEmailIn').value.trim();
-  var name  = document.getElementById('otpNameIn').value.trim();
-  var al    = document.getElementById('otpAlert');
-  if (!email) { al.innerHTML = '<div style="color:#C0392B;font-size:13px;margin-bottom:8px">Please enter your email</div>'; return; }
-  var btn = this; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...'; btn.disabled = true;
-  fetch('/api/auth/send-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, name: name }) })
-    .then(function(r) { return r.json(); }).then(function(d) {
-      if (d.success) {
-        document.getElementById('otpStep1').style.display = 'none';
-        document.getElementById('otpStep2').style.display = 'block';
-        document.getElementById('otpEmailDisplay').textContent = email;
-        al.innerHTML = '';
-        setTimeout(function() { var c = document.getElementById('otpCodeIn'); if (c) c.focus(); }, 100);
-      } else { al.innerHTML = '<div style="color:#C0392B;font-size:13px;margin-bottom:8px">' + (d.error || 'Failed to send OTP') + '</div>'; }
-    }).catch(function() { al.innerHTML = '<div style="color:#C0392B;font-size:13px">Network error</div>'; })
-    .finally(function() { btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP to Email'; btn.disabled = false; });
+document.getElementById('sendOtpBtn').addEventListener('click',function(){
+  var email=document.getElementById('otpEmailIn').value.trim();
+  var al=document.getElementById('otpAlert');
+  if(!email){al.innerHTML='<div style="color:#C0392B;font-size:13px;margin-bottom:8px">Please enter your email</div>';return;}
+  var btn=this;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';btn.disabled=true;
+  fetch('/api/auth/send-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,name:''})})
+    .then(function(r){return r.json();}).then(function(d){
+      if(d.success){
+        document.getElementById('otpStep1').style.display='none';
+        document.getElementById('otpStep2').style.display='block';
+        document.getElementById('otpEmailDisplay').textContent=email;
+        al.innerHTML='';
+        setTimeout(function(){var c=document.getElementById('otpCodeIn');if(c)c.focus();},100);
+      }else{al.innerHTML='<div style="color:#C0392B;font-size:13px;margin-bottom:8px">'+(d.error||'Failed')+'</div>';}
+      btn.innerHTML='<i class="fas fa-paper-plane"></i> Send OTP to Email';btn.disabled=false;
+    }).catch(function(){al.innerHTML='<div style="color:#C0392B;font-size:13px">Network error</div>';btn.innerHTML='<i class="fas fa-paper-plane"></i> Send OTP to Email';btn.disabled=false;});
 });
-document.getElementById('otpEmailIn').addEventListener('keypress', function(e) { if (e.key === 'Enter') document.getElementById('sendOtpBtn').click(); });
-document.getElementById('verifyOtpBtn').addEventListener('click', function() {
-  var email = document.getElementById('otpEmailIn').value.trim();
-  var otp   = document.getElementById('otpCodeIn').value.trim();
-  var al    = document.getElementById('otpAlert');
-  if (!otp) { al.innerHTML = '<div style="color:#C0392B;font-size:13px">Enter the OTP</div>'; return; }
-  var btn = this; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...'; btn.disabled = true;
-  fetch('/api/auth/verify-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, otp: otp }) })
-    .then(function(r) { return r.json(); }).then(function(d) {
-      if (d.success) {
-        _session = d; hideModal('loginModal'); renderLoginBar(d);
-        document.getElementById('bkEmail').value = d.email;
-        showToast('Logged in as ' + d.name + '! Now complete your booking.', 'success');
-      } else { al.innerHTML = '<div style="color:#C0392B;font-size:13px;margin-bottom:8px">' + (d.error || 'Invalid OTP') + '</div>'; }
-    }).catch(function() { al.innerHTML = '<div style="color:#C0392B;font-size:13px">Network error</div>'; })
-    .finally(function() { btn.innerHTML = '<i class="fas fa-check"></i> Verify & Login'; btn.disabled = false; });
+document.getElementById('otpEmailIn').addEventListener('keypress',function(e){if(e.key==='Enter')document.getElementById('sendOtpBtn').click();});
+document.getElementById('verifyOtpBtn').addEventListener('click',function(){
+  var email=document.getElementById('otpEmailIn').value.trim();
+  var otp=document.getElementById('otpCodeIn').value.trim();
+  var al=document.getElementById('otpAlert');
+  if(!otp){al.innerHTML='<div style="color:#C0392B;font-size:13px">Enter the OTP</div>';return;}
+  var btn=this;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Verifying...';btn.disabled=true;
+  fetch('/api/auth/verify-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,otp:otp})})
+    .then(function(r){return r.json();}).then(function(d){
+      if(d.success){
+        _session=d;hideModal('loginModal');_renderLoginBar(d);
+        var ef=document.getElementById('bkEmail');if(ef)ef.value=d.email;
+        _toast('Logged in as '+d.name+'! Now complete your booking.','success');
+      }else{al.innerHTML='<div style="color:#C0392B;font-size:13px;margin-bottom:8px">'+(d.error||'Invalid OTP')+'</div>';}
+      btn.innerHTML='<i class="fas fa-check"></i> Verify & Login';btn.disabled=false;
+    }).catch(function(){al.innerHTML='<div style="color:#C0392B;font-size:13px">Network error</div>';btn.innerHTML='<i class="fas fa-check"></i> Verify & Login';btn.disabled=false;});
 });
-document.getElementById('otpCodeIn').addEventListener('keypress', function(e) { if (e.key === 'Enter') document.getElementById('verifyOtpBtn').click(); });
+document.getElementById('otpCodeIn').addEventListener('keypress',function(e){if(e.key==='Enter')document.getElementById('verifyOtpBtn').click();});
 
-// ── FEEDBACK (testimonials) ────────────────────────────────
-document.getElementById('openFeedbackBtn').addEventListener('click', function() { showModal('feedbackModal'); });
-var _stars = document.querySelectorAll('#starPicker i');
-_stars.forEach(function(star) {
-  star.addEventListener('click', function() {
-    _fbRating = +star.dataset.val;
-    document.getElementById('fbRating').value = _fbRating;
-    _stars.forEach(function(s, i) { s.classList.toggle('lit', i < _fbRating); s.style.color = i < _fbRating ? '#F59E0B' : '#E8DDD0'; });
+// ── FEEDBACK / TESTIMONIALS ───────────────────────────────
+document.getElementById('openFeedbackBtn').addEventListener('click',function(){showModal('feedbackModal');});
+var _stars=document.querySelectorAll('#starPicker i');
+_stars.forEach(function(star){
+  star.addEventListener('click',function(){
+    _fbRating=+star.dataset.val;
+    document.getElementById('fbRating').value=_fbRating;
+    _stars.forEach(function(s,i){s.classList.toggle('lit',i<_fbRating);s.style.color=i<_fbRating?'#F59E0B':'#E8DDD0';});
   });
-  star.addEventListener('mouseover', function() {
-    _stars.forEach(function(s, i) { s.style.color = i < +star.dataset.val ? '#F59E0B' : '#E8DDD0'; });
-  });
-  star.addEventListener('mouseout', function() {
-    _stars.forEach(function(s, i) { s.style.color = i < _fbRating ? '#F59E0B' : '#E8DDD0'; });
-  });
+  star.addEventListener('mouseover',function(){_stars.forEach(function(s,i){s.style.color=i<+star.dataset.val?'#F59E0B':'#E8DDD0';});});
+  star.addEventListener('mouseout',function(){_stars.forEach(function(s,i){s.style.color=i<_fbRating?'#F59E0B':'#E8DDD0';});});
 });
-var _fbMsg = document.getElementById('fbMsg');
-var _fbCc  = document.getElementById('fbCharCount');
-if (_fbMsg && _fbCc) _fbMsg.addEventListener('input', function() { _fbCc.textContent = this.value.length + ' / 500'; });
-document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+var _fbMsg=document.getElementById('fbMsg'),_fbCc=document.getElementById('fbCharCount');
+if(_fbMsg&&_fbCc)_fbMsg.addEventListener('input',function(){_fbCc.textContent=this.value.length+' / 500';});
+document.getElementById('feedbackForm').addEventListener('submit',function(e){
   e.preventDefault();
-  if (!_fbRating) { showToast('Please select a star rating', 'error'); return; }
-  var btn = document.getElementById('fbSubmitBtn');
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...'; btn.disabled = true;
-  fetch('/api/testimonials', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: document.getElementById('fbName').value, phone: document.getElementById('fbPhone').value, rating: _fbRating, message: document.getElementById('fbMsg').value })
-  }).then(function(r) { return r.json(); }).then(function(d) {
-    if (d.success) {
-      hideModal('feedbackModal');
-      document.getElementById('feedbackForm').reset();
-      _fbRating = 0;
-      _stars.forEach(function(s) { s.classList.remove('lit'); s.style.color = '#E8DDD0'; });
-      showToast('Thank you! Your review will appear after approval.', 'success');
-    } else { showToast(d.error || 'Failed to submit', 'error'); }
-  }).catch(function() { showToast('Network error. Please try again.', 'error'); })
-  .finally(function() { btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Review'; btn.disabled = false; });
+  if(!_fbRating){_toast('Please select a star rating','error');return;}
+  var btn=document.getElementById('fbSubmitBtn');
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Submitting...';btn.disabled=true;
+  fetch('/api/testimonials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    name:document.getElementById('fbName').value,
+    phone:document.getElementById('fbPhone').value,
+    rating:_fbRating,
+    message:document.getElementById('fbMsg').value
+  })}).then(function(r){return r.json();}).then(function(d){
+    if(d.success){
+      hideModal('feedbackModal');document.getElementById('feedbackForm').reset();
+      _fbRating=0;_stars.forEach(function(s){s.classList.remove('lit');s.style.color='#E8DDD0';});
+      _toast('Thank you! Your review will appear after approval.','success');
+    }else{_toast(d.error||'Failed to submit','error');}
+  }).catch(function(){_toast('Network error. Please try again.','error');})
+  .finally(function(){btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit Review';btn.disabled=false;});
 });
 
-// ── CHAT — Real-time with unread badge & preview ─────────
-var _unreadCount = 0;
-var _chatOpen    = false;
-var _bgPoll      = null;   // background poll even when window closed
-var _bgLastTs    = new Date().toISOString(); // start from NOW so old msgs don't trigger badge
-
-// Wire buttons
-document.getElementById('chatBtn').addEventListener('click', function() {
-  _chatOpen = !_chatOpen;
-  var win = document.getElementById('chatWindow');
-  win.style.display = _chatOpen ? 'flex' : 'none';
-  if (_chatOpen) {
-    _clearBadge();
-    _hidePreview();
-    if (_chatPhone) _showChatBody();
-    _startChatPoll();
-  } else {
-    _stopChatPoll();
-    _startBgPoll();   // keep bg polling so badge updates
-  }
+// ── ENQUIRY FORM ──────────────────────────────────────────
+document.getElementById('enquiryForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var n=document.getElementById('eq-name').value,p=document.getElementById('eq-phone').value;
+  var r=document.getElementById('eq-route').value,d=document.getElementById('eq-date').value;
+  window.open('https://wa.me/919411061000?text='+encodeURIComponent('Hi Brajwasi Tour & Travels,\n\n👤 Name: '+n+'\n📞 Phone: '+p+'\n🗺 Route: '+r+'\n📅 Date: '+d+'\n\nPlease confirm availability.'),'_blank');
+  this.reset();_toast('Redirecting to WhatsApp...','success');
 });
-document.getElementById('chatCloseBtn').addEventListener('click', function() {
-  _chatOpen = false;
-  document.getElementById('chatWindow').style.display = 'none';
-  _stopChatPoll();
-  _startBgPoll();
-});
-document.getElementById('chatStartBtn').addEventListener('click', _startChat);
-document.getElementById('chatSendBtn').addEventListener('click', _sendChat);
-document.getElementById('chatIn').addEventListener('keypress', function(e) { if (e.key === 'Enter') _sendChat(); });
 
-// Pre-fill returning user
-if (_chatPhone) {
-  var _ni = document.getElementById('chatNameIn'); var _pi = document.getElementById('chatPhoneIn');
-  if (_ni) _ni.value = _chatName; if (_pi) _pi.value = _chatPhone;
-  // Start background poll silently — shows badge if admin replied while away
+// ── CHAT ─────────────────────────────────────────────────
+document.getElementById('chatBtn').addEventListener('click',function(){
+  _chatOpen=!_chatOpen;
+  document.getElementById('chatWindow').style.display=_chatOpen?'flex':'none';
+  if(_chatOpen){
+    _clearBadge();_hidePreview();
+    if(_chatPhone)_showChatBody();
+    _stopBgPoll();_startChatPoll();
+  }else{_stopChatPoll();_startBgPoll();}
+});
+document.getElementById('chatCloseBtn').addEventListener('click',function(){
+  _chatOpen=false;
+  document.getElementById('chatWindow').style.display='none';
+  _stopChatPoll();_startBgPoll();
+});
+document.getElementById('chatStartBtn').addEventListener('click',_startChat);
+document.getElementById('chatSendBtn').addEventListener('click',_sendChat);
+document.getElementById('chatIn').addEventListener('keypress',function(e){if(e.key==='Enter')_sendChat();});
+if(_chatPhone){
+  var ni=document.getElementById('chatNameIn'),pi=document.getElementById('chatPhoneIn');
+  if(ni)ni.value=_chatName;if(pi)pi.value=_chatPhone;
   _startBgPoll();
 }
-
-function _showChatBody() {
-  document.getElementById('chatSetup').style.display = 'none';
-  document.getElementById('chatBody').style.display = 'flex';
-  _loadChatHistory();
+function _showChatBody(){
+  document.getElementById('chatSetup').style.display='none';
+  document.getElementById('chatBody').style.display='flex';
+  _loadHistory();
 }
-function _startChat() {
-  var n = document.getElementById('chatNameIn').value.trim();
-  var p = document.getElementById('chatPhoneIn').value.trim();
-  if (!n || !p) { showToast('Enter your name and phone', 'error'); return; }
-  _chatName = n; _chatPhone = p;
-  localStorage.setItem('bt_name', n); localStorage.setItem('bt_phone', p);
-  _resubPhone(p);
-  _showChatBody();
-  _stopBgPoll();
+function _startChat(){
+  var n=document.getElementById('chatNameIn').value.trim();
+  var p=document.getElementById('chatPhoneIn').value.trim();
+  if(!n||!p){_toast('Enter your name and phone','error');return;}
+  _chatName=n;_chatPhone=p;
+  localStorage.setItem('bt_name',n);localStorage.setItem('bt_phone',p);
+  _resubPhone(p);_showChatBody();_stopBgPoll();
 }
-
-// ── Badge helpers ──────────────────────────────────────────
-function _setBadge(count) {
-  var badge = document.getElementById('chatBadge');
-  var btn   = document.getElementById('chatBtn');
-  if (!badge) return;
-  if (count > 0) {
-    badge.style.display = 'flex';
-    badge.textContent = count > 9 ? '9+' : count;
-    btn.classList.add('chat-has-unread');
-    btn.style.transform = 'scale(1.05)';
-  } else {
-    _clearBadge();
-  }
-}
-function _clearBadge() {
-  _unreadCount = 0;
-  _bgLastTs = new Date().toISOString(); // reset so bg poll doesn't re-show cleared messages
-  var badge = document.getElementById('chatBadge');
-  var btn   = document.getElementById('chatBtn');
-  if (badge) badge.style.display = 'none';
-  if (btn)   { btn.classList.remove('chat-has-unread'); btn.style.transform = ''; }
-  _hidePreview();
-}
-function _showPreview(text) {
-  var prev = document.getElementById('chatPreview');
-  var txt  = document.getElementById('chatPreviewText');
-  if (!prev || !txt) return;
-  txt.textContent = '💬 ' + (text.length > 35 ? text.substring(0, 35) + '…' : text);
-  prev.style.display = 'block';
-  // Auto-hide after 5s
-  clearTimeout(window._previewTimer);
-  window._previewTimer = setTimeout(_hidePreview, 5000);
-}
-function _hidePreview() {
-  var prev = document.getElementById('chatPreview');
-  if (prev) prev.style.display = 'none';
-}
-
-// ── Load history ────────────────────────────────────────────
-function _loadChatHistory() {
-  fetch('/api/chat/' + encodeURIComponent(_chatPhone) + '/history')
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      var box = document.getElementById('chatMsgs');
-      box.innerHTML = '';
-      if (!d.messages || !d.messages.length) {
-        box.innerHTML = '<div id="chatEmpty" style="text-align:center;color:#A0917E;font-size:13px;padding:20px"><i class="fas fa-comment-slash" style="font-size:24px;display:block;margin-bottom:8px;color:#ccc"></i>No messages yet. Say hello!</div>';
-      } else {
-        d.messages.forEach(function(m) { _appendMsg(m, false); });
-        _lastMsgTs = d.messages[d.messages.length - 1].createdAt;
+function _loadHistory(){
+  if(!_chatPhone)return;
+  fetch('/api/chat/'+encodeURIComponent(_chatPhone)+'/history')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var box=document.getElementById('chatMsgs');box.innerHTML='';
+      if(!d.messages||!d.messages.length){
+        box.innerHTML='<div id="chatEmpty" style="text-align:center;color:#A0917E;font-size:13px;padding:20px"><i class="fas fa-comment-slash" style="font-size:24px;display:block;margin-bottom:8px;color:#ccc"></i>No messages yet. Say hello!</div>';
+      }else{
+        d.messages.forEach(function(m){_appendMsg(m,false);});
+        _lastMsgTs=d.messages[d.messages.length-1].createdAt;
       }
-      box.scrollTop = box.scrollHeight;
-    }).catch(function() {});
+      var b=document.getElementById('chatMsgs');b.scrollTop=b.scrollHeight;
+    }).catch(function(){});
 }
-
-// ── Append a single message bubble ─────────────────────────
-function _appendMsg(msg, scroll) {
-  if (scroll === undefined) scroll = true;
-  var box   = document.getElementById('chatMsgs');
-  var empty = document.getElementById('chatEmpty');
-  if (empty) empty.remove();
-  if (msg._id && document.getElementById('cm-' + msg._id)) return;
-
-  var wrap = document.createElement('div');
-  wrap.style.cssText = 'display:flex;flex-direction:column;align-items:' + (msg.fromCustomer ? 'flex-end' : 'flex-start') + ';margin-bottom:2px';
-
-  var bubble = document.createElement('div');
-  bubble.style.cssText = 'max-width:82%;padding:9px 13px;border-radius:' + (msg.fromCustomer ? '14px 14px 4px 14px' : '14px 14px 14px 4px') + ';font-size:13px;line-height:1.5;word-break:break-word;animation:fadeSlideUp .25s ease;' + (msg.fromCustomer ? 'background:linear-gradient(135deg,#1a56db,#0e3eb3);color:#fff' : 'background:#fff;color:#1A1208;border:1px solid #E8DDD0;box-shadow:0 1px 3px rgba(0,0,0,.06)');
-  if (msg._id) bubble.id = 'cm-' + msg._id;
-
-  var t = new Date(msg.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-  var senderLabel = msg.fromCustomer ? 'You' : '🧑‍💼 Brajwasi';
-  bubble.innerHTML = '<div>' + _esc(msg.message) + '</div><div style="font-size:10px;opacity:.55;margin-top:3px;display:flex;align-items:center;gap:3px;justify-content:' + (msg.fromCustomer ? 'flex-end' : 'flex-start') + '">' + senderLabel + ' · ' + t + (msg.fromCustomer ? ' <span style="color:rgba(255,255,255,.6)">✓</span>' : '') + '</div>';
-
-  wrap.appendChild(bubble);
-  box.appendChild(wrap);
-  if (scroll) { box.scrollTop = box.scrollHeight; }
+function _appendMsg(msg,scroll){
+  if(scroll===undefined)scroll=true;
+  var box=document.getElementById('chatMsgs');
+  var empty=document.getElementById('chatEmpty');if(empty)empty.remove();
+  if(msg._id&&document.getElementById('cm-'+msg._id))return;
+  var wrap=document.createElement('div');
+  wrap.style.cssText='display:flex;flex-direction:column;align-items:'+(msg.fromCustomer?'flex-end':'flex-start')+';margin-bottom:2px';
+  var bubble=document.createElement('div');
+  bubble.style.cssText='max-width:82%;padding:9px 13px;border-radius:'+(msg.fromCustomer?'14px 14px 4px 14px':'14px 14px 14px 4px')+';font-size:13px;line-height:1.5;word-break:break-word;animation:fadeSlideUp .25s ease;'+(msg.fromCustomer?'background:linear-gradient(135deg,#1a56db,#0e3eb3);color:#fff':'background:#fff;color:#1A1208;border:1px solid #E8DDD0;box-shadow:0 1px 3px rgba(0,0,0,.06)');
+  if(msg._id)bubble.id='cm-'+msg._id;
+  var t=new Date(msg.createdAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  bubble.innerHTML='<div>'+_esc(msg.message)+'</div><div style="font-size:10px;opacity:.55;margin-top:3px">'+(msg.fromCustomer?'You':'Brajwasi')+' \xb7 '+t+'</div>';
+  wrap.appendChild(bubble);box.appendChild(wrap);
+  if(scroll){box.scrollTop=box.scrollHeight;}
 }
-
-// ── Send message ────────────────────────────────────────────
-function _sendChat() {
-  var inp = document.getElementById('chatIn');
-  var msg = inp.value.trim();
-  if (!msg || !_chatPhone) return;
-  inp.value = '';
-  inp.focus();
-  // Optimistic bubble
-  var tid = 'tmp-' + Date.now();
-  _appendMsg({ _id: tid, message: msg, fromCustomer: true, createdAt: new Date().toISOString() });
-  // Show typing indicator
-  _showTypingIndicator();
-  fetch('/api/chat/send', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ customerName: _chatName, customerPhone: _chatPhone, message: msg })
-  }).then(function() {
-    _lastMsgTs = new Date().toISOString();
-    var te = document.getElementById('cm-' + tid); if (te) te.parentNode && te.parentNode.remove();
-    _hideTypingIndicator();
-    _loadChatHistory();
-  }).catch(function() { _hideTypingIndicator(); });
+function _sendChat(){
+  var inp=document.getElementById('chatIn'),msg=inp.value.trim();
+  if(!msg||!_chatPhone)return;
+  inp.value='';inp.focus();
+  var tid='tmp-'+Date.now();
+  _appendMsg({_id:tid,message:msg,fromCustomer:true,createdAt:new Date().toISOString()});
+  fetch('/api/chat/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({customerName:_chatName,customerPhone:_chatPhone,message:msg})})
+    .then(function(){_lastMsgTs=new Date().toISOString();var te=document.getElementById('cm-'+tid);if(te&&te.parentNode)te.parentNode.remove();_loadHistory();})
+    .catch(function(){});
 }
-
-function _showTypingIndicator() {
-  var box = document.getElementById('chatMsgs');
-  if (document.getElementById('typingIndicator')) return;
-  var el = document.createElement('div');
-  el.id = 'typingIndicator';
-  el.style.cssText = 'display:flex;align-items:flex-start;margin-bottom:2px';
-  el.innerHTML = '<div style="background:#fff;border:1px solid #E8DDD0;border-radius:14px 14px 14px 4px;padding:10px 14px;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="display:flex;gap:4px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:#ccc;animation:typingDot 1.2s ease infinite"></span><span style="width:6px;height:6px;border-radius:50%;background:#ccc;animation:typingDot 1.2s ease .2s infinite"></span><span style="width:6px;height:6px;border-radius:50%;background:#ccc;animation:typingDot 1.2s ease .4s infinite"></span></div></div>';
-  box.appendChild(el);
-  box.scrollTop = box.scrollHeight;
-}
-function _hideTypingIndicator() {
-  var el = document.getElementById('typingIndicator');
-  if (el) el.remove();
-}
-
-// ── Real-time poll (window open) ────────────────────────────
-function _pollChat() {
-  if (!_chatPhone) return;
-  var since = _lastMsgTs || new Date(0).toISOString();
-  fetch('/api/chat/' + encodeURIComponent(_chatPhone) + '/updates?since=' + encodeURIComponent(since))
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (d.messages && d.messages.length) {
-        d.messages.forEach(function(m) {
-          _appendMsg(m, true);
-          if (!_lastMsgTs || new Date(m.createdAt) > new Date(_lastMsgTs)) _lastMsgTs = m.createdAt;
+function _pollChat(){
+  if(!_chatPhone)return;
+  var since=_lastMsgTs||new Date(0).toISOString();
+  fetch('/api/chat/'+encodeURIComponent(_chatPhone)+'/updates?since='+encodeURIComponent(since))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.messages&&d.messages.length){
+        d.messages.forEach(function(m){
+          _appendMsg(m,true);
+          if(!_lastMsgTs||new Date(m.createdAt)>new Date(_lastMsgTs))_lastMsgTs=m.createdAt;
         });
       }
-    }).catch(function() {});
+    }).catch(function(){});
 }
-
-// ── Background poll (window closed) — shows badge ──────────
-function _bgPollFn() {
-  if (!_chatPhone || _chatOpen) return;
-  fetch('/api/chat/' + encodeURIComponent(_chatPhone) + '/updates?since=' + encodeURIComponent(_bgLastTs))
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (!d.messages || !d.messages.length) return;
-      var newAdminMsgs = d.messages.filter(function(m) { return !m.fromCustomer; });
-      // Update bgLastTs to latest received
-      _bgLastTs = d.messages[d.messages.length - 1].createdAt;
-      if (newAdminMsgs.length > 0) {
-        _unreadCount += newAdminMsgs.length;
+function _bgPollFn(){
+  if(!_chatPhone||_chatOpen)return;
+  fetch('/api/chat/'+encodeURIComponent(_chatPhone)+'/updates?since='+encodeURIComponent(_bgLastTs))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.messages||!d.messages.length)return;
+      var newAdmin=d.messages.filter(function(m){return !m.fromCustomer;});
+      _bgLastTs=d.messages[d.messages.length-1].createdAt;
+      if(newAdmin.length>0){
+        _unreadCount+=newAdmin.length;
         _setBadge(_unreadCount);
-        _showPreview(newAdminMsgs[newAdminMsgs.length - 1].message);
+        _showPreview(newAdmin[newAdmin.length-1].message);
         _playBeep();
       }
-    }).catch(function() {});
+    }).catch(function(){});
 }
-function _playBeep() {
-  try {
-    var ctx = new (window.AudioContext || window.webkitAudioContext)();
-    var osc = ctx.createOscillator();
-    var gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.frequency.value = 880;
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.35);
-  } catch(e) {}
+function _setBadge(n){
+  var badge=document.getElementById('chatBadge'),btn=document.getElementById('chatBtn');
+  if(!badge)return;
+  if(n>0){
+    badge.textContent=n>9?'9+':String(n);
+    badge.style.display='flex';
+    if(btn)btn.classList.add('chat-has-unread');
+  }else{_clearBadge();}
 }
-
-function _startChatPoll() { if (!_chatPoll) _chatPoll = setInterval(_pollChat, 2500); }
-function _stopChatPoll()  { clearInterval(_chatPoll); _chatPoll = null; }
-function _startBgPoll()   { if (!_bgPoll) _bgPoll = setInterval(_bgPollFn, 5000); }
-function _stopBgPoll()    { clearInterval(_bgPoll); _bgPoll = null; }
-
-// ── Enquiry form ───────────────────────────────────────────
-document.getElementById('enquiryForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  var n = document.getElementById('eq-name').value, p = document.getElementById('eq-phone').value;
-  var r = document.getElementById('eq-route').value, d = document.getElementById('eq-date').value;
-  window.open('https://wa.me/919411061000?text=' + encodeURIComponent('Hi Brajwasi Tour & Travels,\n\n👤 Name: ' + n + '\n📞 Phone: ' + p + '\n🗺 Route: ' + r + '\n📅 Date: ' + d + '\n\nPlease confirm availability.'), '_blank');
-  this.reset();
-  showToast('Redirecting to WhatsApp...', 'success');
-});
-
-// ── Toast ──────────────────────────────────────────────────
-function showToast(msg, type) {
-  var old = document.querySelector('.bt-toast');
-  if (old) old.remove();
-  var t = document.createElement('div');
-  t.className = 'bt-toast';
-  var c = { success: ['#EAF7EE', '#1A7A3A'], error: ['#FDEDEB', '#C0392B'], info: ['#EEF4FF', '#1A5DAB'] }[type] || ['#EAF7EE', '#1A7A3A'];
-  t.style.cssText = 'position:fixed;bottom:90px;right:20px;z-index:999999;background:' + c[0] + ';border:1px solid ' + c[1] + ';color:' + c[1] + ';padding:13px 18px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.12);max-width:320px;font-family:DM Sans,sans-serif;';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(function() { t.remove(); }, 4000);
+function _clearBadge(){
+  _unreadCount=0;_bgLastTs=new Date().toISOString();
+  var badge=document.getElementById('chatBadge'),btn=document.getElementById('chatBtn');
+  if(badge)badge.style.display='none';
+  if(btn)btn.classList.remove('chat-has-unread');
+  _hidePreview();
 }
-function _esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function _showPreview(text){
+  var prev=document.getElementById('chatPreview'),txt=document.getElementById('chatPreviewText');
+  if(!prev||!txt)return;
+  txt.textContent='\u{1F4AC} '+(text.length>35?text.substring(0,35)+'\u2026':text);
+  prev.style.display='block';
+  clearTimeout(window._prevTimer);window._prevTimer=setTimeout(_hidePreview,5000);
+}
+function _hidePreview(){var prev=document.getElementById('chatPreview');if(prev)prev.style.display='none';}
+function _playBeep(){
+  try{var ctx=new(window.AudioContext||window.webkitAudioContext)(),osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);osc.frequency.value=880;
+    gain.gain.setValueAtTime(0.15,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.35);
+    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.35);
+  }catch(e){}
+}
+function _startChatPoll(){if(!_chatPoll)_chatPoll=setInterval(_pollChat,2500);}
+function _stopChatPoll(){clearInterval(_chatPoll);_chatPoll=null;}
+function _startBgPoll(){if(!_bgPoll)_bgPoll=setInterval(_bgPollFn,5000);}
+function _stopBgPoll(){clearInterval(_bgPoll);_bgPoll=null;}
+
+// ── TOAST / UTILS ─────────────────────────────────────────
+function _toast(msg,type){
+  var old=document.querySelector('.bt-toast');if(old)old.remove();
+  var t=document.createElement('div');t.className='bt-toast';
+  var c={success:['#EAF7EE','#1A7A3A'],error:['#FDEDEB','#C0392B'],info:['#EEF4FF','#1A5DAB']}[type]||['#EAF7EE','#1A7A3A'];
+  t.style.cssText='position:fixed;bottom:90px;right:20px;z-index:999999;background:'+c[0]+';border:1px solid '+c[1]+';color:'+c[1]+';padding:13px 18px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.12);max-width:320px;font-family:DM Sans,sans-serif;';
+  t.textContent=msg;document.body.appendChild(t);
+  setTimeout(function(){t.remove();},4000);
+}
+function _esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 </script>
 </body>
 </html>

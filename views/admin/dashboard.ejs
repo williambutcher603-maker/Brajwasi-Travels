@@ -201,8 +201,7 @@ input:checked+.toggle-slider:before{transform:translateX(19px);background:var(--
     <div class="nav-section" style="margin-top:8px">Communication</div>
     <button class="nav-item" onclick="showTab('chat',this)">
       <i class="fas fa-comments"></i> Live Chats
-      <% const totalUnread = chatSessions.reduce((a,s) => a + (s.unreadCount||0), 0); %>
-      <% if(totalUnread > 0){ %><span class="nav-badge"><%= totalUnread %></span><% } %>
+      <span id="chatNavBadge" style="display:none;background:#ef4444;color:#fff;border-radius:20px;font-size:10px;font-weight:800;padding:2px 7px;margin-left:4px;min-width:18px;text-align:center"></span>
     </button>
     <button class="nav-item" onclick="showTab('push',this)"><i class="fas fa-bell"></i> Push Notifications</button>
   </div>
@@ -340,7 +339,7 @@ input:checked+.toggle-slider:before{transform:translateX(19px);background:var(--
           <span style="font-size:12px;color:var(--text-muted)"><%= chatSessions.length %> conversations</span>
         </div>
         <div class="chat-layout">
-          <div class="chat-sidebar">
+          <div class="chat-sidebar" id="chatSessionList">
             <% if(!chatSessions.length){ %>
             <div class="empty-state" style="padding:30px"><i class="fas fa-comment-slash"></i><p>No chats yet</p></div>
             <% } else { chatSessions.forEach(s => { %>
@@ -354,7 +353,7 @@ input:checked+.toggle-slider:before{transform:translateX(19px);background:var(--
                 <div style="font-size:11px;color:var(--text-light);margin-top:1px"><%= s.customerPhone %></div>
                 <div class="chat-list-preview"><%= s.lastMessage %></div>
               </div>
-              <% if(s.unreadCount>0){ %><div class="unread-dot"></div><% } %>
+              <% if(s.totalUnread>0){ %><div style="min-width:20px;height:20px;background:#ef4444;color:#fff;border-radius:20px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px;margin-left:4px;flex-shrink:0"><%= s.totalUnread>9?'9+':s.totalUnread %></div><% } %>
             </div>
             <% })} %>
           </div>
@@ -587,6 +586,64 @@ function startAdminChatPoll(sessionId) {
     else stopAdminChatPoll();
   }, 2500);
 }
+
+// ── Global poll: refreshes sidebar session list for new chats + badge counts ──
+var _globalChatPoll = null;
+var _globalChatTs   = new Date().toISOString();
+
+async function _pollGlobalChat() {
+  try {
+    const r = await fetch('/api/admin/chat-sessions');
+    const d = await r.json();
+    if (!d.sessions) return;
+    const list = document.getElementById('chatSessionList');
+    if (!list) return;
+
+    // Total unread for nav badge
+    const totalUnread = d.sessions.reduce((s,x) => s + (x.totalUnread||0), 0);
+    const navBadge = document.getElementById('chatNavBadge');
+    if (navBadge) {
+      if (totalUnread > 0) { navBadge.textContent = totalUnread > 9 ? '9+' : totalUnread; navBadge.style.display='inline'; }
+      else navBadge.style.display='none';
+    }
+
+    // Rebuild session list (preserves active)
+    if (d.sessions.length === 0) {
+      list.innerHTML = '<div class="empty-state" style="padding:30px"><i class="fas fa-comment-slash"></i><p>No chats yet</p></div>';
+      return;
+    }
+    // Only re-render if sessions changed (count or unread)
+    const newHash = d.sessions.map(s=>s._id+':'+s.totalUnread+':'+s.lastTime).join('|');
+    if (list.dataset.hash === newHash) return; // nothing changed
+    list.dataset.hash = newHash;
+
+    list.innerHTML = d.sessions.map(s => {
+      const isActive = s._id === activeChatSession ? 'active' : '';
+      const t = new Date(s.lastTime).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+      const badge = s.totalUnread > 0
+        ? `<div style="min-width:20px;height:20px;background:#ef4444;color:#fff;border-radius:20px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0">${s.totalUnread > 9 ? '9+' : s.totalUnread}</div>` : '';
+      return `<div class="chat-list-item ${isActive}" onclick="loadAdminChat('${s._id}','${escapeHtml(s.customerName)}','${s.customerPhone}')" id="chat-item-${s._id}">
+        <div class="chat-avatar">${s.customerName.charAt(0).toUpperCase()}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="chat-list-name">${escapeHtml(s.customerName)}</span>
+            <span class="chat-list-time">${t}</span>
+          </div>
+          <div style="font-size:11px;color:var(--text-light);margin-top:1px">${s.customerPhone}</div>
+          <div class="chat-list-preview">${escapeHtml(s.lastMessage||'')}</div>
+        </div>
+        ${badge}
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+function startGlobalChatPoll() {
+  _pollGlobalChat(); // immediate first run
+  if (!_globalChatPoll) _globalChatPoll = setInterval(_pollGlobalChat, 6000);
+}
+// Start immediately on page load
+startGlobalChatPoll();
 
 function stopAdminChatPoll() {
   if (adminChatPollInterval) {
